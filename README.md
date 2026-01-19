@@ -26,6 +26,10 @@ The focus is on **organization, simplicity, and extensibility**.
 - Rain probability analysing
 - Copair selected races
 
+## Known issues
+
+- Archived files can be extracted if tool is using locally on disk
+
 ## Screenshots
 
 <img src="images/dashboard.png" width="">
