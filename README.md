@@ -28,7 +28,7 @@ The focus is on **organization, simplicity, and extensibility**.
 
 ## Screenshots
 
-<img src="images/dashboard.png" width="700">
+<img src="images/dashboard.png" width="">
 <img src="images/matrix.png" width="">
 <img src="images/compair.png" width="">
 <img src="images/graph.png" width="">
