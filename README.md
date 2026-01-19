@@ -25,3 +25,7 @@ The focus is on **organization, simplicity, and extensibility**.
 - Parts wearing overview by level or type or in tables for each track
 - Rain probability analysing
 - Copair selected races
+
+## Screenshots
+
+<img src="images/dashboard.png" width="700">
