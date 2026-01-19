@@ -72,7 +72,9 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-            height: 400px;
+            min-height: 450px;
+            display: flex;
+            flex-direction: column;
         }
 
         .grid {
@@ -257,9 +259,13 @@
             border-bottom: 1px solid #444;
             padding-bottom: 4px;
         }
-        .legend-container {
+        .chart-header-controls {
             display: flex;
+            width: 100%;
+            flex-direction: row;
             justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
             gap: 15px;
             margin-bottom: 10px;
             font-size: 0.85rem;
@@ -268,6 +274,7 @@
         .legend-item {
             display: flex;
             align-items: center;
+            white-space: nowrap;
         }
         .legend-icon {
             width: 10px;
@@ -293,6 +300,26 @@
             height: auto;
             background: none;
             font-size: 14px;
+        }
+        .legend-separator {
+            border-left: 1px solid #555;
+            padding-left: 15px;
+        }
+        .canvas-container {
+            position: relative;
+            flex-grow: 2;
+            width: 100%;
+            min-height: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+        .chart-control-btn {
+            cursor: pointer;
+            padding: 2px 8px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            border-radius: 4px;
         }
         details.driver-details {
             border-bottom: 1px solid var(--border);

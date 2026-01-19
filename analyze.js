@@ -1,6 +1,6 @@
 /*
     GPRO Race Analysis
-    Copyright (C) 2026 Olegas Spausdinimas
+    Copyright (C) 2026 GPRO Race Analysis Developers
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,8 +22,21 @@
         const STORE_NAME = 'raceData';
         
         let currentChartPage = 0;
-        const RACES_PER_CHART = 4;
+        let racesPerChart = 4;
         let currentChartRaces = [];
+        let isSimpleChartMode = false;
+
+        function toggleChartMode() {
+            isSimpleChartMode = !isSimpleChartMode;
+            updateChartDisplay();
+        }
+
+        function changeRacesPerChart(delta) {
+            if (racesPerChart + delta < 1) return;
+            racesPerChart += delta;
+            currentChartPage = 0;
+            updateChartDisplay();
+        }
 
         function renderChart(races) {
             currentChartRaces = races;
@@ -37,13 +50,13 @@
         }
 
         function updateChartDisplay() {
-            const totalPages = Math.ceil(currentChartRaces.length / RACES_PER_CHART);
+            const totalPages = Math.ceil(currentChartRaces.length / racesPerChart);
             
             if (currentChartPage < 0) currentChartPage = 0;
             if (currentChartPage >= totalPages && totalPages > 0) currentChartPage = totalPages - 1;
 
-            const start = currentChartPage * RACES_PER_CHART;
-            const end = start + RACES_PER_CHART;
+            const start = currentChartPage * racesPerChart;
+            const end = start + racesPerChart;
             const visibleRaces = currentChartRaces.slice(start, end);
             
             updateChartControls(totalPages);
@@ -55,24 +68,29 @@
             if (!container) {
                 container = document.createElement('div');
                 container.id = 'chartControls';
-                container.style.textAlign = 'center';
-                container.style.marginBottom = '10px';
-                container.style.color = 'var(--text-secondary)';
-                const chartSection = document.querySelector('.chart-section');
-                const canvas = document.getElementById('posChart');
-                chartSection.insertBefore(container, canvas);
+                const header = document.querySelector('.chart-header-controls');
+                if (header) header.appendChild(container);
             }
             
-            if (totalPages <= 1) {
+            if (currentChartRaces.length === 0) {
                 container.style.display = 'none';
                 return;
             }
-            container.style.display = 'block';
+            container.style.display = 'flex';
+            container.style.gap = '15px';
+            container.style.alignItems = 'center';
             
             container.innerHTML = `
-                <button onclick="changeChartPage(-1)" ${currentChartPage === 0 ? 'disabled' : ''} style="cursor:pointer; padding:4px 12px; background:var(--card-bg); border:1px solid var(--border); color:var(--text-primary); border-radius:4px;">&lt;</button>
-                <span style="margin:0 15px; font-size:0.9rem;">Page ${currentChartPage + 1} of ${totalPages}</span>
-                <button onclick="changeChartPage(1)" ${currentChartPage >= totalPages - 1 ? 'disabled' : ''} style="cursor:pointer; padding:4px 12px; background:var(--card-bg); border:1px solid var(--border); color:var(--text-primary); border-radius:4px;">&gt;</button>
+                <div class="legend-item legend-separator">
+                    <span style="margin-right:5px;">Races per chart: ${racesPerChart}</span>
+                    <button onclick="changeRacesPerChart(-1)" class="chart-control-btn">-</button>
+                    <button onclick="changeRacesPerChart(1)" class="chart-control-btn" style="margin-left:2px;">+</button>
+                </div>
+                <div class="legend-item legend-separator">
+                    <button onclick="changeChartPage(-1)" ${currentChartPage === 0 ? 'disabled' : ''} class="chart-control-btn">&lt;</button>
+                    <span style="margin:0 5px;">Page ${currentChartPage + 1} of ${totalPages || 1}</span>
+                    <button onclick="changeChartPage(1)" ${currentChartPage >= totalPages - 1 ? 'disabled' : ''} class="chart-control-btn">&gt;</button>
+                </div>
             `;
         }
 
@@ -280,6 +298,7 @@
             });
             
             renderComparisonTable(selectedRaces);
+            renderChart(selectedRaces);
         }
 
         function getColor(val, min, max, type) {
@@ -288,6 +307,17 @@
             if (type === 'low') ratio = 1 - ratio;
             const hue = Math.round(ratio * 120);
             return `hsl(${hue}, 70%, 60%)`;
+        }
+
+        function getGroupColor(groupName) {
+            if (!groupName) return 'inherit';
+            const g = groupName.toLowerCase();
+            if (g.includes('rookie')) return '#8bc34a';
+            if (g.includes('amateur')) return '#ffca28';
+            if (g.includes('pro')) return '#ff9800';
+            if (g.includes('master')) return '#f44336';
+            if (g.includes('elite')) return '#9c27b0';
+            return 'inherit';
         }
 
         function renderComparisonTable(races) {
@@ -345,9 +375,11 @@
                 
                 let tSum = 0, hSum = 0, wCnt = 0;
                 let rainLaps = 0;
+                const usedTyres = new Set();
                 (r.laps || []).forEach(l => {
                     if (l.temp) { tSum += l.temp; hSum += l.hum; wCnt++; }
                     if (l.weather && l.weather.toLowerCase().includes('rain')) rainLaps++;
+                    if (l.tyres) usedTyres.add(l.tyres.replace(/\(W\)/g, '').trim());
                 });
                 
                 return {
@@ -355,15 +387,16 @@
                     avgTyre: avgTyre,
                     avgTemp: wCnt ? (tSum/wCnt) : null,
                     avgHum: wCnt ? (hSum/wCnt) : null,
-                    rainLaps: rainLaps
+                    rainLaps: rainLaps,
+                    usedTyres: Array.from(usedTyres)
                 };
             });
 
             const rows = [
-                { label: 'Track', path: 'trackName' },
                 { label: 'Driver', path: 'driver.name' },
-                { label: 'Group', path: 'group' },
+                { label: 'Group', path: 'group', isGroup: true },
                 { label: 'Position', path: (r) => (r.laps && r.laps.length > 0) ? r.laps[r.laps.length-1].pos : null, format: v => `P${v}`, color: 'low' },
+                { label: 'Tyres Used', val: (i) => stats[i].usedTyres, isTyres: true },
                 { label: 'Avg Temp', val: (i) => stats[i].avgTemp, format: v => v !== null ? v.toFixed(1) + '°' : '-' },
                 { label: 'Avg Hum', val: (i) => stats[i].avgHum, format: v => v !== null ? v.toFixed(1) + '%' : '-' },
                 { label: 'Rain Laps', val: (i) => stats[i].rainLaps },
@@ -419,10 +452,19 @@
                     if (row.format) displayVal = row.format(val);
                     else if (val === null || val === undefined) displayVal = '-';
                     
+                    if (row.isTyres && Array.isArray(val)) {
+                        displayVal = val.map(t => getTyreIconHtml(t)).join(' ');
+                    }
+
                     let style = '';
                     if (row.color && val !== null && !isNaN(val) && min !== Infinity) {
                         const c = getColor(val, min, max, row.color);
                         style = `style="color:${c}; font-weight:bold;"`;
+                    }
+                    
+                    if (row.isGroup) {
+                        const gColor = getGroupColor(val);
+                        if (gColor !== 'inherit') style = `style="color:${gColor}; font-weight:bold;"`;
                     }
                     
                     tableHTML += `<td ${style}>${displayVal}</td>`;
@@ -528,7 +570,7 @@
                     // Handle Uint8Array from untar
                     if (typeof content !== 'string') {
                         const name = fname.toLowerCase();
-                        if (name.endsWith('.json') || name.endsWith('.html') || name.endsWith('.htm')) {
+                        if (name.endsWith('.json') || name.endsWith('.html') || name.endsWith('.htm') || name.endsWith('.mhtml')) {
                             textContent = new TextDecoder().decode(content);
                         } else {
                             logDebug(`Skipping non-text file in archive: ${fname}`);
@@ -537,7 +579,7 @@
                     }
 
                     let json;
-                    if (fname.toLowerCase().endsWith('.html') || fname.toLowerCase().endsWith('.htm')) {
+                    if (fname.toLowerCase().endsWith('.html') || fname.toLowerCase().endsWith('.htm') || fname.toLowerCase().endsWith('.mhtml')) {
                         json = parseHTML(textContent);
                     } else if (fname.toLowerCase().endsWith('.json')) {
                         json = JSON.parse(textContent);
@@ -693,7 +735,7 @@
                                 });
                                 for (const entry of entries) {
                                     const ename = entry.name.toLowerCase();
-                                    if (ename.endsWith('.json') || ename.endsWith('.html') || ename.endsWith('.htm')) {
+                                    if (ename.endsWith('.json') || ename.endsWith('.html') || ename.endsWith('.htm') || ename.endsWith('.mhtml')) {
                                         const content = await entry.async("string");
                                         logDebug(`Zip: Extracting ${entry.name}`);
                                         processFileContent(entry.name, content);
@@ -705,7 +747,7 @@
                                 logDebug(`Error reading zip ${file.name}: ${e.message}`);
                             }
                         }
-                    } else if (fname.endsWith('.json') || fname.endsWith('.html') || fname.endsWith('.htm')) {
+                    } else if (fname.endsWith('.json') || fname.endsWith('.html') || fname.endsWith('.htm') || fname.endsWith('.mhtml')) {
                         const content = await readFile(file);
                         processFileContent(file.name, content);
                     } else {
@@ -1015,7 +1057,7 @@
                 
                 Object.keys(partLabels).forEach(key => {
                     partData[key] = {};
-                    for (let i = 1; i <= 9; i++) partData[key][i] = { sum: 0, count: 0, weathers: new Set(), races: [], hasCarProblem: false };
+                    for (let i = 1; i <= 9; i++) partData[key][i] = { min: 100, max: 0, count: 0, weathers: new Set(), races: [], hasCarProblem: false };
                 });
 
                 races.forEach(r => {
@@ -1047,7 +1089,8 @@
                         const part = r[key];
                         if (part && part.lvl >= 1 && part.lvl <= 9) {
                             const wear = part.finishWear - part.startWear;
-                            partData[key][part.lvl].sum += wear;
+                            if (wear < partData[key][part.lvl].min) partData[key][part.lvl].min = wear;
+                            if (wear > partData[key][part.lvl].max) partData[key][part.lvl].max = wear;
                             partData[key][part.lvl].count++;
                             partData[key][part.lvl].weathers.add(rWeather);
                             if (hasCarProblem) partData[key][part.lvl].hasCarProblem = true;
@@ -1070,7 +1113,7 @@
                         let val = '-';
                         let cellAttr = '';
                         if (d.count > 0) {
-                            val = (d.sum / d.count).toFixed(1) + '%';
+                            val = (d.min === d.max) ? `${d.min}%` : `${d.min}-${d.max}%`;
                             if (d.hasCarProblem) val += ' 🔧';
                             if (d.weathers.has('Mix') || (d.weathers.has('Rain') && (d.weathers.has('Sunny') || d.weathers.has('Cloudy')))) val += ' 🌦️';
                             else if (d.weathers.has('Rain')) val += ' 🌧️';
@@ -1260,6 +1303,35 @@
             if (l.includes('sun')) return '#4a4a2a';
             if (l.includes('cloud')) return '#3a3b3c';
             return 'transparent';
+        };
+        const getTyreIconHtml = (tyreName) => {
+            if (!tyreName || tyreName === '-') return '-';
+            const t = tyreName.toLowerCase();
+            let color = '#888';
+            let letter = '?';
+            let textColor = '#000';
+            let borderColor = '#000';
+
+            if (t.includes('extra')) {
+                color = '#d500f9'; // Purple
+                letter = 'X';
+                textColor = '#fff';
+            } else if (t.includes('soft')) {
+                color = '#ff3333'; // Red
+                letter = 'S';
+            } else if (t.includes('medium')) {
+                color = '#ffe04c'; // Yellow
+                letter = 'M';
+            } else if (t.includes('hard')) {
+                color = '#ffffff'; // White
+                letter = 'H';
+            } else if (t.includes('rain')) {
+                color = '#2962ff'; // Blue
+                letter = 'W';
+                textColor = '#fff';
+            }
+
+            return `<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background-color:${color};color:${textColor};border-radius:50%;font-weight:bold;font-size:11px;margin-right:6px;border:1px solid ${borderColor};" title="${tyreName}">${letter}</span>`;
         };
 
         function renderForecastView(races, metric) {
@@ -1499,7 +1571,7 @@
                         <div class="stat-row" style="${headStyle} margin-top: 5px;"><span class="stat-label" style="font-weight:600; color:var(--text-primary); padding-left: 15px;">Stint ${stintIdx} (Laps ${startLap}-${endLap})</span>${hasRain ? '<span style="margin-right: 15px;">🌧️</span>' : ''}</div>
                         <div class="stat-row" style="${rowStyle}"><span class="stat-label" style="padding-left: 15px;">Fuel used</span><span class="stat-val"; style="margin-right: 15px;">${Number(fuelUsed).toFixed(1)}L (${avgFuel}/lap)</span></div>
                         <div class="stat-row" style="${rowStyle}"><span class="stat-label" style="padding-left: 15px;">Tyres Left</span><span class="stat-val"; style="margin-right: 15px;">${tyreLeft}% (Used ${avgTyre}%/lap)</span></div>
-                        <div class="stat-row" style="${rowStyle}"><span class="stat-label" style="padding-left: 15px;">Tyre Type</span><span class="stat-val"; style="margin-right: 15px;">${stintTyre}</span></div>
+                        <div class="stat-row" style="${rowStyle}"><span class="stat-label" style="padding-left: 15px;">Tyre Type</span><span class="stat-val"; style="margin-right: 15px;">${getTyreIconHtml(stintTyre)} ${stintTyre}</span></div>
                         <div class="stat-row" style="${rowStyle}"><span class="stat-label" style="padding-left: 15px;">Fuel to 18% Tyres</span><span class="stat-val"; style="margin-right: 15px;">${criticalInfo}</span></div>
                         <div class="stat-row" style="${rowStyle}"><span class="stat-label" style="padding-left: 15px;">Weather</span><span class="stat-val"; style="margin-right: 15px;">${weatherDisplay}</span></div>
                         <div class="stat-row" style="${rowStyle}"><span class="stat-label" style="padding-left: 15px;">Avg Temp / Hum</span><span class="stat-val"; style="margin-right: 15px;">${avgTemp}° / ${avgHum}%</span></div>
@@ -1947,8 +2019,13 @@
                 '#d7e3fc'  // Pastel 
             ];
 
+            const vividColors = [
+                '#FF0000', '#0066FF', '#00CC00', '#FF9900', '#CC00CC', 
+                '#00CCCC', '#FF1493', '#D4AF37', '#00FF00'
+            ];
+
             const datasets = races.map((race, idx) => {
-                const raceColor = pastelColors[idx % pastelColors.length];
+                const raceColor = isSimpleChartMode ? vividColors[idx % vividColors.length] : pastelColors[idx % pastelColors.length];
                 const pitLaps = new Set((race.pits || []).map(p => p.lap));
                 
                 const pointBackgroundColors = [];
@@ -1972,15 +2049,32 @@
                         pointBackgroundColors.push('transparent');
                         pointBorderColors.push('transparent');
                     } else if (hasProblem) {
-                        pointStyles.push(wrenchIcon);
-                        pointRadii.push(8);
-                        pointBackgroundColors.push('transparent');
-                        pointBorderColors.push('transparent');
+                        if (isSimpleChartMode) {
+                            pointStyles.push('rectRot');
+                            pointRadii.push(6);
+                            pointBackgroundColors.push('#000000');
+                            pointBorderColors.push(raceColor);
+                        } else {
+                            pointStyles.push(wrenchIcon);
+                            pointRadii.push(8);
+                            pointBackgroundColors.push('transparent');
+                            pointBorderColors.push('transparent');
+                        }
                     } else if (pitLaps.has(lap.idx)) {
                         pointStyles.push('rectRot');
                         pointRadii.push(8);
-                        pointBackgroundColors.push('#242526'); // Match card bg
-                        pointBorderColors.push(colorPit);
+                        if (isSimpleChartMode) {
+                            pointBackgroundColors.push(raceColor);
+                            pointBorderColors.push('#242526');
+                        } else {
+                            pointBackgroundColors.push('#242526'); // Match card bg
+                            pointBorderColors.push(colorPit);
+                        }
+                    } else if (isSimpleChartMode) {
+                        pointStyles.push('rectRot');
+                        pointRadii.push(4);
+                        pointBackgroundColors.push(raceColor);
+                        pointBorderColors.push('#242526');
                     } else {
                         pointStyles.push('circle');
                         pointRadii.push(4);

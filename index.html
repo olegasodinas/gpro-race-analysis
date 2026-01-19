@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
     GPRO Race Analysis
-    Copyright (C) 2026 Olegas Spausdinimas
+    Copyright (C) 2026 GPRO Race Analysis Developers
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@
                     </div>
                     <div class="upload-box" onclick="document.getElementById('fileInput').click()" style="margin-bottom: 0;">
                         <h3>Select Data Folder</h3>
-                        <p>Click to select folder containing RaceAnalysis files (JSON, HTML, .zip or .tar.gz)</p>
+                        <p>Click to select folder containing RaceAnalysis files (JSON, HTML, .mhtml, .zip or .tar.gz)</p>
                         <input type="file" id="fileInput" multiple webkitdirectory style="display:none" onchange="handleFiles(this.files)">
                     </div>
                     <div style="text-align:center;">
@@ -56,14 +56,21 @@
                     </div>
                 </div>
                 <div class="chart-section">
-                    <div class="legend-container">
+                    <div class="chart-header-controls">
                         <div class="legend-item"><span class="legend-icon rain"></span> Rain</div>
                         <div class="legend-item"><span class="legend-icon sun"></span> Sun</div>
                         <div class="legend-item"><span class="legend-icon cloud"></span> Cloud</div>
                         <div class="legend-item"><span class="legend-icon pit"></span> Pit Stop</div>
                         <div class="legend-item"><span class="legend-icon problem">🔧</span> Car Problem</div>
+                        <div class="legend-item legend-separator">
+                            <input type="checkbox" id="simpleChartToggle" onchange="toggleChartMode()">
+                            <label for="simpleChartToggle" style="cursor:pointer; margin-left:5px;">Clear Lines</label>
+                        </div>
+                        <div id="chartControls" style="display: flex; gap: 15px; align-items: center;"></div>
                     </div>
-                    <canvas id="posChart"></canvas>
+                    <div class="canvas-container">
+                        <canvas id="posChart"></canvas>
+                    </div>
                 </div>
             </div>
             <div id="cardsContainer" class="grid"></div>
