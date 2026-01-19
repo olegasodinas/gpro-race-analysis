@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<!--
+    GPRO Race Analysis
+    Copyright (C) 2026 Olegas Spausdinimas
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPRO Race Analysis & Comparison</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" crossorigin="anonymous"></script>
+    <script src="gpro_parser.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <script src="analyze.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div id="dashboard" class="dashboard">
+            <div class="dashboard-top">
+                <div class="controls-column">
+                    <div class="header" style="margin-bottom: 10px;">
+                        <h1>GPRO Race Analysis Tool</h1>
+                    </div>
+                    <div class="upload-box" onclick="document.getElementById('fileInput').click()" style="margin-bottom: 0;">
+                        <h3>Select Data Folder</h3>
+                        <p>Click to select folder containing RaceAnalysis files (JSON, HTML, .zip or .tar.gz)</p>
+                        <input type="file" id="fileInput" multiple webkitdirectory style="display:none" onchange="handleFiles(this.files)">
+                    </div>
+                    <div style="text-align:center;">
+                        <small><a href="#" onclick="clearData(); return false;" style="color: #65676b; text-decoration: none;">Clear Saved Data</a></small>
+                    </div>
+                    <div style="text-align:center; margin-top: 10px;">
+                        <button onclick="renderAllPartsAnalysis('mix')" style="padding: 6px 12px; cursor: pointer; background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px;">Parts Overview</button>
+                        <button onclick="renderTrackPartsMatrix()" style="padding: 6px 12px; cursor: pointer; background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px; margin-left: 5px;">Track Matrix</button>
+                        <button onclick="openRainAnalysis()" style="padding: 6px 12px; cursor: pointer; background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px; margin-left: 5px;">Rain Analysis</button>
+                        <button onclick="openComparisonTool()" style="padding: 6px 12px; cursor: pointer; background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px; margin-left: 5px;">Compare Races</button>
+                    </div>
+                    <div id="trackSelectorContainer" class="controls-section" style="display:none;">
+                        <label for="trackSelect" style="font-weight:bold; margin-bottom:10px;">Select Track:</label>
+                        <select id="trackSelect" style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ccc; font-size: 1rem;"></select>
+                    </div>
+                </div>
+                <div class="chart-section">
+                    <div class="legend-container">
+                        <div class="legend-item"><span class="legend-icon rain"></span> Rain</div>
+                        <div class="legend-item"><span class="legend-icon sun"></span> Sun</div>
+                        <div class="legend-item"><span class="legend-icon cloud"></span> Cloud</div>
+                        <div class="legend-item"><span class="legend-icon pit"></span> Pit Stop</div>
+                        <div class="legend-item"><span class="legend-icon problem">🔧</span> Car Problem</div>
+                    </div>
+                    <canvas id="posChart"></canvas>
+                </div>
+            </div>
+            <div id="cardsContainer" class="grid"></div>
+        </div>
+
+        <div id="debugLog" class="debug-box" style="display:none;"><h3>Debug Log</h3></div>
+    </div>
+
+    <div id="customTooltip" class="custom-tooltip"></div>
+</body>
+</html>
