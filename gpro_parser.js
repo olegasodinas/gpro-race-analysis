@@ -20,45 +20,71 @@
  * GPRO HTML Parser
  * Extracts race data from GPRO Race Analysis HTML pages.
  */
-function parseHTML(html) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    
-    // Helper to clean text
-    const txt = (el) => el ? el.innerText.trim() : '';
-    const num = (el) => el ? parseFloat(el.innerText.replace(/[^\d.-]/g, '')) : 0;
-    const cleanStr = (str) => str ? str.trim() : '';
-    const getChange = (el) => {
-        if (!el) return "0";
-        const match = el.innerText.match(/\(([-+]?\d+)\)/);
-        return match ? parseInt(match[1]).toString() : "0";
-    };
+// Helpers
+const txt = (el) => el ? el.innerText.trim() : '';
+const num = (el) => el ? parseFloat(el.innerText.replace(/[^\d.-]/g, '')) : 0;
+const cleanStr = (str) => str ? str.trim() : '';
+const getChange = (el) => {
+    if (!el) return "0";
+    const match = el.innerText.match(/\(([-+]?\d+)\)/);
+    return match ? parseInt(match[1]).toString() : "0";
+};
+
+function parseGeneralInfo(doc) {
+    const info = {};
 
     // 1. General Info
-    const h1El = doc.querySelector('h1.block.center');
+    let trackName = 'Unknown Track';
+    let trackCountry = '';
+    let trackNatCode = '';
+    let h1El = doc.querySelector('h1.block.center');
+    if (!h1El) h1El = doc.querySelector('h1');
     const h1 = txt(h1El);
-    // Format: "Race analysis: TrackName (Country) - Season XX - Race YY (Group)"
     const seasonMatch = h1.match(/Season\s+(\d+)/);
     const raceMatch = h1.match(/Race\s+(\d+)/);
     const groupMatch = h1.match(/\((.*?)\)$/); // Last parenthesis
     
     // Better track extraction from the link inside h1
-    const trackLink = h1El ? h1El.querySelector('a') : null;
-    const trackName = trackLink ? txt(trackLink) : 'Unknown Track';
-    const trackIdMatch = trackLink ? trackLink.href.match(/id=(\d+)/) : null;
+    const trackLink = h1El ? h1El.querySelector('a') : null; // Keep for trackId
 
-    // Extract Country and NatCode
-    const countryMatch = h1.match(/\((.*?)\)\s+-\s+Season/);
-    const trackCountry = countryMatch ? countryMatch[1] : '';
+    // Try to extract track name from <title> tag first
+    const titleEl = doc.querySelector('title');
+    if (titleEl) {
+        const titleText = txt(titleEl);
+        const titleTrackMatch = titleText.match(/ - Season \d+ - Race \d+ - (.*?) - Grand Prix Racing Online/i);
+        if (titleTrackMatch && titleTrackMatch[1]) {
+            trackName = titleTrackMatch[1].trim();
+            // Attempt to extract country from the title track name
+            const titleCountryMatch = trackName.match(/\((.*?)\)$/);
+            if (titleCountryMatch) {
+                trackCountry = titleCountryMatch[1].trim();
+            }
+        }
+    }
+
+    // Fallback to h1 for trackName if not found in title or if it's "Unknown Track"
+    if (trackName === 'Unknown Track' && h1) {
+        const nameMatch = h1.match(/(?:analysis|race):\s*([^(]+?)\s*\(/i);
+        if (nameMatch) {
+            trackName = nameMatch[1].trim();
+        }
+    }
+
+    // If country wasn't found in title, try from h1
+    if (!trackCountry && h1) {
+        const countryMatch = h1.match(/\((.*?)\)\s+-\s+Season/);
+        trackCountry = countryMatch ? countryMatch[1] : trackCountry;
+    }
     
     const flagImg = h1El ? h1El.querySelector('img') : null;
-    let trackNatCode = '';
     if (flagImg && flagImg.src) {
         const parts = flagImg.src.split('/');
         trackNatCode = parts[parts.length - 1].split('.')[0];
     }
 
-    const data = {
+    const trackIdMatch = trackLink ? trackLink.href.match(/id=(\d+)/) : null;
+
+    return {
         loadingDataState: 0,
         ignoreRefCheck: 0,
         segmentSelected: "",
@@ -71,6 +97,54 @@ function parseHTML(html) {
         trackNatCode: trackNatCode,
         trackCountry: trackCountry,
         trackId: trackIdMatch ? trackIdMatch[1] : "0",
+    };
+}
+
+function parsePracticeLaps(doc) {
+    const laps = [];
+    const practiceTable = doc.querySelector('#PracticeData table table');
+    if (practiceTable) {
+        const rows = practiceTable.querySelectorAll('tr');
+        // Skip header rows (first 2)
+        for (let i = 2; i < rows.length; i++) {
+            const cells = rows[i].querySelectorAll('td');
+            if (cells.length < 12) continue;
+            
+            // Extract comment from onclick or radio
+            const radio = cells[11].querySelector('input');
+            let comment = '';
+            if (radio && radio.getAttribute('onclick')) {
+                const match = radio.getAttribute('onclick').match(/innerHTML='(.*?)';/);
+                if (match) comment = match[1].replace(/<[^>]*>/g, ' ').trim();
+            }
+
+            laps.push({
+                idx: num(cells[0]),
+                lapTime: txt(cells[1]),
+                misTime: txt(cells[2]),
+                netTime: txt(cells[3]),
+                setFWing: { value: num(cells[4]) },
+                setRWing: { value: num(cells[5]) },
+                setEngine: { value: num(cells[6]) },
+                setBrakes: { value: num(cells[7]) },
+                setGear: { value: num(cells[8]) },
+                setSusp: { value: num(cells[9]) },
+                setTyres: txt(cells[10]),
+                driComments: [comment]
+            });
+        }
+    }
+    return laps;
+}
+
+function parseHTML(html) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    
+    const generalInfo = parseGeneralInfo(doc);
+
+    const data = {
+        ...generalInfo,
         practiceLaps: [],
         q1Time: "",
         q1Pos: "",
@@ -112,39 +186,8 @@ function parseHTML(html) {
         electronics: { lvl: 0, startWear: 0, finishWear: 0 }
     };
 
-    // 2. Practice Laps
-    const practiceTable = doc.querySelector('#PracticeData table table');
-    if (practiceTable) {
-        const rows = practiceTable.querySelectorAll('tr');
-        // Skip header rows (first 2)
-        for (let i = 2; i < rows.length; i++) {
-            const cells = rows[i].querySelectorAll('td');
-            if (cells.length < 12) continue;
-            
-            // Extract comment from onclick or radio
-            const radio = cells[11].querySelector('input');
-            let comment = '';
-            if (radio && radio.getAttribute('onclick')) {
-                const match = radio.getAttribute('onclick').match(/innerHTML='(.*?)';/);
-                if (match) comment = match[1].replace(/<[^>]*>/g, ' ').trim();
-            }
-
-            data.practiceLaps.push({
-                idx: num(cells[0]),
-                lapTime: txt(cells[1]),
-                misTime: txt(cells[2]),
-                netTime: txt(cells[3]),
-                setFWing: { value: num(cells[4]) },
-                setRWing: { value: num(cells[5]) },
-                setEngine: { value: num(cells[6]) },
-                setBrakes: { value: num(cells[7]) },
-                setGear: { value: num(cells[8]) },
-                setSusp: { value: num(cells[9]) },
-                setTyres: txt(cells[10]),
-                driComments: [comment]
-            });
-        }
-    }
+    // 2. Practice Laps (Refactored)
+    data.practiceLaps = parsePracticeLaps(doc);
 
     // 3. Car Parts (Wear & Level)
     // Find the "Car wear & lap information" column

@@ -1,6 +1,6 @@
 /*
     GPRO Race Analysis
-    Copyright (C) 2026 GPRO Race Analysis Developers
+    Copyright (C) 2026 Olegas Spausdinimas
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,6 +15,72 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+
+        async function exportAllData() {
+            if (allRaceData.length === 0) {
+                alert("No race data to export.");
+                return;
+            }
+
+            if (typeof JSZip === 'undefined') {
+                alert("Error: JSZip library not loaded. Cannot create zip file.");
+                logDebug("Error: JSZip library not found for export.");
+                return;
+            }
+
+            logDebug(`Starting export of ${allRaceData.length} races...`);
+            const zip = new JSZip();
+
+            allRaceData.forEach(race => {
+                const driverId = race.driver && race.driver.id ? race.driver.id : 'u';
+                const filename = `RaceAnalysis_S${race.selSeasonNb}_R${race.selRaceNb}_D${race.trackName}.json`;
+                zip.file(filename, JSON.stringify(race, null, 2));
+            });
+
+            try {
+                const content = await zip.generateAsync({type:"blob"});
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(content);
+                a.download = "GPRO_Race_Analysis_Export.zip";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(a.href);
+                logDebug("Export complete. Zip file download initiated.");
+            } catch (e) {
+                logDebug(`Error generating zip file: ${e.message}`);
+                alert(`Error creating zip file: ${e.message}`);
+            }
+        }
+
+        async function dismissCard(cardId) {
+            const uidToRemove = cardId.substring(5);
+
+            const indexToRemove = allRaceData.findIndex(r => {
+                const uid = `${r.selSeasonNb}-${r.selRaceNb}-${r.driver && r.driver.id ? r.driver.id : 'u'}`;
+                return uid === uidToRemove;
+            });
+
+            if (indexToRemove > -1) {
+                const race = allRaceData[indexToRemove];
+                if (confirm(`Are you sure you want to permanently delete the data for S${race.selSeasonNb} R${race.selRaceNb} - ${race.trackName}? This cannot be undone.`)) {
+                    allRaceData.splice(indexToRemove, 1);
+                    
+                    await saveToDB(allRaceData);
+                    
+                    const card = document.getElementById(cardId);
+                    if (card) {
+                        card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                        card.style.opacity = '0';
+                        card.style.transform = 'scale(0.95)';
+                        setTimeout(() => {
+                            card.remove();
+                            populateTrackSelector();
+                        }, 300);
+                    }
+                }
+            }
+        }
 
         let chartInstance = null;
         let allRaceData = [];
@@ -204,27 +270,34 @@
         function openComparisonTool() {
             const container = document.getElementById('cardsContainer');
             container.innerHTML = '';
+
+            const template = document.getElementById('comparisonSelectorTemplate');
+            const clone = template.content.cloneNode(true);
             
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.style.gridColumn = '1 / -1';
-            
-            let raceListHTML = `
-                <table class="setup-table" style="text-align:left;">
-                    <thead>
-                        <tr>
-                            <th style="width:30px"></th>
-                            <th onclick="sortTable(this.closest('table'), 1)">Race</th>
-                            <th onclick="sortTable(this.closest('table'), 2)">Track</th>
-                            <th onclick="sortTable(this.closest('table'), 3)">Pos</th>
-                            <th onclick="sortTable(this.closest('table'), 4)">Driver</th>
-                            <th onclick="sortTable(this.closest('table'), 5)">Weather</th>
-                            <th onclick="sortTable(this.closest('table'), 6)">Tyres</th>
-                            <th onclick="sortTable(this.closest('table'), 7)">Problems</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+            clone.querySelector('.back-btn').onclick = returnToDashboard;
+            clone.querySelector('.compare-btn').onclick = generateComparison;
+
+            // Build Table
+            const table = document.createElement('table');
+            table.className = 'setup-table';
+            table.style.textAlign = 'left';
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th style="width:30px"></th>
+                        <th onclick="sortTable(this.closest('table'), 1)">Race</th>
+                        <th onclick="sortTable(this.closest('table'), 2)">Track</th>
+                        <th onclick="sortTable(this.closest('table'), 3)">Pos</th>
+                        <th onclick="sortTable(this.closest('table'), 4)">Driver</th>
+                        <th onclick="sortTable(this.closest('table'), 5)">Weather</th>
+                        <th onclick="sortTable(this.closest('table'), 6)">Tyres</th>
+                        <th onclick="sortTable(this.closest('table'), 7)">Problems</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
             `;
+            const tbody = table.querySelector('tbody');
+
             const sortedRaces = [...allRaceData].sort((a, b) => {
                 if (a.selSeasonNb != b.selSeasonNb) return b.selSeasonNb - a.selSeasonNb;
                 return b.selRaceNb - a.selRaceNb;
@@ -256,8 +329,8 @@
                 const finishPos = r.laps && r.laps.length > 0 ? r.laps[r.laps.length - 1].pos : '-';
                 const problemStr = problems > 0 ? '🔧' : '';
 
-                raceListHTML += `
-                    <tr style="cursor:pointer;" onclick="const cb = this.querySelector('input'); if(event.target !== cb) cb.checked = !cb.checked;">
+                tbody.innerHTML += `
+                    <tr style="cursor:pointer;" class="race-compare-row">
                         <td style="text-align:center;"><input type="checkbox" class="race-compare-checkbox" value="${uid}"></td>
                         <td>S${r.selSeasonNb} R${r.selRaceNb}</td>
                         <td>${r.trackName}</td>
@@ -269,19 +342,17 @@
                     </tr>
                 `;
             });
-            raceListHTML += '</tbody></table>';
 
-            card.innerHTML = `
-                <div class="card-header">
-                    <h3>Select Races to Compare</h3>
-                    <button onclick="returnToDashboard()" style="margin-top:10px; padding:5px 10px; cursor:pointer; background:var(--accent); color:white; border:none; border-radius:4px;">Back to Dashboard</button>
-                    <button onclick="generateComparison()" style="margin-top:10px; padding:5px 10px; cursor:pointer; background:#4caf50; color:white; border:none; border-radius:4px; margin-left:10px;">Compare Selected</button>
-                </div>
-                <div style="max-height: 500px; overflow-y: auto; padding: 10px;">
-                    ${raceListHTML}
-                </div>
-            `;
-            container.appendChild(card);
+            clone.querySelector('.list-container').appendChild(table);
+            container.appendChild(clone);
+
+            // Add event listener for row clicks
+            container.querySelectorAll('.race-compare-row').forEach(row => {
+                row.addEventListener('click', (e) => {
+                    const cb = row.querySelector('input');
+                    if (e.target !== cb) cb.checked = !cb.checked;
+                });
+            });
         }
 
         function generateComparison() {
@@ -519,6 +590,7 @@
                     chartInstance.destroy();
                     chartInstance = null;
                 }
+                document.getElementById('debugLog').innerHTML = '';
                 logDebug('Saved data cleared.');
             } catch (e) {
                 logDebug('Error clearing data: ' + e.message);
@@ -526,9 +598,11 @@
         }
 
         function logDebug(msg) {
+            const container = document.getElementById('debugLogContainer');
+            if (!container) return;
+            container.style.display = 'block';
             const el = document.getElementById('debugLog');
             if (!el) return;
-            el.style.display = 'block';
             const time = new Date().toLocaleTimeString();
             const div = document.createElement('div');
             div.style.borderBottom = '1px solid #555';
@@ -542,7 +616,7 @@
 
             const debugEl = document.getElementById('debugLog');
             if (debugEl) {
-                debugEl.innerHTML = '<h3>Debug Log <button onclick="document.getElementById(\'debugLog\').innerHTML=\'<h3>Debug Log</h3>\';return false;" style="float:right;font-size:0.8rem;cursor:pointer;background:#444;color:#fff;border:1px solid #666;padding:2px 5px;">Clear</button></h3>';
+                debugEl.innerHTML = '';
             }
             logDebug(`--- Starting processing of ${files.length} files ---`);
 
@@ -561,7 +635,6 @@
 
             const raceData = [];
             // Reset global data on new upload
-            allRaceData = [];
 
             const processFileContent = (fname, content) => {
                 try {
@@ -760,10 +833,19 @@
 
             // Deduplicate based on Season, Race ID and Driver ID
             const uniqueRaces = new Map();
+            
+            // Add existing races
+            allRaceData.forEach(r => {
+                const driverId = r.driver && r.driver.id ? r.driver.id : 'unknown';
+                const key = `${r.selSeasonNb}-${r.selRaceNb}-${driverId}`;
+                uniqueRaces.set(key, r);
+            });
+
+            // Add new races
             raceData.forEach(r => {
                 const driverId = r.driver && r.driver.id ? r.driver.id : 'unknown';
                 const key = `${r.selSeasonNb}-${r.selRaceNb}-${driverId}`;
-                if (!uniqueRaces.has(key)) uniqueRaces.set(key, r);
+                uniqueRaces.set(key, r);
             });
             allRaceData = Array.from(uniqueRaces.values());
             logDebug(`Processed ${allRaceData.length} unique races (found ${raceData.length} files).`);
@@ -771,7 +853,7 @@
             populateTrackSelector();
         }
 
-        function populateTrackSelector() {
+        function populateTrackSelector(trackToSelect, preventRender) {
             const tracks = [...new Set(allRaceData.map(r => r.trackName))].sort();
             const select = document.getElementById('trackSelect');
             select.innerHTML = '<option value="all">All Tracks</option>';
@@ -783,16 +865,73 @@
                 select.appendChild(option);
             });
 
+            populateRaceSelector();
+
             document.getElementById('trackSelectorContainer').style.display = 'flex';
             select.onchange = (e) => filterAndRender(e.target.value);
 
-            // Auto-select first track if available
-            if (tracks.length > 0) {
+            let trackToFilter = 'all';
+            if (trackToSelect && tracks.includes(trackToSelect)) {
+                select.value = trackToSelect;
+                trackToFilter = trackToSelect;
+            } else if (tracks.length > 0) {
                 select.value = tracks[0];
-                filterAndRender(tracks[0]);
-            } else {
-                filterAndRender('all');
+                trackToFilter = tracks[0];
             }
+            
+            if (!preventRender) {
+                filterAndRender(trackToFilter);
+            }
+        }
+
+        function populateRaceSelector() {
+            const container = document.getElementById('raceSelectorContainer');
+            if (!container) return;
+            
+            const sortedRaces = [...allRaceData].sort((a, b) => {
+                 if (a.selSeasonNb != b.selSeasonNb) return b.selSeasonNb - a.selSeasonNb;
+                 return b.selRaceNb - a.selRaceNb;
+            });
+            
+            let rows = '';
+            sortedRaces.forEach(r => {
+                const uid = `${r.selSeasonNb}-${r.selRaceNb}-${r.driver && r.driver.id ? r.driver.id : 'u'}`;
+                const label = `S${r.selSeasonNb} R${r.selRaceNb} - ${r.trackName}`;
+                rows += `
+                    <div style="padding: 5px; border-bottom: 1px solid #444;">
+                        <label style="cursor:pointer; display:flex; align-items:center;">
+                            <input type="checkbox" class="race-filter-cb" value="${uid}" onchange="triggerRaceFilter()" style="margin-right:8px;">
+                            ${label}
+                        </label>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = `
+                 <div class="custom-dropdown">
+                     <button onclick="const el = document.getElementById('raceFilterDropdown'); el.style.display = el.style.display === 'block' ? 'none' : 'block';" class="custom-dropdown-btn">
+                         <span>Select Specific Races</span> <span>&#9662;</span>
+                     </button>
+                     <div id="raceFilterDropdown" class="custom-dropdown-content" style="max-height: 300px; overflow-y: auto; padding: 5px;">
+                         <div style="padding: 5px; border-bottom: 1px solid #666; margin-bottom: 5px;">
+                             <button onclick="clearRaceFilter()" style="width:100%; padding:4px; cursor:pointer;">Clear Selection</button>
+                         </div>
+                         ${rows}
+                     </div>
+                 </div>
+            `;
+        }
+
+        function triggerRaceFilter() {
+            const trackSelect = document.getElementById('trackSelect');
+            const trackName = trackSelect ? trackSelect.value : 'all';
+            filterAndRender(trackName);
+        }
+
+        function clearRaceFilter() {
+            const cbs = document.querySelectorAll('.race-filter-cb');
+            cbs.forEach(cb => cb.checked = false);
+            triggerRaceFilter();
         }
 
         function returnToDashboard() {
@@ -812,10 +951,164 @@
             }
         }
 
+        function openRaceFetcher() {
+            const container = document.getElementById('cardsContainer');
+            container.innerHTML = '';
+
+            const template = document.getElementById('raceFetcherTemplate');
+            const clone = template.content.cloneNode(true);
+
+            const savedToken = localStorage.getItem('gpro_api_token') || '';
+            clone.querySelector('#fetcherToken').value = savedToken;
+            
+            clone.querySelector('.back-btn').onclick = returnToDashboard;
+            clone.querySelector('#doFetchBtn').onclick = fetchRaceData;
+            clone.querySelector('#doFetchListBtn').onclick = fetchAvailableRacesList;
+            
+            container.appendChild(clone);
+        }
+
+        async function fetchRaceData() {
+            const token = document.getElementById('fetcherToken').value.trim();
+            if (!token) { alert('Token required'); return; }
+            localStorage.setItem('gpro_api_token', token);
+            
+            const season = document.getElementById('fetcherSeason').value.trim();
+            const race = document.getElementById('fetcherRace').value.trim();
+            const logEl = document.getElementById('fetcherLog');
+            
+            let url = 'https://gpro.net/gb/backend/api/v2/RaceAnalysis';
+            if (season && race) {
+                url += `?SR=${season},${race}`;
+            }
+            
+            logEl.textContent = 'Fetching...';
+            
+            try {
+                const res = await fetch(url, {
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (!res.ok) throw new Error(`API Error: ${res.status} ${res.statusText}`);
+                
+                const json = await res.json();
+                
+                // Deduplicate and Add
+                const driverId = json.driver && json.driver.id ? json.driver.id : 'unknown';
+                const key = `${json.selSeasonNb}-${json.selRaceNb}-${driverId}`;
+                
+                // Remove existing if any to update
+                allRaceData = allRaceData.filter(r => {
+                    const dId = r.driver && r.driver.id ? r.driver.id : 'unknown';
+                    return `${r.selSeasonNb}-${r.selRaceNb}-${dId}` !== key;
+                });
+                
+                allRaceData.push(json);
+                
+                await saveToDB(allRaceData);
+                logEl.textContent = `Success! Fetched Season ${json.selSeasonNb} Race ${json.selRaceNb} (${json.trackName}).\nData saved. You can fetch another or go back to dashboard.`;
+                
+                // Show card and download button
+                const resContainer = document.getElementById('fetcherResult');
+                resContainer.innerHTML = '';
+                
+                resContainer.appendChild(createRaceCard(json));
+
+                // Update selector in background so it's ready when returning
+                populateTrackSelector(json.trackName, true);
+                
+            } catch (e) {
+                logEl.textContent = 'Error: ' + e.message;
+                console.error(e);
+            }
+        }
+
+        function downloadJson(data) {
+            const filename = `RaceAnalysis_S${data.selSeasonNb}_R${data.selRaceNb}.json`;
+            const jsonStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        async function fetchAvailableRacesList() {
+            const token = document.getElementById('fetcherToken').value.trim();
+            if (!token) { alert('Token required'); return; }
+            localStorage.setItem('gpro_api_token', token);
+            
+            const logEl = document.getElementById('fetcherLog');
+            const resultEl = document.getElementById('fetcherResult');
+            
+            let url = 'https://gpro.net/gb/backend/api/v2/RaceAnalysis';
+            
+            logEl.textContent = 'Fetching available races list...';
+            resultEl.innerHTML = '';
+            
+            try {
+                const res = await fetch(url, {
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (!res.ok) throw new Error(`API Error: ${res.status} ${res.statusText}`);
+                
+                const json = await res.json();
+                
+                if (json.racesToSelect && json.racesToSelect.length > 0) {
+                    logEl.textContent = `Found ${json.racesToSelect.length} available races.`;
+                    
+                    let tableHTML = `<table class="setup-table" style="text-align:left;">
+                        <thead>
+                            <tr><th>Season</th><th>Race</th><th>Track</th><th>Group</th><th></th></tr>
+                        </thead>
+                        <tbody>`;
+                    
+                    json.racesToSelect.forEach(race => {
+                        tableHTML += `
+                            <tr>
+                                <td>${race.season}</td><td>${race.race}</td><td>${race.trackName}</td><td>${race.group}</td>
+                                <td><button onclick="document.getElementById('fetcherSeason').value=${race.season}; document.getElementById('fetcherRace').value=${race.race}; fetchRaceData();" style="padding:2px 6px; cursor:pointer;">Fetch</button></td>
+                            </tr>`;
+                    });
+
+                    tableHTML += '</tbody></table>';
+                    resultEl.innerHTML = `<div style="max-height: 400px; overflow-y: auto;">${tableHTML}</div>`;
+                } else {
+                    logEl.textContent = 'No available races found in API response. This feature requires supporter status.';
+                }
+            } catch (e) {
+                logEl.textContent = 'Error: ' + e.message;
+                console.error(e);
+            }
+        }
+
         function filterAndRender(trackName) {
-            const filtered = trackName === 'all' 
-                ? allRaceData 
-                : allRaceData.filter(r => r.trackName === trackName);
+            const cbs = document.querySelectorAll('.race-filter-cb:checked');
+            const selectedUids = Array.from(cbs).map(cb => cb.value);
+            
+            let filtered;
+            if (selectedUids.length > 0) {
+                filtered = allRaceData.filter(r => {
+                    const uid = `${r.selSeasonNb}-${r.selRaceNb}-${r.driver && r.driver.id ? r.driver.id : 'u'}`;
+                    return selectedUids.includes(uid);
+                });
+            } else {
+                filtered = trackName === 'all' 
+                    ? allRaceData 
+                    : allRaceData.filter(r => r.trackName === trackName);
+            }
             
             // Sort by Season then Race Number descending
             filtered.sort((a, b) => {
@@ -837,29 +1130,37 @@
             });
             
             if (!refRace || !refRace.weather) return;
-            
-            const w = refRace.weather;
-            const filtered = allRaceData.filter(r => {
+            searchForSimilarWeather(refRace.weather, metric);
+        }
+
+        function searchForSimilarWeather(w, metric) {
+            if (!w) return;
+
+            let filtered = allRaceData.filter(r => {
                 if (!r.weather) return false;
                 const rw = r.weather;
+                const check = (a, b, tol) => Math.abs(a - b) <= tol;
                 
                 if (metric === 'temp') {
-                    return rw.raceQ1TempLow === w.raceQ1TempLow && rw.raceQ1TempHigh === w.raceQ1TempHigh &&
-                           rw.raceQ2TempLow === w.raceQ2TempLow && rw.raceQ2TempHigh === w.raceQ2TempHigh &&
-                           rw.raceQ3TempLow === w.raceQ3TempLow && rw.raceQ3TempHigh === w.raceQ3TempHigh &&
-                           rw.raceQ4TempLow === w.raceQ4TempLow && rw.raceQ4TempHigh === w.raceQ4TempHigh;
+                    const tol = 2;
+                    return check(rw.raceQ1TempLow, w.raceQ1TempLow, tol) && check(rw.raceQ1TempHigh, w.raceQ1TempHigh, tol) &&
+                           check(rw.raceQ2TempLow, w.raceQ2TempLow, tol) && check(rw.raceQ2TempHigh, w.raceQ2TempHigh, tol) &&
+                           check(rw.raceQ3TempLow, w.raceQ3TempLow, tol) && check(rw.raceQ3TempHigh, w.raceQ3TempHigh, tol) &&
+                           check(rw.raceQ4TempLow, w.raceQ4TempLow, tol) && check(rw.raceQ4TempHigh, w.raceQ4TempHigh, tol);
                 }
                 if (metric === 'hum') {
-                    return rw.raceQ1HumLow === w.raceQ1HumLow && rw.raceQ1HumHigh === w.raceQ1HumHigh &&
-                           rw.raceQ2HumLow === w.raceQ2HumLow && rw.raceQ2HumHigh === w.raceQ2HumHigh &&
-                           rw.raceQ3HumLow === w.raceQ3HumLow && rw.raceQ3HumHigh === w.raceQ3HumHigh &&
-                           rw.raceQ4HumLow === w.raceQ4HumLow && rw.raceQ4HumHigh === w.raceQ4HumHigh;
+                    const tol = 5;
+                    return check(rw.raceQ1HumLow, w.raceQ1HumLow, tol) && check(rw.raceQ1HumHigh, w.raceQ1HumHigh, tol) &&
+                           check(rw.raceQ2HumLow, w.raceQ2HumLow, tol) && check(rw.raceQ2HumHigh, w.raceQ2HumHigh, tol) &&
+                           check(rw.raceQ3HumLow, w.raceQ3HumLow, tol) && check(rw.raceQ3HumHigh, w.raceQ3HumHigh, tol) &&
+                           check(rw.raceQ4HumLow, w.raceQ4HumLow, tol) && check(rw.raceQ4HumHigh, w.raceQ4HumHigh, tol);
                 }
                 if (metric === 'rain') {
-                    return rw.raceQ1RainPLow === w.raceQ1RainPLow && rw.raceQ1RainPHigh === w.raceQ1RainPHigh &&
-                           rw.raceQ2RainPLow === w.raceQ2RainPLow && rw.raceQ2RainPHigh === w.raceQ2RainPHigh &&
-                           rw.raceQ3RainPLow === w.raceQ3RainPLow && rw.raceQ3RainPHigh === w.raceQ3RainPHigh &&
-                           rw.raceQ4RainPLow === w.raceQ4RainPLow && rw.raceQ4RainPHigh === w.raceQ4RainPHigh;
+                    const tol = 10;
+                    return check(rw.raceQ1RainPLow, w.raceQ1RainPLow, tol) && check(rw.raceQ1RainPHigh, w.raceQ1RainPHigh, tol) &&
+                           check(rw.raceQ2RainPLow, w.raceQ2RainPLow, tol) && check(rw.raceQ2RainPHigh, w.raceQ2RainPHigh, tol) &&
+                           check(rw.raceQ3RainPLow, w.raceQ3RainPLow, tol) && check(rw.raceQ3RainPHigh, w.raceQ3RainPHigh, tol) &&
+                           check(rw.raceQ4RainPLow, w.raceQ4RainPLow, tol) && check(rw.raceQ4RainPHigh, w.raceQ4RainPHigh, tol);
                 }
                 return false;
             });
@@ -867,7 +1168,43 @@
             logDebug(`Filtered by ${metric} forecast. Found ${filtered.length} matches.`);
             
             // Render filtered data directly
-            renderForecastView(filtered, metric);
+            if (filtered.length === 0) {
+                logDebug(`No exact matches found for ${metric}. Searching for closest matches...`);
+                
+                const racesWithDiff = allRaceData
+                    .filter(r => r.weather)
+                    .map(r => {
+                        let diff = 0;
+                        const rw = r.weather;
+                        for(let i=1; i<=4; i++) {
+                            if (metric === 'temp') {
+                                diff += Math.abs(rw[`raceQ${i}TempLow`] - w[`raceQ${i}TempLow`]);
+                                diff += Math.abs(rw[`raceQ${i}TempHigh`] - w[`raceQ${i}TempHigh`]);
+                            } else if (metric === 'hum') {
+                                diff += Math.abs(rw[`raceQ${i}HumLow`] - w[`raceQ${i}HumLow`]);
+                                diff += Math.abs(rw[`raceQ${i}HumHigh`] - w[`raceQ${i}HumHigh`]);
+                            } else if (metric === 'rain') {
+                                diff += Math.abs(rw[`raceQ${i}RainPLow`] - w[`raceQ${i}RainPLow`]);
+                                diff += Math.abs(rw[`raceQ${i}RainPHigh`] - w[`raceQ${i}RainPHigh`]);
+                            }
+                        }
+                        return { race: r, diff: diff };
+                    });
+                
+                if (racesWithDiff.length === 0) {
+                    alert(`No races found with weather data.`);
+                    return;
+                }
+
+                racesWithDiff.sort((a, b) => a.diff - b.diff);
+                
+                // Take top 10
+                filtered = racesWithDiff.slice(0, 10).map(item => item.race);
+                
+                alert(`No exact matches found. Showing top ${filtered.length} closest matches.`);
+            }
+
+            renderForecastView(filtered, metric, w);
         }
 
         function filterByPart(partKey, level) {
@@ -879,11 +1216,11 @@
         function renderAllPartsAnalysis(level) {
             const container = document.getElementById('cardsContainer');
             container.innerHTML = '';
-            
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.style.gridColumn = '1 / -1';
-            
+
+            const template = document.getElementById('partsAnalysisTemplate');
+            const clone = template.content.cloneNode(true);
+            clone.querySelector('.back-btn').onclick = returnToDashboard;
+
             // Generate Dropdown for Levels
             let variationSelectHTML = '';
             const levels = new Set();
@@ -899,14 +1236,16 @@
                 options += `<option value="${lvl}" ${level == lvl ? 'selected' : ''}>Level ${lvl}</option>`;
             });
 
-            variationSelectHTML = `
-                <div style="margin-top: 10px;">
-                    <label style="font-weight:bold; margin-right:5px;">Select Level:</label>
-                    <select onchange="renderAllPartsAnalysis(this.value)" style="padding: 5px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-color); color: var(--text-primary);">
-                        ${options}
-                    </select>
-                </div>
+            const selectDiv = document.createElement('div');
+            selectDiv.style.marginTop = '10px';
+            selectDiv.innerHTML = `
+                <label style="font-weight:bold; margin-right:5px;">Select Level:</label>
+                <select style="padding: 5px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-color); color: var(--text-primary);">
+                    ${options}
+                </select>
             `;
+            selectDiv.querySelector('select').onchange = (e) => renderAllPartsAnalysis(e.target.value);
+            clone.querySelector('.controls-container').appendChild(selectDiv);
 
             // Generate Rows
             let rows = '';
@@ -976,31 +1315,10 @@
                 });
             });
 
-            card.innerHTML = `
-                <div class="card-header">
-                    <h3>All Parts Analysis</h3>
-                    <div class="subtitle">Found ${count} matching parts</div>
-                    ${variationSelectHTML}
-                    <button onclick="returnToDashboard()" style="margin-top:10px; padding:5px 10px; cursor:pointer; background:var(--accent); color:white; border:none; border-radius:4px;">Back to Dashboard</button>
-                </div>
-                <table class="setup-table">
-                    <thead>
-                        <tr>
-                            <th onclick="sortTable(this.closest('table'), 0)">Track</th>
-                            <th onclick="sortTable(this.closest('table'), 1)">Part</th>
-                            <th onclick="sortTable(this.closest('table'), 2)">Level</th>
-                            <th onclick="sortTable(this.closest('table'), 3)">Start Wear</th>
-                            <th onclick="sortTable(this.closest('table'), 4)">Finish Wear</th>
-                            <th onclick="sortTable(this.closest('table'), 5)">Used</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${rows}
-                    </tbody>
-                </table>
-            `;
+            clone.querySelector('.subtitle').textContent = `Found ${count} matching parts`;
+            clone.querySelector('tbody').innerHTML = rows;
             
-            container.appendChild(card);
+            container.appendChild(clone);
         }
 
         function renderTrackPartsMatrix() {
@@ -1334,57 +1652,118 @@
             return `<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background-color:${color};color:${textColor};border-radius:50%;font-weight:bold;font-size:11px;margin-right:6px;border:1px solid ${borderColor};" title="${tyreName}">${letter}</span>`;
         };
 
-        function renderForecastView(races, metric) {
+        function renderForecastView(races, metric, refW) {
             const container = document.getElementById('cardsContainer');
             container.innerHTML = '';
             
             const card = document.createElement('div');
             card.className = 'card';
             card.style.gridColumn = '1 / -1';
+
+            // Deduplicate races based on Season and Race
+            const uniqueMap = new Map();
+            races.forEach(r => {
+                const key = `${r.selSeasonNb}-${r.selRaceNb}`;
+                if (!uniqueMap.has(key) || (!uniqueMap.get(key).driver?.id && r.driver?.id)) {
+                    uniqueMap.set(key, r);
+                }
+            });
+            races = Array.from(uniqueMap.values());
             
             let label = 'Unknown';
             let unit = '';
-            if (metric === 'temp') { label = 'Temp Forecast'; unit = '°'; }
-            if (metric === 'hum') { label = 'Hum Forecast'; unit = '%'; }
-            if (metric === 'rain') { label = 'Rain Prob'; unit = '%'; }
+            if (metric === 'temp') { label = 'Target Temp'; unit = '°'; }
+            if (metric === 'hum') { label = 'Target Hum'; unit = '%'; }
+            if (metric === 'rain') { label = 'Target Rain'; unit = '%'; }
 
             // Generate Dropdown for Variations
             let variationSelectHTML = '';
             if (allRaceData.length > 0) {
-                const getProfileKey = (r) => {
-                    const w = r.weather;
-                    if (!w) return '';
-                    if (metric === 'temp') return `${w.raceQ1TempLow}-${w.raceQ1TempHigh}|${w.raceQ2TempLow}-${w.raceQ2TempHigh}|${w.raceQ3TempLow}-${w.raceQ3TempHigh}|${w.raceQ4TempLow}-${w.raceQ4TempHigh}`;
-                    if (metric === 'hum') return `${w.raceQ1HumLow}-${w.raceQ1HumHigh}|${w.raceQ2HumLow}-${w.raceQ2HumHigh}|${w.raceQ3HumLow}-${w.raceQ3HumHigh}|${w.raceQ4HumLow}-${w.raceQ4HumHigh}`;
-                    if (metric === 'rain') return `${w.raceQ1RainPLow}-${w.raceQ1RainPHigh}|${w.raceQ2RainPLow}-${w.raceQ2RainPHigh}|${w.raceQ3RainPLow}-${w.raceQ3RainPHigh}|${w.raceQ4RainPLow}-${w.raceQ4RainPHigh}`;
-                    return '';
+                const clusters = [];
+                const isSimilar = (w1, w2, metric) => {
+                    if (!w1 || !w2) return false;
+                    const check = (a, b, tol) => Math.abs(a - b) <= tol;
+                    if (metric === 'temp') {
+                        const tol = 2;
+                        for(let i=1; i<=4; i++) {
+                            if (!check(w1[`raceQ${i}TempLow`], w2[`raceQ${i}TempLow`], tol)) return false;
+                            if (!check(w1[`raceQ${i}TempHigh`], w2[`raceQ${i}TempHigh`], tol)) return false;
+                        }
+                        return true;
+                    }
+                    if (metric === 'hum') {
+                        const tol = 5;
+                        for(let i=1; i<=4; i++) {
+                            if (!check(w1[`raceQ${i}HumLow`], w2[`raceQ${i}HumLow`], tol)) return false;
+                            if (!check(w1[`raceQ${i}HumHigh`], w2[`raceQ${i}HumHigh`], tol)) return false;
+                        }
+                        return true;
+                    }
+                    if (metric === 'rain') {
+                        const tol = 10;
+                        for(let i=1; i<=4; i++) {
+                            if (!check(w1[`raceQ${i}RainPLow`], w2[`raceQ${i}RainPLow`], tol)) return false;
+                            if (!check(w1[`raceQ${i}RainPHigh`], w2[`raceQ${i}RainPHigh`], tol)) return false;
+                        }
+                        return true;
+                    }
+                    return false;
                 };
 
-                const profiles = new Map();
                 allRaceData.forEach(r => {
                     if (!r.weather) return;
-                    const key = getProfileKey(r);
-                    if (!key) return;
-                    if (!profiles.has(key)) {
-                        const dId = r.driver && r.driver.id ? r.driver.id : 'unknown';
-                        profiles.set(key, { count: 0, repUid: `${r.selSeasonNb}-${r.selRaceNb}-${dId}` });
+                    let found = false;
+                    for(let c of clusters) {
+                        if (isSimilar(r.weather, c.weather, metric)) {
+                            c.count++;
+                            found = true;
+                            break;
+                        }
                     }
-                    profiles.get(key).count++;
+                    if (!found) {
+                        const dId = r.driver && r.driver.id ? r.driver.id : 'unknown';
+                        clusters.push({
+                            weather: r.weather,
+                            count: 1,
+                            repUid: `${r.selSeasonNb}-${r.selRaceNb}-${dId}`,
+                            displayValues: [1,2,3,4].map(q => {
+                                if (metric === 'temp') return `${r.weather[`raceQ${q}TempLow`]}-${r.weather[`raceQ${q}TempHigh`]}`;
+                                if (metric === 'hum') return `${r.weather[`raceQ${q}HumLow`]}-${r.weather[`raceQ${q}HumHigh`]}`;
+                                if (metric === 'rain') return `${r.weather[`raceQ${q}RainPLow`]}-${r.weather[`raceQ${q}RainPHigh`]}`;
+                                return '';
+                            })
+                        });
+                    }
                 });
 
-                const currentKey = races.length > 0 ? getProfileKey(races[0]) : '';
-                const sortedProfiles = Array.from(profiles.entries()).sort((a, b) => b[1].count - a[1].count);
+                const sortedClusters = clusters.sort((a, b) => b.count - a.count);
                 
-                const tableRows = sortedProfiles.map(([key, val]) => {
-                    const parts = key.split('|');
-                    const isSelected = key === currentKey;
+                let currentRepUid = '';
+                if (races.length > 0) {
+                    const r0 = races[0];
+                    for(let c of sortedClusters) {
+                        if (isSimilar(r0.weather, c.weather, metric)) {
+                            currentRepUid = c.repUid;
+                            break;
+                        }
+                    }
+                }
+
+                const tableRows = sortedClusters.map(c => {
+                    const isSelected = c.repUid === currentRepUid;
                     const rowClass = isSelected ? 'active-row' : 'clickable-row';
-                    const p = parts.map(s => s + unit);
-                    return `<tr class="${rowClass}" onclick="filterByForecast('${val.repUid}', '${metric}')"><td>${p[0]}</td><td>${p[1]}</td><td>${p[2]}</td><td>${p[3]}</td><td>${val.count}</td></tr>`;
+                    const p = c.displayValues.map(s => s + unit);
+                    return `<tr class="${rowClass}" onclick="filterByForecast('${c.repUid}', '${metric}')"><td>${p[0]}</td><td>${p[1]}</td><td>${p[2]}</td><td>${p[3]}</td><td>${c.count}</td></tr>`;
                 }).join('');
 
-                const curParts = currentKey ? currentKey.split('|').map(s => s + unit) : ['-','-','-','-'];
-                const btnText = `Current: Q1: ${curParts[0]} | Q2: ${curParts[1]} | Q3: ${curParts[2]} | Q4: ${curParts[3]}`;
+                let btnText = 'Select Forecast Group';
+                if (currentRepUid) {
+                    const c = sortedClusters.find(cl => cl.repUid === currentRepUid);
+                    if (c) {
+                        const curParts = c.displayValues.map(s => s + unit);
+                        btnText = `Current: Q1: ${curParts[0]} | Q2: ${curParts[1]} | Q3: ${curParts[2]} | Q4: ${curParts[3]}`;
+                    }
+                }
 
                 variationSelectHTML = `
                     <div class="custom-dropdown">
@@ -1401,29 +1780,58 @@
                 `;
             }
 
-            if (races.length === 0) return;
+            // Grouping Logic
+            const groups = new Map();
+            races.forEach(r => {
+                const w = r.weather;
+                if (!w) return;
+                let key = '';
+                if (metric === 'temp') {
+                    key = [1,2,3,4].map(q => `${w['raceQ'+q+'TempLow']}-${w['raceQ'+q+'TempHigh']}`).join('|');
+                } else if (metric === 'hum') {
+                    key = [1,2,3,4].map(q => `${w['raceQ'+q+'HumLow']}-${w['raceQ'+q+'HumHigh']}`).join('|');
+                } else if (metric === 'rain') {
+                    key = [1,2,3,4].map(q => `${w['raceQ'+q+'RainPLow']}-${w['raceQ'+q+'RainPHigh']}`).join('|');
+                }
+                
+                if (!groups.has(key)) {
+                    groups.set(key, {
+                        key: key,
+                        weather: w,
+                        races: []
+                    });
+                }
+                groups.get(key).races.push(r);
+            });
 
-            // Forecast Row (from first race, as they are filtered to be identical)
-            const w = races[0].weather;
-            const getR = (q) => {
+            const sortedGroups = Array.from(groups.values());
+            if (refW) {
+                let refKey = '';
+                if (metric === 'temp') {
+                    refKey = [1,2,3,4].map(q => `${refW['raceQ'+q+'TempLow']}-${refW['raceQ'+q+'TempHigh']}`).join('|');
+                } else if (metric === 'hum') {
+                    refKey = [1,2,3,4].map(q => `${refW['raceQ'+q+'HumLow']}-${refW['raceQ'+q+'HumHigh']}`).join('|');
+                } else if (metric === 'rain') {
+                    refKey = [1,2,3,4].map(q => `${refW['raceQ'+q+'RainPLow']}-${refW['raceQ'+q+'RainPHigh']}`).join('|');
+                }
+                
+                sortedGroups.sort((a, b) => {
+                    if (a.key === refKey) return -1;
+                    if (b.key === refKey) return 1;
+                    return b.races.length - a.races.length;
+                });
+            } else {
+                sortedGroups.sort((a, b) => b.races.length - a.races.length);
+            }
+
+            const getR = (q, w) => {
                 if (metric === 'temp') return `${w['raceQ'+q+'TempLow']}-${w['raceQ'+q+'TempHigh']}${unit}`;
                 if (metric === 'hum') return `${w['raceQ'+q+'HumLow']}-${w['raceQ'+q+'HumHigh']}${unit}`;
                 if (metric === 'rain') return `${w['raceQ'+q+'RainPLow']}-${w['raceQ'+q+'RainPHigh']}${unit}`;
                 return '-';
             };
 
-            const forecastRow = `
-                <tr style="background-color: var(--card-bg); font-weight: bold; border-bottom: 2px solid var(--border);">
-                    <td></td>
-                    <td>${label}</td>
-                    <td>${getR(1)}</td>
-                    <td>${getR(2)}</td>
-                    <td>${getR(3)}</td>
-                    <td>${getR(4)}</td>
-                </tr>
-            `;
-
-            const rows = races.map(r => {
+            const generateRow = (r) => {
                 const totalLaps = r.laps.length - 1;
                 const qSize = totalLaps / 4;
                 const getAct = (qIdx) => {
@@ -1464,7 +1872,7 @@
                 };
 
                 const trackStr = `S${r.selSeasonNb} R${r.selRaceNb}: ${r.trackName}`;
-                
+
                 return `
                     <tr style="background-color: var(--bg-color); color: var(--text-secondary); font-size: 0.85rem;">
                         <td class="clickable-label" style="font-weight:bold; text-align:left;" onclick="goToTrack('${r.trackName.replace(/'/g, "\\'")}')">${trackStr}</td>
@@ -1475,7 +1883,25 @@
                         <td>${getAct(4)}</td>
                     </tr>
                 `;
-            }).join('');
+            };
+
+            let tableBodyHTML = '';
+            sortedGroups.forEach(group => {
+                const w = group.weather;
+                tableBodyHTML += `
+                    <tr style="background-color: var(--card-bg); font-weight: bold; border-bottom: 2px solid var(--border); border-top: 2px solid var(--border);">
+                        <td></td>
+                        <td>${label}</td>
+                        <td>${getR(1, w)}</td>
+                        <td>${getR(2, w)}</td>
+                        <td>${getR(3, w)}</td>
+                        <td>${getR(4, w)}</td>
+                    </tr>
+                `;
+                group.races.forEach(r => {
+                    tableBodyHTML += generateRow(r);
+                });
+            });
 
             card.innerHTML = `
                 <div class="card-header">
@@ -1484,7 +1910,7 @@
                     ${variationSelectHTML}
                     <button onclick="returnToDashboard()" style="margin-top:10px; padding:5px 10px; cursor:pointer; background:var(--accent); color:white; border:none; border-radius:4px;">Back to Dashboard</button>
                 </div>
-                <table class="setup-table">
+                <table class="setup-table" style="margin-bottom: 20px;">
                     <thead>
                         <tr>
                             <th onclick="sortTable(this.closest('table'), 0)">Track</th>
@@ -1494,10 +1920,9 @@
                             <th onclick="sortTable(this.closest('table'), 4)">Q3</th>
                             <th onclick="sortTable(this.closest('table'), 5)">Q4</th>
                         </tr>
-                        ${forecastRow}
                     </thead>
                     <tbody>
-                        ${rows}
+                        ${tableBodyHTML}
                     </tbody>
                 </table>
             `;
@@ -1507,6 +1932,8 @@
 
         function createRaceCard(data) {
             const card = document.createElement('div');
+            const uid = `${data.selSeasonNb}-${data.selRaceNb}-${data.driver ? data.driver.id : 'u'}`;
+            card.id = `card-${uid}`;
             card.className = 'card';
 
             const finishPos = data.laps && data.laps.length ? data.laps[data.laps.length - 1].pos : '-';
@@ -1884,8 +2311,24 @@
                 </tr>
             `).join('');
 
+            // Session Weather (Q1/Q2)
+            let sessionWeatherHTML = '';
+            if (data.weather && (data.weather.q1Temp !== undefined || data.weather.q2Temp !== undefined)) {
+                 const w = data.weather;
+                 const q1Icon = getWeatherIcon(w.q1Weather);
+                 const q2Icon = getWeatherIcon(w.q2Weather);
+                 const fmt = (t, h) => (t !== undefined && h !== undefined) ? `${t}° / ${h}%` : '-';
+                 
+                 sessionWeatherHTML = `
+                    <div class="stat-row" style="background-color: var(--table-head-bg); margin-top: 5px; padding-left: 5px;"><span class="stat-label" style="font-weight:bold; color:var(--text-primary);">Session Weather</span></div>
+                    <div class="stat-row"><span class="stat-label">Practice / Qualify 1</span><span class="stat-val">${q1Icon} ${fmt(w.q1Temp, w.q1Hum)}</span></div>
+                    <div class="stat-row"><span class="stat-label">Qualify 2 / Race Start</span><span class="stat-val">${q2Icon} ${fmt(w.q2Temp, w.q2Hum)}</span></div>
+                 `;
+            }
+
             card.innerHTML = `
                 <div class="card-header">
+                    <button class="dismiss-card-btn" onclick="dismissCard('card-${uid}')" title="Dismiss card">&times;</button>
                     <h3>S${data.selSeasonNb} R${data.selRaceNb}: <span class="clickable-label" onclick="goToTrack('${data.trackName.replace(/'/g, "\\'")}')">${data.trackName}</span></h3>
                     <div class="subtitle">${driverName} | Group: ${data.group}</div>
                 </div>
@@ -1893,6 +2336,7 @@
                 <div class="stat-row"><span class="stat-label">Qualifying 2</span><span class="stat-val">P${data.q2Pos} (${data.q2Time})</span></div>
                 <div class="stat-row"><span class="stat-label">Finish Position</span><span class="stat-val">P${finishPos}</span></div>
                 <div class="stat-row"><span class="stat-label">Pit Stops</span><span class="stat-val">${data.pits ? data.pits.length : 0}</span></div>
+                ${sessionWeatherHTML}
                 ${stintsHTML}
                 ${weatherTableHTML}
                 <details class="driver-details">
@@ -1920,6 +2364,27 @@
                     </div>
                 </details>
             `;
+
+            const btnContainer = document.createElement('div');
+            btnContainer.style.marginTop = '10px';
+            btnContainer.style.textAlign = 'right';
+            btnContainer.style.borderTop = '1px solid var(--border)';
+            btnContainer.style.paddingTop = '10px';
+
+            const dlBtn = document.createElement('button');
+            dlBtn.textContent = 'Download JSON';
+            dlBtn.style.padding = '4px 8px';
+            dlBtn.style.cursor = 'pointer';
+            dlBtn.style.background = 'var(--card-bg)';
+            dlBtn.style.color = 'var(--text-secondary)';
+            dlBtn.style.border = '1px solid var(--border)';
+            dlBtn.style.borderRadius = '4px';
+            dlBtn.style.fontSize = '0.8rem';
+            dlBtn.onclick = function() { downloadJson(data); };
+            
+            btnContainer.appendChild(dlBtn);
+            card.appendChild(btnContainer);
+
             return card;
         }
 
@@ -2136,8 +2601,86 @@
             });
         }
 
+        function setupDragAndDrop() {
+            const dropZone = document.getElementById('dropZone');
+            if (!dropZone) return;
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, unhighlight, false);
+            });
+
+            function highlight(e) {
+                dropZone.classList.add('drag-over');
+            }
+
+            function unhighlight(e) {
+                dropZone.classList.remove('drag-over');
+            }
+
+            dropZone.addEventListener('drop', handleDrop, false);
+
+            async function handleDrop(e) {
+                const dt = e.dataTransfer;
+                let files = [];
+
+                if (dt.items && dt.items.length > 0 && dt.items[0].webkitGetAsEntry) {
+                    const traverseFileTree = (item) => {
+                        return new Promise((resolve) => {
+                            if (item.isFile) {
+                                item.file(file => resolve([file]));
+                            } else if (item.isDirectory) {
+                                const dirReader = item.createReader();
+                                const entries = [];
+                                const readEntries = () => {
+                                    dirReader.readEntries(async (result) => {
+                                        if (!result.length) {
+                                            const nestedPromises = entries.map(entry => traverseFileTree(entry));
+                                            const nestedFiles = await Promise.all(nestedPromises);
+                                            resolve(nestedFiles.flat());
+                                        } else {
+                                            entries.push(...result);
+                                            readEntries();
+                                        }
+                                    });
+                                };
+                                readEntries();
+                            } else {
+                                resolve([]);
+                            }
+                        });
+                    };
+
+                    const promises = [];
+                    for (let i = 0; i < dt.items.length; i++) {
+                        const item = dt.items[i].webkitGetAsEntry();
+                        if (item) promises.push(traverseFileTree(item));
+                    }
+                    const results = await Promise.all(promises);
+                    files = results.flat();
+                } else {
+                    files = dt.files;
+                }
+
+                handleFiles(files);
+            }
+        }
+
         // Auto-load from DB on startup
         window.addEventListener('DOMContentLoaded', async () => {
+            setupDragAndDrop();
             try {
                 const db = await openDB();
                 const tx = db.transaction(STORE_NAME, 'readonly');

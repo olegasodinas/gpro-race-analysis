@@ -64,6 +64,10 @@
         .upload-box:hover {
             border-color: var(--accent);
         }
+        .upload-box.drag-over {
+            border-color: var(--accent);
+            background-color: rgba(69, 153, 255, 0.1);
+        }
         .upload-box h3 { margin: 0 0 10px 0; }
         .upload-box p { color: var(--text-secondary); margin: 0; }
         
@@ -93,6 +97,7 @@
         }
 
         .card-header {
+            position: relative;
             border-bottom: 1px solid var(--border);
             padding-bottom: 10px;
             margin-bottom: 10px;
@@ -349,3 +354,27 @@
                 min-width: 100%;
             }
         }
+
+        .dismiss-card-btn {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 22px;
+            text-align: center;
+            padding: 0;
+            z-index: 5;
+        }
+        .dismiss-card-btn:hover {
+            background: #f44336;
+            color: white;
+            border-color: #f44336;
+        }
+        
