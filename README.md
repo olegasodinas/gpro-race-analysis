@@ -2,7 +2,7 @@
 
 A tool that extracts data saved to HTML and/or JSON files into a single workspace for easy analysis.
 
-You can see it working here:
+The newest version you can test here live:
 https://mazu-tirazu-spaustuve.eu/gpro-race-analysis/
 
 ## Overview
