@@ -41,6 +41,7 @@ The focus is on **organization, simplicity, and extensibility**.
 <img src="images/compair.png" width="">
 <img src="images/graph.png" width="">
 <img src="images/rainprob.png" width="">
+<img src="images/stint_analysis.png" width="">
 
 
 [![Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/olegasodinas)
