@@ -1,0 +1,2248 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=9;IE=10;IE=Edge,chrome=1">
+
+	<title>Race analysis - Season 100 - Race 7 - Anderstorp (Sweden) - Grand Prix Racing Online</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	
+<link href="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/global23.min.css" media="screen" rel="stylesheet" type="text/css">
+
+<link rel="apple-touch-icon" sizes="180x180" href="https://www.gpro.net/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://www.gpro.net/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://www.gpro.net/favicon-16x16.png">
+<link rel="manifest" href="https://www.gpro.net/site.webmanifest">
+<link rel="mask-icon" href="https://www.gpro.net/safari-pinned-tab.svg" color="#34547f">
+<meta name="msapplication-TileColor" content="#7ac6ff">
+<meta name="theme-color" content="#ffffff">
+<script async="" type="text/javascript" src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/choice.js"></script><script type="text/javascript" async="true">
+    (function() {
+        //ChrisW fix for NordVPN idiotic 404 DDOS web protection
+        // Save a reference to the original fetch function
+        const originalFetch = fetch;
+
+        // Override the global fetch function
+        window.fetch = async function(url, options = {}) {
+        // Check if the request has a body
+    if (options.body) {
+        // Parse the body to check if it contains 'rulesType'
+        try {
+            const body = typeof options.body === 'string' ? JSON.parse(options.body) : options.body;
+
+            // If body is a FormData, you might need to use body.has('rulesType') instead
+            if (body.rulesType) {
+                //console.log('Fetch request intercepted: rulesType parameter found.');
+                // Return a fake promise with the specified JSON data
+                return Promise.resolve({
+                    json: () => Promise.resolve({
+                        "style_selectors": null,
+                        "selectors": null,
+                        "hide_selectors": null
+                    }),
+                    ok: true
+                });
+            }
+        } catch (e) {
+            console.error('Error parsing request body:', e);
+        }
+    }
+
+        // Proceed with the original fetch function if rulesType is not found
+        return originalFetch(url, options);
+    };
+    })();
+    (function () {
+        var host = 'gpro.net';
+        var element = document.createElement('script');
+        var firstScript = document.getElementsByTagName('script')[0];
+        var url = 'https://cmp.inmobi.com'
+          .concat('/choice/', '4fqx47ksHarRp', '/', host, '/choice.js?tag_version=V3');
+        var uspTries = 0;
+        var uspTriesLimit = 3;
+        element.async = true;
+        element.type = 'text/javascript';
+        element.src = url;
+
+        firstScript.parentNode.insertBefore(element, firstScript);
+
+        function makeStub() {
+            var TCF_LOCATOR_NAME = '__tcfapiLocator';
+            var queue = [];
+            var win = window;
+            var cmpFrame;
+
+            function addFrame() {
+                var doc = win.document;
+                var otherCMP = !!(win.frames[TCF_LOCATOR_NAME]);
+
+                if (!otherCMP) {
+                    if (doc.body) {
+                        var iframe = doc.createElement('iframe');
+
+                        iframe.style.cssText = 'display:none';
+                        iframe.name = TCF_LOCATOR_NAME;
+                        doc.body.appendChild(iframe);
+                    } else {
+                        setTimeout(addFrame, 5);
+                    }
+                }
+                return !otherCMP;
+            }
+
+            function tcfAPIHandler() {
+                var gdprApplies;
+                var args = arguments;
+
+                if (!args.length) {
+                    return queue;
+                } else if (args[0] === 'setGdprApplies') {
+                    if (
+                      args.length > 3 &&
+                      args[2] === 2 &&
+                      typeof args[3] === 'boolean'
+                    ) {
+                        gdprApplies = args[3];
+                        if (typeof args[2] === 'function') {
+                            args[2]('set', true);
+                        }
+                    }
+                } else if (args[0] === 'ping') {
+                    var retr = {
+                        gdprApplies: gdprApplies,
+                        cmpLoaded: false,
+                        cmpStatus: 'stub'
+                    };
+
+                    if (typeof args[2] === 'function') {
+                        args[2](retr);
+                    }
+                } else {
+                    if (args[0] === 'init' && typeof args[3] === 'object') {
+                        args[3] = Object.assign(args[3], { tag_version: 'V3' });
+                    }
+                    queue.push(args);
+                }
+            }
+
+            function postMessageEventHandler(event) {
+                var msgIsString = typeof event.data === 'string';
+                var json = {};
+
+                try {
+                    if (msgIsString) {
+                        json = JSON.parse(event.data);
+                    } else {
+                        json = event.data;
+                    }
+                } catch (ignore) { }
+
+                var payload = json.__tcfapiCall;
+
+                if (payload) {
+                    window.__tcfapi(
+                      payload.command,
+                      payload.version,
+                      function (retValue, success) {
+                          var returnMsg = {
+                              __tcfapiReturn: {
+                                  returnValue: retValue,
+                                  success: success,
+                                  callId: payload.callId
+                              }
+                          };
+                          if (msgIsString) {
+                              returnMsg = JSON.stringify(returnMsg);
+                          }
+                          if (event && event.source && event.source.postMessage) {
+                              event.source.postMessage(returnMsg, '*');
+                          }
+                      },
+                      payload.parameter
+                    );
+                }
+            }
+
+            while (win) {
+                try {
+                    if (win.frames[TCF_LOCATOR_NAME]) {
+                        cmpFrame = win;
+                        break;
+                    }
+                } catch (ignore) { }
+
+                if (win === window.top) {
+                    break;
+                }
+                win = win.parent;
+            }
+            if (!cmpFrame) {
+                addFrame();
+                win.__tcfapi = tcfAPIHandler;
+                win.addEventListener('message', postMessageEventHandler, false);
+            }
+        };
+
+        makeStub();
+
+        var uspStubFunction = function () {
+            var arg = arguments;
+            if (typeof window.__uspapi !== uspStubFunction) {
+                setTimeout(function () {
+                    if (typeof window.__uspapi !== 'undefined') {
+                        window.__uspapi.apply(window.__uspapi, arg);
+                    }
+                }, 500);
+            }
+        };
+
+        var checkIfUspIsReady = function () {
+            uspTries++;
+            if (window.__uspapi === uspStubFunction && uspTries < uspTriesLimit) {
+                console.warn('USP is not accessible');
+            } else {
+                clearInterval(uspInterval);
+            }
+        };
+
+        if (typeof window.__uspapi === 'undefined') {
+            window.__uspapi = uspStubFunction;
+            var uspInterval = setInterval(checkIfUspIsReady, 6000);
+        }
+    })();
+</script>
+
+    <script>
+        window.aiptag = window.aiptag || {cmd: []};
+        aiptag.cmd.display = aiptag.cmd.display || [];
+        aiptag.cmd.player = aiptag.cmd.player || [];
+        //CMP tool settings
+        aiptag.cmp = {
+	        show: false,
+	        position: "centered",  //centered, bottom
+	        button: false,
+	        buttonText: "Privacy settings",
+	        buttonPosition: "bottom-left" //bottom-left, bottom-right, top-left, top-right
+        }
+        aiptag.cmd.player.push(function() {
+	        aiptag.adplayer = new aipPlayer({
+		        AD_WIDTH: 960,
+		        AD_HEIGHT: 540,
+		        AD_DISPLAY: 'default', //default, fullscreen, center, fill
+		        LOADING_TEXT: 'loading advertisement',
+		        PREROLL_ELEM: function(){return document.getElementById('preroll')},
+		        AIP_COMPLETE: function (state)  {
+			        /*******************
+				        ***** WARNING *****
+				        *******************
+				        Please do not remove the PREROLL_ELEM
+				        from the page, it will be hidden automaticly.
+			        */
+				
+			        alert("Preroll Ad Completed: " + state);
+		        }
+	        });
+
+		        });
+
+	        function show_preroll() {
+	        //check if the adslib is loaded correctly or blocked by adblockers etc.
+	        if (typeof aiptag.adplayer !== 'undefined') {
+		        aiptag.cmd.player.push(function() { aiptag.adplayer.startPreRoll(); });
+	        } else {
+		        //Adlib didnt load this could be due to an adblocker, timeout etc.
+		        //Please add your script here that starts the content, this usually is the same script as added in AIP_COMPLETE.
+		        alert("Ad Could not be loaded, load your content here");
+	        }
+        }
+        setInterval(function () {
+	        aiptag.cmd.display.push(function() { aipDisplayTag.display('gpro-net_728x90'); });
+	        aiptag.cmd.display.push(function() { aipDisplayTag.display('gpro-net_160x600'); });
+	        aiptag.cmd.display.push(function() { aipDisplayTag.display('gpro-net_300x250'); });
+         }, 30000);
+    </script>
+	<script async="" src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/tag.min.js"></script>
+
+	
+	
+<script src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/jquery.min.js"></script>
+<script src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/jquery-ui.min.js"></script>
+
+
+<link href="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/perfect-scrollbar.css" rel="stylesheet">
+
+<script async="" src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/js"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'AW-1062486564');
+</script>
+<link href="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/introjs.min.css" rel="stylesheet">
+<script src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/perfect-scrollbar.min.js"></script>
+
+<script src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/notifications2.min.js"></script>
+
+<script type="text/javascript" src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/advertisement2.js"></script><style type="text/css">#blockblockA {visibility:invisible!important;display:none!important;}#blockblockA td {visibility:invisible!important;display:none!important;}#blockblockA td p {visibility:invisible!important;display:none!important;}#blockblockB {visibility:visible!important;display:block!important;}</style>
+	
+	<script src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/progressbar.js" type="text/javascript" language="javascript1.2"></script>
+	<script src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/lightbox.js"></script>
+    <link rel="stylesheet" type="text/css" href="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/jquery.lightbox-0.5.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/slick.css">
+	<link rel="stylesheet" type="text/css" href="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/slick-theme.css">
+	<style>
+		.screen-reader-text {
+		border: 0;
+		clip: rect(1px, 1px, 1px, 1px);
+		clip-path: inset(50%);
+		height: 1px;
+		margin: -1px;
+		overflow: hidden;
+		padding: 0;
+		position: absolute;
+		width: 1px;
+		word-wrap: normal !important;
+		}
+		.suptd {		
+		text-align: center;
+		}
+
+		.suptd>span {
+		position: relative;
+		}
+
+		span>sup {
+		position: absolute;
+		/* play with the below to line up your sup properly */
+		top: -1.3em;
+		left: 100%;
+		margin-left:0.1em;
+		}
+	</style>
+	<script language="JavaScript" type="text/javascript">
+	    function ShowProgress() {
+	        var notesLength = $("#txtComments").val().length;//document.forms[0].txtComments.value.length;
+	        //var percentFull = notesLength/20;
+	        //statLength.innerText = "Capacity used: " + percentFull + "%";
+	        //statLength.childNodes[0].nodeValue = "Capacity used: " + percentFull + "%";
+	        myProgBar.setBar(notesLength / 4000);
+	        //alert(document.forms[0].btnUpdateComments);
+	        if ((notesLength > 4000) && (document.forms[0].btnUpdateComments != null)) {
+	            $("#btnUpdateComments").disabled = true;
+	        }
+	        else {
+	            $("#btnUpdateComments").disabled = false;
+	        }
+	    }
+	    function ToggleFinAnalysis(anType)
+		{
+			if(anType=='graph')
+			{
+				if(document.getElementById('dvFinAnalisysGraph').innerHTML=='')
+				{
+					document.getElementById('dvFinAnalisysGraph').innerHTML='<a href="/graphs441/FinancialAnalysisGraph.php?graph=d868d1bc97a779242b8d763ce9bca6b3&lang=English&s=100&r=7"><img src="/graphs441/FinancialAnalysisGraph.php?graph=d868d1bc97a779242b8d763ce9bca6b3&lang=English&s=100&r=7" style="width:395px;"></a>';
+					$(function() {
+						$('#dvFinAnalisysGraph a').lightBox();
+					});
+				}
+				document.getElementById('dvFinAnalisysTable').style.display = 'none';
+				document.getElementById('dvFinAnalisysGraph').style.display = 'block';
+				document.getElementById('lnkShowAsTable').className = '';
+				document.getElementById('lnkShowAsGraph').className = 'selected';
+				
+			}
+			else
+			{
+				document.getElementById('dvFinAnalisysTable').style.display = 'block';
+				document.getElementById('dvFinAnalisysGraph').style.display = 'none';
+				document.getElementById('lnkShowAsTable').className = 'selected';
+				document.getElementById('lnkShowAsGraph').className = '';
+			}
+		}
+		$(document).ready(function(){
+			$('[rel=tooltip]').bind('mouseover', function(){
+				{ var theMessage = $(this).attr('content');
+					$('<div class="tooltip">' + theMessage + '</div>').appendTo('body');
+					}
+					
+					$(this).bind('mousemove', function(e){
+						$('div.tooltip').css({
+							'top': e.pageY - ($('div.tooltip').height() / 2) + ($('div.tooltip').height() / 2) + 15,
+							'left': e.pageX - ($('div.tooltip').width() / 2),
+							'visibility': 'visible'
+						});
+					});
+				}).bind('mouseout', function(){
+					$('div.tooltip').fadeOut(function(){
+						$(this).remove();
+					});
+				});
+			});
+	-->
+	</script>
+<script type="text/javascript">
+var notificationsCount = 0;
+var nonotif="No new notifications";
+var newAchievement="New achievement";
+var viewAllNotif="View all notifications";
+var loadtime = new Date(2024,7,2,22,13,23)
+//var monthtext = new Array("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
+var monthtext = new Array("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
+var livetime = new Date(loadtime)
+function pad2(text)
+{
+	return (text.toString().length==1)? "0" + text : text
+}
+function dayterm(val)
+{
+	
+	text = val.toString() + "th"
+	switch (val)
+	{
+		case 1:
+			text = val.toString() + "st"
+		break;
+		case 2:
+			text = val.toString() + "nd"
+		break;
+		case 3:
+			text = val.toString() + "rd"
+		break;
+		case 21:
+			text = val.toString() + "st"
+		break;
+		case 22:
+			text = val.toString() + "nd"
+		break;
+		case 23:
+			text = val.toString() + "rd"
+		break;
+		case 31:
+			text = val.toString() + "st"
+		break;
+	}
+	
+		
+	return text
+}
+function updatetime()
+{
+	livetime.setSeconds(livetime.getSeconds()+1)
+	document.getElementById("livetime").innerHTML = "[Y] [M], [D] [hh]:[mm]:[ss] CET".replace('[Y]',livetime.getFullYear()).replace('[M]',monthtext[livetime.getMonth()]).replace('[D]',dayterm(livetime.getDate())).replace('[hh]',pad2(livetime.getHours())).replace('[mm]',pad2(livetime.getMinutes())).replace('[ss]',pad2(livetime.getSeconds()))
+}
+window.onload = function()
+{
+	setInterval("updatetime()", 1000)
+}
+</script><script>
+
+var newOffice = 1;
+
+var quickTut = "";
+
+var tutorialAvail = 1;
+
+var complQuickTut = 0;
+var accActive = 1;
+
+$(document).ready(function(){	
+	if (tutorialAvail==1){$("#info_tutorial").css({"animation:": "smallpulse 3.0s infinite alternate","-webkit-animation": "smallpulse 3.0s infinite alternate"});}	
+		$("#info_tutorial").click(function(){
+			if ((window.location.href.indexOf("gpro.asp") > -1)) {
+				if (accActive==1)
+				{
+					if ((($(".overlay-info-exit").css("display") == "block")||(complQuickTut==1))&&(quickTut=="")) {
+						$(".intro-overlay").hide();
+						introElementsHide();
+						$("#info_tutorial").removeAttr( "style" );
+						
+						introJs().setOption("nextLabel", "Next &rarr;").setOption("prevLabel", "&larr; Back").setOption("doneLabel", "Done").setOption("skipLabel","Skip").start().oncomplete(function() {
+							$('#info_tutorial').css("animation","none");
+							$.ajax({
+							url: 'ajCompleteTutorial.asp',
+							type: 'POST',
+							data : {id: window.location.pathname}
+						});
+						});
+					} else {
+						$(".intro-overlay").fadeIn( "fast" );
+						$(".overlay-box").fadeIn( "slow" );
+						$(".overlay-exit").delay(100).fadeTo( "fast", 0.3 );
+						$(".overlay-text-bar").delay(600).fadeIn( "slow" );
+						$(".overlay-buttons-bar").delay(1100).fadeIn( "slow" );
+					}
+				}else
+				{alert("The tutorial is available only after your account has been activated.")}
+			}else
+			{
+				introJs().setOption("nextLabel", "Next &rarr;").setOption("prevLabel", "&larr; Back").setOption("doneLabel", "Done").setOption("skipLabel","Skip").start().oncomplete(function() {
+					$('#info_tutorial').css("animation","none");
+					$.ajax({
+					url: 'ajCompleteTutorial.asp',
+					type: 'POST',
+					data : {id: window.location.pathname}
+				});
+				});
+			}
+		});		
+		
+		if (RegExp('multipage=one', 'gi').test(window.location.search)) {
+			introJs().setOption("nextLabel", "Next &rarr;").setOption("prevLabel", "&larr; Back").setOption("doneLabel", "Next page").setOption("skipLabel","Skip").start().oncomplete(function() {
+				window.location.href = 'Qualify2.asp?multipage=two';
+			});
+		} else if (RegExp('multipage=two', 'gi').test(window.location.search)) {
+			introJs().setOption("nextLabel", "Next &rarr;").setOption("prevLabel", "&larr; Back").setOption("doneLabel", "Next page").setOption("skipLabel","Skip").start().oncomplete(function() {
+				window.location.href = 'RaceSetup.asp?multipage=three';
+			});
+		} else if (RegExp('multipage=three', 'gi').test(window.location.search)) {
+			introJs().setOption("nextLabel", "Next &rarr;").setOption("prevLabel", "&larr; Back").setOption("doneLabel", "Next page").setOption("skipLabel","Skip").start().oncomplete(function() {
+				window.location.href = 'gpro.asp?tutorial=finished';
+			});
+		} else if (RegExp('tutorial=finished', 'gi').test(window.location.search)) {
+			$(".intro-overlay").fadeIn( "fast" );
+			$(".overlay-box").fadeIn( "slow" );
+			$(".overlay-exit").delay(100).fadeTo( "fast", 0.3 );
+			$(".overlay-text-bar-endQuick").delay(600).fadeIn( "slow" );
+			$(".overlay-buttons-bar-endQuick").delay(1100).fadeIn( "slow" );
+		}
+		
+		
+	});
+	
+</script></head>
+
+
+
+<body class="lang_gb">
+	
+	<div id="outer">    
+    	<div id="inner-shell">    
+		
+		<div class="boxy" id="adcho" style="width:auto; padding:8px; border-radius:8px; position:absolute; left: 985px; top:160px;background:none repeat scroll 0 0 #1b2d47;">        
+			
+        <div id="gpro-net_160x600">
+            <script async="" src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/adsbygoogle.js" crossorigin="anonymous"></script>
+            <!-- gpro160x600 -->
+            <ins class="adsbygoogle" style="display:inline-block;width:160px;height:600px" data-ad-client="ca-pub-9802427417219730" data-ad-slot="1628805520"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+        </div>
+		
+		</div>
+		
+        <div id="inner-shell-left" style="width: 980px; top: 0px;position: absolute;">        
+		<div id="header">
+			<a href="https://www.gpro.net/gb/gpro.asp">
+				
+				<div id="headernosnow"></div>
+				
+			</a>
+			<h1><a href="https://www.gpro.net/gb/gpro.asp">GPRO - Grand Prix Racing Online</a></h1>
+		</div>
+		
+		<ul id="nav">
+			<li class="first"><a href="https://www.gpro.net/gb/gpro.asp" accesskey="1">Home</a></li>
+			<li><a href="https://www.gpro.net/gb/forum/index.asp" accesskey="5">Forum</a></li>
+			<li><a href="https://www.gpro.net/gb/chat/chat.asp" accesskey="7">Chat</a></li>
+            <li><a href="https://www.gpro.net/gb/Downloads.asp">Downloads</a></li>
+			<li><a href="https://www.gpro.net/gb/Help.asp">Help</a></li>
+			<li><a href="https://www.gpro.net/gb/Prizes.asp">Prizes</a></li>
+			
+			<li><a href="https://www.gpro.net/gb/GPROShop.asp">Shop</a></li>
+			
+			<li><a href="https://www.gpro.net/gb/AboutGPRO.asp" accesskey="8">About Us</a></li>
+			
+			<li><a href="https://www.gpro.net/gb/UpdateProfile.asp">Account Settings</a></li>
+			<li><a href="https://www.gpro.net/gb/Login.asp?Redirect=gpro.asp">Logout</a></li>
+            
+		</ul>
+		
+		<div id="content">
+			<div id="infobar">
+
+				<ul id="managersonline">
+					<li><a href="https://www.gpro.net/gb/OnlineManagers.asp" class="onlinemanagers">16853&nbsp;Managers online</a></li>
+					<li><a href="https://www.gpro.net/gb/OnlineFriends.asp">0&nbsp;Friends</a></li><li><a href="https://www.gpro.net/gb/chat/TeamChat.asp">1&nbsp;Team chat</a></li><li><a href="https://www.gpro.net/gb/chat/chat.asp">Chat</a></li>
+				</ul>
+				
+				
+				
+				<div class="overlay-info-exit">
+					<p style="width:350px;">If you want to see the tutorial for any page, just click on this little button.</p>
+					<i></i>
+				</div>				
+				
+				<div id="info_right">
+				
+				
+
+						<a href="https://www.gpro.net/gb/Mailbox.asp" id="info_mail" class="noti" title="No new mail">
+							
+								
+						</a>
+
+						
+							<a href="#nogo" id="info_notifications" class="noti" title="No new notifications"></a>
+						
+						<a id="info_tutorial" class="noti" title="Start the step by step tutorial for this page" style="animation: 3s infinite alternate smallpulse;"></a>
+					
+					
+					<a href="#nogo" id="info_languageselector" class="noti" title="English"><img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/gb.gif"></a>
+
+					<ul id="languages" style="display:none">
+	
+		<li class="left half">
+			<a href="https://www.gpro.net/de/RaceAnalysis.asp">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/de.gif" alt="Deutsch">Deutsch
+			</a>
+		</li>
+		
+		<li class="left half">
+			<a href="https://www.gpro.net/es/RaceAnalysis.asp">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/es.gif" alt="Español">Español
+			</a>
+		</li>
+		
+		<li class="left half">
+			<a href="https://www.gpro.net/ro/RaceAnalysis.asp">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/ro.gif" alt="Română">Română
+			</a>
+		</li>
+		
+		<li class="left half">
+			<a href="https://www.gpro.net/it/RaceAnalysis.asp">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/it.gif" alt="Italiano">Italiano
+			</a>
+		</li>
+		
+		<li class="left half">
+			<a href="https://www.gpro.net/pt/RaceAnalysis.asp">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/pt.gif" alt="Português">Português
+			</a>
+		</li>
+		
+		<li class="left half">
+			<a href="https://www.gpro.net/br/RaceAnalysis.asp">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/br.gif" alt="Português">Português
+			</a>
+		</li>
+		
+		<li class="left half">
+			<a href="https://www.gpro.net/fr/RaceAnalysis.asp">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/fr.gif" alt="Français">Français
+			</a>
+		</li>
+		
+		<li class="left half">
+			<a href="https://www.gpro.net/pl/RaceAnalysis.asp">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/pl.gif" alt="Polski">Polski
+			</a>
+		</li>
+		
+		<li class="left half">
+			<a href="https://www.gpro.net/ru/RaceAnalysis.asp">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/ru.gif" alt="Русский">Русский
+			</a>
+		</li>
+		
+		<li class="left half">
+			<a href="https://www.gpro.net/bg/RaceAnalysis.asp">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/bg.gif" alt="Български">Български
+			</a>
+		</li>
+		
+		<li class="left half">
+			<a href="https://www.gpro.net/mk/RaceAnalysis.asp">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/mk.gif" alt="Македонски">Македонски
+			</a>
+		</li>
+		
+		<li class="left half">
+			<a href="https://www.gpro.net/rs/RaceAnalysis.asp">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/rs.gif" alt="Српски">Српски
+			</a>
+		</li>
+		
+		<li class="left half">
+			<a href="https://www.gpro.net/nl/RaceAnalysis.asp">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/nl.gif" alt="Nederlands">Nederlands
+			</a>
+		</li>
+		
+		<li class="left half">
+			<a href="https://www.gpro.net/be/RaceAnalysis.asp">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/be.gif" alt="Vlaams">Vlaams
+			</a>
+		</li>
+		
+		<li class="left half">
+			<a href="https://www.gpro.net/fi/RaceAnalysis.asp">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/fi.gif" alt="Suomi">Suomi
+			</a>
+		</li>
+		
+		<li class="left half">
+			<a href="https://www.gpro.net/lt/RaceAnalysis.asp">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/lt.gif" alt="Lietuvių">Lietuvių
+			</a>
+		</li>
+		
+		<li class="left half">
+			<a href="https://www.gpro.net/cz/RaceAnalysis.asp">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/cz.gif" alt="Čeština">Čeština
+			</a>
+		</li>
+		
+		<li class="left half">
+			<a href="https://www.gpro.net/hu/RaceAnalysis.asp">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/hu.gif" alt="Magyar">Magyar
+			</a>
+		</li>
+		
+		<li class="left half">
+			<a href="https://www.gpro.net/ee/RaceAnalysis.asp">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/ee.gif" alt="Eesti keel">Eesti keel
+			</a>
+		</li>
+		
+		<li class="left half">
+			<a href="https://www.gpro.net/sk/RaceAnalysis.asp">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/sk.gif" alt="Slovenčina">Slovenčina
+			</a>
+		</li>
+		
+		<li class="left half">
+			<a href="https://www.gpro.net/tr/RaceAnalysis.asp">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/tr.gif" alt="Türkçe">Türkçe
+			</a>
+		</li>
+		
+		<li class="left half">
+			<a href="https://www.gpro.net/al/RaceAnalysis.asp">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/al.gif" alt="Shqip">Shqip
+			</a>
+		</li>
+		
+		<li class="left half">
+			<a href="https://www.gpro.net/gr/RaceAnalysis.asp">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/gr.gif" alt="Ελληνικά">Ελληνικά
+			</a>
+		</li>
+		
+		<li class="left half">
+			<a href="https://www.gpro.net/hr/RaceAnalysis.asp">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/hr.gif" alt="Hrvatski">Hrvatski
+			</a>
+		</li>
+		
+		<li class="left half">
+			<a href="https://www.gpro.net/my/RaceAnalysis.asp">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/my.gif" alt="Bahasa Melayu">Bahasa Melayu
+			</a>
+		</li>
+		
+		<li class="left half">
+			<a href="https://www.gpro.net/dk/RaceAnalysis.asp">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/dk.gif" alt="Dansk">Dansk
+			</a>
+		</li>
+		
+		<li class="left half">
+			<a href="https://www.gpro.net/pi/RaceAnalysis.asp">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/pi.png" alt="Pirate">Pirate
+			</a>
+		</li>
+		
+</ul>
+
+					<p id="livetime">2024 Aug, 2nd 22:13:30 CET</p>
+
+				</div>
+				
+			</div>
+				
+			<div id="contentinner"><span class="tl cc"></span> <span class="tr cc"></span><span class="bl cc"></span> <span class="br cc"></span>
+				<div class="inner">
+				
+<div id="dhtmltooltip"></div>
+<script type="text/javascript">
+/***********************************************
+* Cool DHTML tooltip script- © Dynamic Drive DHTML code library (www.dynamicdrive.com)
+* This notice MUST stay intact for legal use
+* Visit Dynamic Drive at http://www.dynamicdrive.com/ for full source code
+***********************************************/
+
+var offsetxpoint= -540 //Customize x offset of tooltip
+var offsetypoint= -140 //Customize y offset of tooltip
+var ie=document.all
+var ns6=document.getElementById && !document.all
+var enabletip=false
+if (ie||ns6)
+var tipobj=document.all? document.all["dhtmltooltip"] : document.getElementById? document.getElementById("dhtmltooltip") : ""
+
+function ietruebody(){
+return (document.compatMode && document.compatMode!="BackCompat")? document.documentElement : document.body
+}
+
+function ddrivetip(thetext, thecolor, thewidth){
+if (ns6||ie){
+if (typeof thewidth!="undefined") tipobj.style.width=thewidth+"px"
+if (typeof thecolor!="undefined" && thecolor!="") tipobj.style.backgroundColor=thecolor
+tipobj.innerHTML=thetext
+enabletip=true
+return false
+}
+}
+
+function positiontip(e){
+if (enabletip){
+var curX=(ns6)?e.pageX : event.clientX+ietruebody().scrollLeft;
+var curY=(ns6)?e.pageY : event.clientY+ietruebody().scrollTop;
+//Find out how close the mouse is to the corner of the window
+var rightedge=ie&&!window.opera? ietruebody().clientWidth-event.clientX-offsetxpoint : window.innerWidth-e.clientX-offsetxpoint-20
+var bottomedge=ie&&!window.opera? ietruebody().clientHeight-event.clientY-offsetypoint : window.innerHeight-e.clientY-offsetypoint-20
+
+var leftedge=(offsetxpoint<0)? offsetxpoint*(-1) : -1000
+
+//if the horizontal distance isn't enough to accomodate the width of the context menu
+if (rightedge<tipobj.offsetWidth)
+//move the horizontal position of the menu to the left by it's width
+tipobj.style.left=ie? ietruebody().scrollLeft+event.clientX-tipobj.offsetWidth+"px" : window.pageXOffset+e.clientX-tipobj.offsetWidth+"px"
+else if (curX<leftedge)
+tipobj.style.left="5px"
+else
+//position the horizontal position of the menu where the mouse is positioned
+tipobj.style.left=curX+offsetxpoint+"px"
+
+//same concept with the vertical position
+if (bottomedge<tipobj.offsetHeight)
+tipobj.style.top=ie? ietruebody().scrollTop+event.clientY-tipobj.offsetHeight-offsetypoint+"px" : window.pageYOffset+e.clientY-tipobj.offsetHeight-offsetypoint+"px"
+else
+tipobj.style.top=curY+offsetypoint+"px"
+tipobj.style.visibility="visible"
+}
+}
+
+function hideddrivetip(){
+if (ns6||ie){
+enabletip=false
+tipobj.style.visibility="hidden"
+tipobj.style.left="-1000px"
+tipobj.style.backgroundColor=''
+tipobj.style.width=''
+}
+}
+
+document.onmousemove=positiontip
+</script>
+<div align="center">
+<div class="navholder">
+<ul class="subnavigation">
+	<li class="selected"><a href="https://www.gpro.net/gb/RaceAnalysis.asp">Race analysis</a></li>
+	<li><a href="https://www.gpro.net/gb/RaceAnalysisGraph.asp">Race analysis graph</a></li>
+	<li><a href="https://www.gpro.net/gb/RaceSummary.asp?Group=Amateur%20-%2067&amp;Season=100&amp;Race=7">Race summary</a></li>
+    <li><a href="https://www.gpro.net/gb/Q12History.asp?Group=Amateur%20-%2067&amp;Season=100&amp;Race=7">Qualifying results</a></li>
+	<li><a href="https://www.gpro.net/gb/LapChart.asp?Group=Amateur%20-%2067">Lap chart</a></li>
+	<li><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Season=100&amp;Race=7">Race replay</a></li>
+</ul>
+</div>
+
+	<div class="boxy" style="height:100px;width:99%;margin-bottom:-5px;clear:both;">
+	
+			<div id="dvAd72890" align="center" style="margin-bottom:5px;margin-top:5px;clear:both;">
+			
+			<div id="blockblockA" align="center" style="display:inline-block;border:1px solid #243957;border-radius:5px;margin-top:-1px;">
+				<a href="https://www.gpro.net/WhitelistGPRO.asp">
+					<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/sadface.png" id="imgSadFace" style="float:left;margin-left:20px;">
+					
+					<div class="center" id="dvABText" style="float:left;width:660px;height:89px;padding-left:10px;padding-right:10px;padding-top:5px;"><h2>Please disable your Adblock</h2><p class="normal11" style="white-space:normal !important;">Please help and support us! If you use Adblock, <u>whitelist us now</u>.
+ We don't like annoying ads either and GPRO will never use such 
+intrusive ads. However the ads we use still help us keep the game 
+running for you to play for free. <u>Click here</u> for further instructions on how to whitelist GPRO.</p></div>
+					<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/bab.png" id="imgAB" style="float:left;margin-right:20px;">
+				</a>
+			</div>
+			
+        <div id="gpro-net_728x90">
+		    <script async="" src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/adsbygoogle.js" crossorigin="anonymous"></script>
+            <!-- gpro728x90 -->
+            <ins class="adsbygoogle" style="display:inline-block;width:728px;height:90px" data-ad-client="ca-pub-9802427417219730" data-ad-slot="6211972797"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+		
+			</div>
+		
+	</div>
+
+<div class="clear noheight"></div>
+
+<br>
+
+<div style="display:flex;align-content:center;align-items:center;justify-content:center;justify-items:center">
+<form action="RaceAnalysis.asp" method="GET" name="psForm" id="psForm">
+Select a season:&nbsp;
+<select name="S" class="normal11" onchange="this.form.submit();" id="s">
+	<option value="100" selected="selected">Season 100 (7 races done)</option><option value="99">Season 99 (17 races done)</option><option value="98">Season 98 (17 races done)</option><option value="97">Season 97 (17 races done)</option><option value="96">Season 96 (17 races done)</option><option value="95">Season 95 (14 races done)</option><option value="94">Season 94 (6 races done)</option>
+</select>
+</form>
+<form action="RaceAnalysis.asp" method="GET" name="psForm" id="psForm">
+<input type="hidden" name="S" value="100">
+
+
+&nbsp;| Select a race:&nbsp;
+<select name="SR" class="normal11" onchange="this.form.submit();" id="sr">
+	<option value="100,7" selected="selected" style="color:red;">Season 100, Race 7, A67 - Anderstorp (Sweden)</option><option value="100,6" style="color:red;">Season 100, Race 6, A67 - Indianapolis (United States)</option><option value="100,5" style="color:red;">Season 100, Race 5, A67 - Montreal (Canada)</option><option value="100,4" style="color:red;">Season 100, Race 4, A67 - Monza (Italy)</option><option value="100,3" style="color:red;">Season 100, Race 3, A67 - Silverstone (United Kingdom)</option><option value="100,2" style="color:red;">Season 100, Race 2, A67 - Zandvoort (Netherlands)</option><option value="100,1" style="color:red;">Season 100, Race 1, A67 - Melbourne (Australia)</option>
+    </select></form>
+    </div>
+    <br>
+    <div>
+ 
+<div style="height: 84px;" class="slickpages slick-initialized slick-slider">
+	
+	<div class="slick-list draggable" style=""><div class="slick-track" style="opacity: 1; width: 511px; transform: translate3d(0px, 0px, 0px);"><div style="border: 1px solid rgb(177, 177, 177); background-color: rgb(80, 115, 157); width: 71.9px;" class="slick-slide slick-current slick-active" data-slick-index="0" aria-hidden="false" tabindex="0">
+		<a href="https://www.gpro.net/gb/RaceAnalysis.asp?S=100&amp;SR=100,7" title="Season 100, Race 7 - Anderstorp (Sweden)" class="nobold" tabindex="0">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/lock_green.png"><br><font color="yellow"><b>S100,R7</b></font><br>Anderstorp
+		</a>
+	</div><div style="border: 1px solid rgb(52, 84, 127); width: 71.9px;" class="slick-slide slick-active" data-slick-index="1" aria-hidden="false" tabindex="0">
+		<a href="https://www.gpro.net/gb/RaceAnalysis.asp?S=100&amp;SR=100,6" title="Season 100, Race 6 - Indianapolis (United States)" class="nobold" tabindex="0">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/lock.png"><br><b>S100,R6</b><br>Indianapolis
+		</a>
+	</div><div style="border: 1px solid rgb(52, 84, 127); width: 71.9px;" class="slick-slide slick-active" data-slick-index="2" aria-hidden="false" tabindex="0">
+		<a href="https://www.gpro.net/gb/RaceAnalysis.asp?S=100&amp;SR=100,5" title="Season 100, Race 5 - Montreal (Canada)" class="nobold" tabindex="0">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/lock.png"><br><b>S100,R5</b><br>Montreal
+		</a>
+	</div><div style="border: 1px solid rgb(52, 84, 127); width: 71.9px;" class="slick-slide slick-active" data-slick-index="3" aria-hidden="false" tabindex="0">
+		<a href="https://www.gpro.net/gb/RaceAnalysis.asp?S=100&amp;SR=100,4" title="Season 100, Race 4 - Monza (Italy)" class="nobold" tabindex="0">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/lock.png"><br><b>S100,R4</b><br>Monza
+		</a>
+	</div><div style="border: 1px solid rgb(52, 84, 127); width: 71.9px;" class="slick-slide slick-active" data-slick-index="4" aria-hidden="false" tabindex="0">
+		<a href="https://www.gpro.net/gb/RaceAnalysis.asp?S=100&amp;SR=100,3" title="Season 100, Race 3 - Silverstone (United Kingdom)" class="nobold" tabindex="0">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/lock.png"><br><b>S100,R3</b><br>Silverstone
+		</a>
+	</div><div style="border: 1px solid rgb(52, 84, 127); width: 71.9px;" class="slick-slide slick-active" data-slick-index="5" aria-hidden="false" tabindex="0">
+		<a href="https://www.gpro.net/gb/RaceAnalysis.asp?S=100&amp;SR=100,2" title="Season 100, Race 2 - Zandvoort (Netherlands)" class="nobold" tabindex="0">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/lock.png"><br><b>S100,R2</b><br>Zandvoort
+		</a>
+	</div><div style="border: 1px solid rgb(52, 84, 127); width: 71.9px;" class="slick-slide slick-active" data-slick-index="6" aria-hidden="false" tabindex="0">
+		<a href="https://www.gpro.net/gb/RaceAnalysis.asp?S=100&amp;SR=100,1" title="Season 100, Race 1 - Melbourne (Australia)" class="nobold" tabindex="0">
+			<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/lock.png"><br><b>S100,R1</b><br>Melbourne
+		</a>
+	</div></div></div>
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+	
+</div>
+
+</div>
+
+	<h1 class="block center"><span class="tl bc"></span><span class="tr bc"></span><span class="bl bc"></span><span class="br bc"></span>
+		Race analysis: <img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/se.gif" align="absmiddle" width="18" height="12" class="flag">&nbsp;<a href="https://www.gpro.net/gb/TrackDetails.asp?id=30">Anderstorp (Sweden)</a> - Season 100 - Race 7 (Amateur - 67)
+	</h1>
+	
+	<div id="PracticeData" data-step="1" data-intro="This is the most important page to look at after every race, you can view and analyze most data from your past races collected all in one place. On the top is your practice lap data, including your driver feedback for each practice lap." data-position="top">
+		<table class="styled borderbottom flag">
+		<tbody><tr>
+			<th colspan="2">Practice laps data</th>
+		</tr>
+		<tr>
+		<td valign="top">
+		<table cellpadding="0" cellspacing="0" class="styled borderbottom" style="border:none;">
+			<tbody><tr bgcolor="#1B2D47"> 
+				<td align="center" rowspan="2" class="center"><b>Lap</b></td>
+				<td align="center" rowspan="2" class="center"><b>Lap time</b></td>              
+				<td align="center" rowspan="2" class="center"><b>Driver mistake</b></td>
+				<td align="center" rowspan="2" class="center"><b>Net time</b></td>
+				<td align="center" colspan="8" class="center"><b>Settings</b></td>
+			</tr>
+			<tr bgcolor="#1B2D47">
+				<td align="center" class="center"><b>FWing</b></td>
+				<td align="center" class="center"><b>RWing</b></td>
+				<td align="center" class="center"><b>Engine</b></td>
+				<td align="center" class="center"><b>Brakes</b></td>
+				<td align="center" class="center"><b>Gear</b></td>
+				<td align="center" class="center"><b>Susp</b></td>
+				<td align="center" class="center"><b>Tyres</b></td>
+				<td align="center" class="center"><b>Comm</b></td>
+			</tr>
+			
+			<tr class="pointerhand" onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+				<td align="center" bgcolor="#1B2D47" onclick='document.getElementById("rbLapComment1").click();' class="speccellnobot center">1</td>
+				<td class="speccellnobot center" onclick='document.getElementById("rbLapComment1").click();'>
+					
+					<b>1:19.607s</b>
+					
+				</td>									
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment1").click();'>
+					
+					<b>0.097s</b>
+					
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment1").click();'>
+					
+					<b>1:19.510s</b>
+					
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment1").click();'>
+					443
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment1").click();'>
+					444
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment1").click();'>
+					905
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment1").click();'>
+					952
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment1").click();'>
+					488
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment1").click();'>
+					226
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment1").click();'>
+					Soft
+				</td>
+				<td align="center" style="cursor:pointer;" class="speccellnobot center"><input class="normal" type="radio" name="rbLapComment" id="rbLapComment1" value="1" onclick="document.getElementById('lapComments').innerHTML='<br><b>Brakes</b>:  Put the balance a bit more to the back';document.getElementById('lapNumber').innerHTML=this.value;"></td>
+			</tr>
+			
+			<tr class="pointerhand" onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+				<td align="center" bgcolor="#1B2D47" onclick='document.getElementById("rbLapComment2").click();' class="speccellnobot center">2</td>
+				<td class="speccellnobot center" onclick='document.getElementById("rbLapComment2").click();'>
+					
+					<b>1:19.798s</b>
+					
+				</td>									
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment2").click();'>
+					
+					<b>0.381s</b>
+					
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment2").click();'>
+					
+					<b>1:19.417s</b>
+					
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment2").click();'>
+					443
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment2").click();'>
+					444
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment2").click();'>
+					905
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment2").click();'>
+					902
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment2").click();'>
+					488
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment2").click();'>
+					226
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment2").click();'>
+					Soft
+				</td>
+				<td align="center" style="cursor:pointer;" class="speccellnobot center"><input class="normal" type="radio" name="rbLapComment" id="rbLapComment2" value="2" onclick="document.getElementById('lapComments').innerHTML='<br><font color=lime>I am satisfied with the setup of the car</font>';document.getElementById('lapNumber').innerHTML=this.value;"></td>
+			</tr>
+			
+			<tr class="pointerhand" onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+				<td align="center" bgcolor="#1B2D47" onclick='document.getElementById("rbLapComment3").click();' class="speccellnobot center">3</td>
+				<td class="speccellnobot center" onclick='document.getElementById("rbLapComment3").click();'>
+					
+					<b>1:19.529s</b>
+					
+				</td>									
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment3").click();'>
+					
+					<b>0.104s</b>
+					
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment3").click();'>
+					
+					<b>1:19.425s</b>
+					
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment3").click();'>
+					443
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment3").click();'>
+					444
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment3").click();'>
+					885
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment3").click();'>
+					902
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment3").click();'>
+					488
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment3").click();'>
+					226
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment3").click();'>
+					Soft
+				</td>
+				<td align="center" style="cursor:pointer;" class="speccellnobot center"><input class="normal" type="radio" name="rbLapComment" id="rbLapComment3" value="3" onclick="document.getElementById('lapComments').innerHTML='<br><font color=lime>I am satisfied with the setup of the car</font>';document.getElementById('lapNumber').innerHTML=this.value;"></td>
+			</tr>
+			
+			<tr class="pointerhand" onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+				<td align="center" bgcolor="#1B2D47" onclick='document.getElementById("rbLapComment4").click();' class="speccellnobot center">4</td>
+				<td class="speccellnobot center" onclick='document.getElementById("rbLapComment4").click();'>
+					
+					<b>1:19.646s</b>
+					
+				</td>									
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment4").click();'>
+					
+					<b>0.198s</b>
+					
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment4").click();'>
+					
+					<b>1:19.448s</b>
+					
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment4").click();'>
+					443
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment4").click();'>
+					444
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment4").click();'>
+					925
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment4").click();'>
+					902
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment4").click();'>
+					488
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment4").click();'>
+					226
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment4").click();'>
+					Soft
+				</td>
+				<td align="center" style="cursor:pointer;" class="speccellnobot center"><input class="normal" type="radio" name="rbLapComment" id="rbLapComment4" value="4" onclick="document.getElementById('lapComments').innerHTML='<br><font color=lime>I am satisfied with the setup of the car</font>';document.getElementById('lapNumber').innerHTML=this.value;"></td>
+			</tr>
+			
+			<tr class="pointerhand" onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+				<td align="center" bgcolor="#1B2D47" onclick='document.getElementById("rbLapComment5").click();' class="speccellnobot center">5</td>
+				<td class="speccellnobot center" onclick='document.getElementById("rbLapComment5").click();'>
+					
+					<b>1:19.680s</b>
+					
+				</td>									
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment5").click();'>
+					
+					<b>0.265s</b>
+					
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment5").click();'>
+					<font color="lime">
+					<b>1:19.415s</b>
+					</font>
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment5").click();'>
+					423
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment5").click();'>
+					464
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment5").click();'>
+					905
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment5").click();'>
+					902
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment5").click();'>
+					488
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment5").click();'>
+					226
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment5").click();'>
+					Soft
+				</td>
+				<td align="center" style="cursor:pointer;" class="speccellnobot center"><input class="normal" type="radio" name="rbLapComment" id="rbLapComment5" value="5" onclick="document.getElementById('lapComments').innerHTML='<br><font color=lime>I am satisfied with the setup of the car</font>';document.getElementById('lapNumber').innerHTML=this.value;"></td>
+			</tr>
+			
+			<tr class="pointerhand" onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+				<td align="center" bgcolor="#1B2D47" onclick='document.getElementById("rbLapComment6").click();' class="speccellnobot center">6</td>
+				<td class="speccellnobot center" onclick='document.getElementById("rbLapComment6").click();'>
+					<font color="lime">
+					<b>1:19.422s</b>
+					</font>
+				</td>									
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment6").click();'>
+					<font color="lime">
+					<b>0.005s</b>
+					</font>
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment6").click();'>
+					
+					<b>1:19.417s</b>
+					
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment6").click();'>
+					403
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment6").click();'>
+					484
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment6").click();'>
+					905
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment6").click();'>
+					902
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment6").click();'>
+					488
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment6").click();'>
+					226
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment6").click();'>
+					Soft
+				</td>
+				<td align="center" style="cursor:pointer;" class="speccellnobot center"><input class="normal" type="radio" name="rbLapComment" id="rbLapComment6" value="6" onclick="document.getElementById('lapComments').innerHTML='<br><font color=lime>I am satisfied with the setup of the car</font>';document.getElementById('lapNumber').innerHTML=this.value;"></td>
+			</tr>
+			
+			<tr class="pointerhand" onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+				<td align="center" bgcolor="#1B2D47" onclick='document.getElementById("rbLapComment7").click();' class="speccell center">7</td>
+				<td class="speccell center" onclick='document.getElementById("rbLapComment7").click();'>
+					
+					<b>1:19.705s</b>
+					
+				</td>									
+				<td align="center" class="speccell center" onclick='document.getElementById("rbLapComment7").click();'>
+					
+					<b>0.260s</b>
+					
+				</td>
+				<td align="center" class="speccell center" onclick='document.getElementById("rbLapComment7").click();'>
+					
+					<b>1:19.445s</b>
+					
+				</td>
+				<td align="center" class="speccell center" onclick='document.getElementById("rbLapComment7").click();'>
+					423
+				</td>
+				<td align="center" class="speccell center" onclick='document.getElementById("rbLapComment7").click();'>
+					464
+				</td>
+				<td align="center" class="speccell center" onclick='document.getElementById("rbLapComment7").click();'>
+					925
+				</td>
+				<td align="center" class="speccell center" onclick='document.getElementById("rbLapComment7").click();'>
+					902
+				</td>
+				<td align="center" class="speccell center" onclick='document.getElementById("rbLapComment7").click();'>
+					488
+				</td>
+				<td align="center" class="speccell center" onclick='document.getElementById("rbLapComment7").click();'>
+					226
+				</td>
+				<td align="center" class="speccell center" onclick='document.getElementById("rbLapComment7").click();'>
+					Soft
+				</td>
+				<td align="center" style="cursor:pointer;" class="speccell center"><input class="normal" type="radio" name="rbLapComment" id="rbLapComment7" value="7" onclick="document.getElementById('lapComments').innerHTML='<br><font color=lime>I am satisfied with the setup of the car</font>';document.getElementById('lapNumber').innerHTML=this.value;"></td>
+			</tr>
+			
+			<tr class="pointerhand" onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+				<td align="center" bgcolor="#1B2D47" onclick='document.getElementById("rbLapComment8").click();' class="speccellnobot center">8</td>
+				<td class="speccellnobot center" onclick='document.getElementById("rbLapComment8").click();'>
+					
+					<b>1:19.669s</b>
+					
+				</td>									
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment8").click();'>
+					
+					<b>0.227s</b>
+					
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment8").click();'>
+					
+					<b>1:19.442s</b>
+					
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment8").click();'>
+					423
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment8").click();'>
+					464
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment8").click();'>
+					905
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment8").click();'>
+					902
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment8").click();'>
+					468
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment8").click();'>
+					226
+				</td>
+				<td align="center" class="speccellnobot center" onclick='document.getElementById("rbLapComment8").click();'>
+					Soft
+				</td>
+				<td align="center" style="cursor:pointer;" class="speccellnobot center"><input class="normal" type="radio" checked="checked" name="rbLapComment" id="rbLapComment8" value="8" onclick="document.getElementById('lapComments').innerHTML='<br><font color=lime>I am satisfied with the setup of the car</font>';document.getElementById('lapNumber').innerHTML=this.value;"></td>
+			</tr>
+			
+		</tbody></table>
+		</td><td valign="top" style="width:100%;border-left:1px solid #1B2D47">
+		<div align="center" style="padding:10px;margin-left:10px;">
+			<font color="yellow" class="normal">
+				<b>Practice lap <span id="lapNumber">8</span> comments from your driver:</b>
+				<br>
+				<span id="lapComments"><br><font color="lime">I am satisfied with the setup of the car</font></span>
+			</font>
+			<br><br>
+		</div>
+		</td></tr></tbody></table>
+	</div><br>
+	
+	<div class="column right fiftyfive">
+		<h2>Car wear &amp; lap information</h2>
+		<div class="inner">
+			<table class="styled bordered center" data-step="2" data-intro="On the right side of the page you can check your car parts levels and wear (both at the start and at the finish line)." data-position="left">
+				<tbody><tr><th colspan="11">Car parts level</th></tr>
+				<tr>
+					<td width="40" bgcolor="#1B2D47" align="center" class="infow"><b>Cha</b></td>
+					<td width="40" bgcolor="#1B2D47" align="center" class="infow"><b>Eng</b></td>
+					<td width="40" bgcolor="#1B2D47" align="center" class="infow"><b>FWing</b></td>
+					<td width="40" bgcolor="#1B2D47" align="center" class="infow"><b>RWing</b></td>
+					<td width="40" bgcolor="#1B2D47" align="center" class="infow"><b>Underb</b></td>
+					<td width="40" bgcolor="#1B2D47" align="center" class="infow"><b>Sidep</b></td>		
+					<td width="40" bgcolor="#1B2D47" align="center" class="infow"><b>Cool</b></td>
+					<td width="40" bgcolor="#1B2D47" align="center" class="infow"><b>Gear</b></td>
+					<td width="40" bgcolor="#1B2D47" align="center" class="infow"><b>Bra</b></td>
+					<td width="40" bgcolor="#1B2D47" align="center" class="infow"><b>Susp</b></td>
+					<td width="40" bgcolor="#1B2D47" align="center" class="infow"><b>Elec</b></td>
+				</tr>
+				<tr onmouseover="this.style.backgroundColor='#3B2D47'" onmouseout="this.style.backgroundColor=''">
+					<td align="center">5</td><td align="center">6</td><td align="center">4</td><td align="center">4</td><td align="center">4</td><td align="center">4</td><td align="center">4</td><td align="center">4</td><td align="center">5</td><td align="center">5</td><td align="center">3</td>
+				</tr>
+				<tr><th colspan="11">Car parts wear (at the start)</th></tr>
+				<tr onmouseover="this.style.backgroundColor='#3B2D47'" onmouseout="this.style.backgroundColor=''">
+					<td align="center">39%</td><td align="center">50%</td><td align="center">28%</td><td align="center">32%</td><td align="center">35%</td><td align="center">0%</td><td align="center">85%</td><td align="center">66%</td><td align="center">47%</td><td align="center">69%</td><td align="center">79%</td>
+				</tr>
+				<tr><th colspan="11">Car parts wear (at the finish)</th></tr>
+				<tr onmouseover="this.style.backgroundColor='#3B2D47'" onmouseout="this.style.backgroundColor=''">
+					<td align="center">56%</td><td align="center">82%</td><td align="center">42%</td><td align="center">45%</td><td align="center">63%</td><td align="center">19%</td><td align="center">96%</td><td align="center">93%</td><td align="center">81%</td><td align="center">84%</td><td align="center">89%</td>
+				</tr>
+			</tbody></table>			
+		</div>
+		<table cellspacing="0" cellpadding="0" class="styled borderbottom" style="margin:0;border:none">
+		<tbody><tr bgcolor="#1b2d47" data-step="3" data-intro="On the right bottom of the page you can see all laps from the race presented as a table, including lap times, position changes, tyres used, race events and lap by lap information about the weather." data-position="left">
+			<td class="center"><b>Lap</b></td>
+			<td class="center"><b>Lap time</b></td>
+			<td class="center"><b>Pos</b></td>
+			<td class="center"><b>Tyres</b></td>
+			<td class="center"><b>Weather</b></td>
+			<td class="center"><b>Temp</b></td>
+			<td class="center"><b>Hum</b></td>
+			<td class="center"><b>Events</b></td>
+		</tr>
+		
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=0&amp;Season=100&amp;Race=7">0</a></td>
+			<td class="center">-</td>
+			<td class="center"><font color="#88BB88"><b>22</b></font></td>
+			<td class="center" nowrap="nowrap"><font color="#00DDFF"><b>Soft</b></font></td>
+			<td class="center" nowrap="nowrap">
+			Sunny
+			</td>
+			<td class="center">30°</td>
+			<td class="center">5%</td>
+			<td class="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=1&amp;Season=100&amp;Race=7">1</a></td>
+<td class="center suptd" align="center">1:32.140</td><td class="center suptd" align="center"><font color="#88BB88"><b>22</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Sunny</td><td class="center suptd" align="center">30°</td><td class="center suptd" align="center">5%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=2&amp;Season=100&amp;Race=7">2</a></td>
+<td class="center suptd" align="center">1:19.464</td><td class="center suptd" align="center"><font color="#88BB88"><b>22</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Sunny</td><td class="center suptd" align="center">30°</td><td class="center suptd" align="center">5%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=3&amp;Season=100&amp;Race=7">3</a></td>
+<td class="center suptd" align="center">1:18.664</td><td class="center suptd" align="center"><font color="#88BB88"><b>22</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Sunny</td><td class="center suptd" align="center">30°</td><td class="center suptd" align="center">5%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=4&amp;Season=100&amp;Race=7">4</a></td>
+<td class="center suptd" align="center">1:18.626</td><td class="center suptd" align="center"><font color="#88BB88"><b>22</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Sunny</td><td class="center suptd" align="center">30°</td><td class="center suptd" align="center">5%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=5&amp;Season=100&amp;Race=7">5</a></td>
+<td class="center suptd" align="center">1:19.903</td><td class="center suptd" align="center"><font color="#88BB88"><b>22</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Sunny</td><td class="center suptd" align="center">30°</td><td class="center suptd" align="center">5%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=6&amp;Season=100&amp;Race=7">6</a></td>
+<td class="center suptd" align="center">1:18.721</td><td class="center suptd" align="center"><font color="#88BB88"><b>22</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Sunny</td><td class="center suptd" align="center">30°</td><td class="center suptd" align="center">5%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=7&amp;Season=100&amp;Race=7">7</a></td>
+<td class="center suptd" align="center">1:20.208</td><td class="center suptd" align="center"><font color="#88BB88"><b>22</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Sunny</td><td class="center suptd" align="center">30°</td><td class="center suptd" align="center">5%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=8&amp;Season=100&amp;Race=7">8</a></td>
+<td class="center suptd" align="center">1:18.842</td><td class="center suptd" align="center"><font color="#88BB88"><b>21</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Sunny</td><td class="center suptd" align="center">30°</td><td class="center suptd" align="center">5%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=9&amp;Season=100&amp;Race=7">9</a></td>
+<td class="center suptd" align="center">1:19.279</td><td class="center suptd" align="center"><font color="#88BB88"><b>21</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Sunny</td><td class="center suptd" align="center">29°</td><td class="center suptd" align="center">5%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=10&amp;Season=100&amp;Race=7">10</a></td>
+<td class="center suptd" align="center">1:19.391</td><td class="center suptd" align="center"><font color="#88BB88"><b>21</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Sunny</td><td class="center suptd" align="center">29°</td><td class="center suptd" align="center">5%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=11&amp;Season=100&amp;Race=7">11</a></td>
+<td class="center suptd" align="center">1:18.321</td><td class="center suptd" align="center"><font color="#88BB88"><b>21</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Sunny</td><td class="center suptd" align="center">29°</td><td class="center suptd" align="center">4%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=12&amp;Season=100&amp;Race=7">12</a></td>
+<td class="center suptd" align="center">1:19.627</td><td class="center suptd" align="center"><font color="#88BB88"><b>21</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Sunny</td><td class="center suptd" align="center">29°</td><td class="center suptd" align="center">4%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=13&amp;Season=100&amp;Race=7">13</a></td>
+<td class="center suptd" align="center">1:19.164</td><td class="center suptd" align="center"><font color="#88BB88"><b>21</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Sunny</td><td class="center suptd" align="center">29°</td><td class="center suptd" align="center">4%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=14&amp;Season=100&amp;Race=7">14</a></td>
+<td class="center suptd" align="center">1:18.692</td><td class="center suptd" align="center"><font color="#88BB88"><b>21</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Sunny</td><td class="center suptd" align="center">29°</td><td class="center suptd" align="center">4%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=15&amp;Season=100&amp;Race=7">15</a></td>
+<td class="center suptd" align="center">1:19.448</td><td class="center suptd" align="center"><font color="#88BB88"><b>21</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Sunny</td><td class="center suptd" align="center">29°</td><td class="center suptd" align="center">4%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=16&amp;Season=100&amp;Race=7">16</a></td>
+<td class="center suptd" align="center">1:18.576</td><td class="center suptd" align="center"><font color="#88BB88"><b>21</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Sunny</td><td class="center suptd" align="center">29°</td><td class="center suptd" align="center">4%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=17&amp;Season=100&amp;Race=7">17</a></td>
+<td class="center suptd" align="center">1:19.533</td><td class="center suptd" align="center"><font color="#88BB88"><b>21</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Sunny</td><td class="center suptd" align="center">29°</td><td class="center suptd" align="center">4%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=18&amp;Season=100&amp;Race=7">18</a></td>
+<td class="center suptd" align="center">1:18.762</td><td class="center suptd" align="center"><font color="#88BB88"><b>20</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Sunny</td><td class="center suptd" align="center">29°</td><td class="center suptd" align="center">4%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=19&amp;Season=100&amp;Race=7">19</a></td>
+<td class="center suptd" align="center">1:24.591</td><td class="center suptd" align="center"><font color="#88BB88"><b>22</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Sunny</td><td class="center suptd" align="center">29°</td><td class="center suptd" align="center">4%</td><td nowrap="nowrap" class="center suptd" align="center"><font color="yellow">Pit</font></td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=20&amp;Season=100&amp;Race=7">20</a></td>
+<td class="center suptd" align="center">1:49.792</td><td class="center suptd" align="center"><font color="#88BB88"><b>26</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Sunny</td><td class="center suptd" align="center">29°</td><td class="center suptd" align="center">4%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=21&amp;Season=100&amp;Race=7">21</a></td>
+<td class="center suptd" align="center">1:19.094</td><td class="center suptd" align="center"><font color="#88BB88"><b>26</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">30°</td><td class="center suptd" align="center">4%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=22&amp;Season=100&amp;Race=7">22</a></td>
+<td class="center suptd" align="center">1:19.320</td><td class="center suptd" align="center"><font color="#88BB88"><b>25</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">31°</td><td class="center suptd" align="center">4%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=23&amp;Season=100&amp;Race=7">23</a></td>
+<td class="center suptd" align="center">1:18.871</td><td class="center suptd" align="center"><font color="#88BB88"><b>25</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">32°</td><td class="center suptd" align="center">4%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=24&amp;Season=100&amp;Race=7">24</a></td>
+<td class="center suptd" align="center">1:18.504</td><td class="center suptd" align="center"><font color="#88BB88"><b>24</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">32°</td><td class="center suptd" align="center">4%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=25&amp;Season=100&amp;Race=7">25</a></td>
+<td class="center suptd" align="center">1:18.832</td><td class="center suptd" align="center"><font color="#88BB88"><b>24</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">33°</td><td class="center suptd" align="center">4%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=26&amp;Season=100&amp;Race=7">26</a></td>
+<td class="center suptd" align="center">1:18.278</td><td class="center suptd" align="center"><font color="#88BB88"><b>23</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">33°</td><td class="center suptd" align="center">4%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=27&amp;Season=100&amp;Race=7">27</a></td>
+<td class="center suptd" align="center">1:18.440</td><td class="center suptd" align="center"><font color="#88BB88"><b>23</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">33°</td><td class="center suptd" align="center">4%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=28&amp;Season=100&amp;Race=7">28</a></td>
+<td class="center suptd" align="center">1:18.600</td><td class="center suptd" align="center"><font color="#88BB88"><b>23</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">33°</td><td class="center suptd" align="center">4%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=29&amp;Season=100&amp;Race=7">29</a></td>
+<td class="center suptd" align="center">1:18.225</td><td class="center suptd" align="center"><font color="#88BB88"><b>23</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">32°</td><td class="center suptd" align="center">4%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=30&amp;Season=100&amp;Race=7">30</a></td>
+<td class="center suptd" align="center">1:18.316</td><td class="center suptd" align="center"><font color="#88BB88"><b>22</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">31°</td><td class="center suptd" align="center">4%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=31&amp;Season=100&amp;Race=7">31</a></td>
+<td class="center suptd" align="center">1:18.161</td><td class="center suptd" align="center"><font color="#88BB88"><b>22</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">31°</td><td class="center suptd" align="center">4%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=32&amp;Season=100&amp;Race=7">32</a></td>
+<td class="center suptd" align="center">1:18.311</td><td class="center suptd" align="center"><font color="#88BB88"><b>22</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">31°</td><td class="center suptd" align="center">4%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=33&amp;Season=100&amp;Race=7">33</a></td>
+<td class="center suptd" align="center">1:18.239</td><td class="center suptd" align="center"><font color="#88BB88"><b>22</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">31°</td><td class="center suptd" align="center">4%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=34&amp;Season=100&amp;Race=7">34</a></td>
+<td class="center suptd" align="center">1:18.167</td><td class="center suptd" align="center"><font color="#88BB88"><b>22</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">30°</td><td class="center suptd" align="center">4%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=35&amp;Season=100&amp;Race=7">35</a></td>
+<td class="center suptd" align="center">1:18.402</td><td class="center suptd" align="center"><font color="#88BB88"><b>21</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">30°</td><td class="center suptd" align="center">4%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=36&amp;Season=100&amp;Race=7">36</a></td>
+<td class="center suptd" align="center">1:18.029</td><td class="center suptd" align="center"><font color="#88BB88"><b>20</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">30°</td><td class="center suptd" align="center">4%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=37&amp;Season=100&amp;Race=7">37</a></td>
+<td class="center suptd" align="center">1:24.563</td><td class="center suptd" align="center"><font color="#88BB88"><b>21</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">30°</td><td class="center suptd" align="center">4%</td><td nowrap="nowrap" class="center suptd" align="center"><font color="yellow">Pit</font></td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=38&amp;Season=100&amp;Race=7">38</a></td>
+<td class="center suptd" align="center">1:48.474</td><td class="center suptd" align="center"><font color="#88BB88"><b>25</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">30°</td><td class="center suptd" align="center">4%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=39&amp;Season=100&amp;Race=7">39</a></td>
+<td class="center suptd" align="center">1:25.681</td><td class="center suptd" align="center"><font color="#88BB88"><b>25</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">30°</td><td class="center suptd" align="center">4%</td><td nowrap="nowrap" class="center suptd" align="center"><font color="orange">Driver mistake</font></td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=40&amp;Season=100&amp;Race=7">40</a></td>
+<td class="center suptd" align="center">1:18.770</td><td class="center suptd" align="center"><font color="#88BB88"><b>25</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">30°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=41&amp;Season=100&amp;Race=7">41</a></td>
+<td class="center suptd" align="center">1:18.455</td><td class="center suptd" align="center"><font color="#88BB88"><b>25</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">30°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=42&amp;Season=100&amp;Race=7">42</a></td>
+<td class="center suptd" align="center">1:18.360</td><td class="center suptd" align="center"><font color="#88BB88"><b>25</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">30°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=43&amp;Season=100&amp;Race=7">43</a></td>
+<td class="center suptd" align="center">1:18.565</td><td class="center suptd" align="center"><font color="#88BB88"><b>25</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">30°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=44&amp;Season=100&amp;Race=7">44</a></td>
+<td class="center suptd" align="center">1:18.233</td><td class="center suptd" align="center"><font color="#88BB88"><b>25</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">30°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=45&amp;Season=100&amp;Race=7">45</a></td>
+<td class="center suptd" align="center">1:18.218</td><td class="center suptd" align="center"><font color="#88BB88"><b>25</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">30°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=46&amp;Season=100&amp;Race=7">46</a></td>
+<td class="center suptd" align="center">1:18.243</td><td class="center suptd" align="center"><font color="#88BB88"><b>25</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">30°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=47&amp;Season=100&amp;Race=7">47</a></td>
+<td class="center suptd" align="center">1:18.544</td><td class="center suptd" align="center"><font color="#88BB88"><b>24</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">30°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=48&amp;Season=100&amp;Race=7">48</a></td>
+<td class="center suptd" align="center">1:17.913</td><td class="center suptd" align="center"><font color="#88BB88"><b>24</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">30°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=49&amp;Season=100&amp;Race=7">49</a></td>
+<td class="center suptd" align="center">1:17.894</td><td class="center suptd" align="center"><font color="#88BB88"><b>24</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">30°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=50&amp;Season=100&amp;Race=7">50</a></td>
+<td class="center suptd" align="center">1:17.822</td><td class="center suptd" align="center"><font color="#88BB88"><b>24</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">30°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=51&amp;Season=100&amp;Race=7">51</a></td>
+<td class="center suptd" align="center">1:18.670</td><td class="center suptd" align="center"><font color="#88BB88"><b>24</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">30°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=52&amp;Season=100&amp;Race=7">52</a></td>
+<td class="center suptd" align="center">1:17.987</td><td class="center suptd" align="center"><font color="#88BB88"><b>23</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">31°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=53&amp;Season=100&amp;Race=7">53</a></td>
+<td class="center suptd" align="center">1:18.138</td><td class="center suptd" align="center"><font color="#88BB88"><b>22</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">32°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=54&amp;Season=100&amp;Race=7">54</a></td>
+<td class="center suptd" align="center"><font color="lime">1:17.498</font></td><td class="center suptd" align="center"><font color="#88BB88"><b>22</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">33°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=55&amp;Season=100&amp;Race=7">55</a></td>
+<td class="center suptd" align="center">1:24.590</td><td class="center suptd" align="center"><font color="#88BB88"><b>22</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">33°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center"><font color="yellow">Pit</font></td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=56&amp;Season=100&amp;Race=7">56</a></td>
+<td class="center suptd" align="center">1:49.157</td><td class="center suptd" align="center"><font color="#88BB88"><b>24</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">33°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=57&amp;Season=100&amp;Race=7">57</a></td>
+<td class="center suptd" align="center">1:18.618</td><td class="center suptd" align="center"><font color="#88BB88"><b>24</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">32°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=58&amp;Season=100&amp;Race=7">58</a></td>
+<td class="center suptd" align="center">1:18.026</td><td class="center suptd" align="center"><font color="#88BB88"><b>24</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">31°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=59&amp;Season=100&amp;Race=7">59</a></td>
+<td class="center suptd" align="center">1:18.489</td><td class="center suptd" align="center"><font color="#88BB88"><b>23</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">31°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=60&amp;Season=100&amp;Race=7">60</a></td>
+<td class="center suptd" align="center">1:17.925</td><td class="center suptd" align="center"><font color="#88BB88"><b>23</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">31°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=61&amp;Season=100&amp;Race=7">61</a></td>
+<td class="center suptd" align="center">1:18.065</td><td class="center suptd" align="center"><font color="#88BB88"><b>23</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">31°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=62&amp;Season=100&amp;Race=7">62</a></td>
+<td class="center suptd" align="center">1:18.875</td><td class="center suptd" align="center"><font color="#88BB88"><b>23</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">31°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=63&amp;Season=100&amp;Race=7">63</a></td>
+<td class="center suptd" align="center">1:19.024</td><td class="center suptd" align="center"><font color="#88BB88"><b>23</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">31°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=64&amp;Season=100&amp;Race=7">64</a></td>
+<td class="center suptd" align="center">1:19.203</td><td class="center suptd" align="center"><font color="#88BB88"><b>22</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">31°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=65&amp;Season=100&amp;Race=7">65</a></td>
+<td class="center suptd" align="center">1:17.542</td><td class="center suptd" align="center"><font color="#88BB88"><b>21</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">32°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=66&amp;Season=100&amp;Race=7">66</a></td>
+<td class="center suptd" align="center">1:17.570</td><td class="center suptd" align="center"><font color="#88BB88"><b>21</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">33°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=67&amp;Season=100&amp;Race=7">67</a></td>
+<td class="center suptd" align="center">1:24.258</td><td class="center suptd" align="center"><font color="#88BB88"><b>22</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">33°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center"><font color="yellow">Pit</font></td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=68&amp;Season=100&amp;Race=7">68</a></td>
+<td class="center suptd" align="center">1:48.779</td><td class="center suptd" align="center"><font color="#88BB88"><b>23</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">33°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=69&amp;Season=100&amp;Race=7">69</a></td>
+<td class="center suptd" align="center">1:18.371</td><td class="center suptd" align="center"><font color="#88BB88"><b>23</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">33°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+		<tr onmouseover="this.style.backgroundColor='#3B2D47';" onmouseout="this.style.backgroundColor='';">
+			<td bgcolor="#1b2d47" class="center suptd" align="center"><a href="https://www.gpro.net/gb/racescreen.asp?Group=Amateur%20-%2067&amp;Lap=70&amp;Season=100&amp;Race=7">70</a></td>
+<td class="center suptd" align="center">1:17.890</td><td class="center suptd" align="center"><font color="#88BB88"><b>23</b></font></td><td class="center suptd" align="center"><font color="#00DDFF"><b>Soft</b></font></td><td class="center suptd" align="center">Partially Cloudy</td><td class="center suptd" align="center">32°</td><td class="center suptd" align="center">3%</td><td nowrap="nowrap" class="center suptd" align="center">-</td>
+		</tr>
+
+	</tbody></table>
+<br>
+<a href="https://www.gpro.net/gb/PastSetupsXLS.asp?SR=100,7">Download race analysis as Excel sheet</a>
+<br><br>
+</div>
+	<div class="column left fortyfive nomargin">
+		<h2>Race information</h2>
+		<div class="inner">
+			<div data-step="4" data-intro="On the left follows your data from both qualification laps. You can also see the car setup and tyres you used in each session, including the race." data-position="right">
+			<table cellspacing="0" class="styled bordered center">
+				<tbody><tr>
+					<th colspan="2">Lap times</th>
+				</tr>
+				<tr>
+					<th width="50%">Qualification 1</th>
+					<th width="50%">Qualification 2</th>
+				</tr>
+				<tr>
+					<td align="center">1:19.754s (<a href="https://www.gpro.net/gb/Q12History.asp?Group=Amateur%20-%2067&amp;Season=100&amp;Race=7">#25</a>)</td>
+					<td align="center">1:20.436s (<a href="https://www.gpro.net/gb/Q12History.asp?Group=Amateur%20-%2067&amp;Season=100&amp;Race=7">#16</a>)</td>
+				</tr>
+			</tbody></table>
+			<br>
+			<table cellspacing="0" class="styled bordered center">
+				<tbody><tr><th colspan="8">Setups used</th></tr>
+				<tr>
+					<td width="40" bgcolor="#1B2D47" align="center" class="infow"><b>Session</b></td>
+					<td width="40" bgcolor="#1B2D47" align="center" class="infow"><b>FWing</b></td>
+					<td width="40" bgcolor="#1B2D47" align="center" class="infow"><b>RWing</b></td>
+					<td width="40" bgcolor="#1B2D47" align="center" class="infow"><b>Eng</b></td>
+					<td width="40" bgcolor="#1B2D47" align="center" class="infow"><b>Bra</b></td>
+					<td width="40" bgcolor="#1B2D47" align="center" class="infow"><b>Gear</b></td>		
+					<td width="40" bgcolor="#1B2D47" align="center" class="infow"><b>Susp</b></td>
+					<td width="50" bgcolor="#1B2D47" align="center" class="infow"><b>Tyres</b></td>
+				</tr>
+				<tr onmouseover="this.style.backgroundColor='#3B2D47'" onmouseout="this.style.backgroundColor=''">
+					<td align="center">Q1</td>
+					<td align="center">423</td><td align="center" nowrap="nowrap">464</td><td align="center" nowrap="nowrap">905</td><td align="center" nowrap="nowrap">902</td><td align="center" nowrap="nowrap">488</td><td align="center" nowrap="nowrap">226</td><td align="center" nowrap="nowrap">Soft</td>
+				</tr>
+				<tr onmouseover="this.style.backgroundColor='#3B2D47'" onmouseout="this.style.backgroundColor=''">
+					<td align="center">Q2</td>
+					<td align="center">387</td><td align="center" nowrap="nowrap">428</td><td align="center" nowrap="nowrap">923</td><td align="center" nowrap="nowrap">866</td><td align="center" nowrap="nowrap">512</td><td align="center" nowrap="nowrap">262</td><td align="center" nowrap="nowrap">Soft</td>
+				</tr>
+				<tr onmouseover="this.style.backgroundColor='#3B2D47'" onmouseout="this.style.backgroundColor=''">
+					<td align="center">Race</td>
+					<td align="center">400</td><td align="center" nowrap="nowrap">441</td><td align="center" nowrap="nowrap">909</td><td align="center" nowrap="nowrap">886</td><td align="center" nowrap="nowrap">519</td><td align="center" nowrap="nowrap">251</td><td align="center">Soft</td>
+				</tr>
+			</tbody></table>
+			</div>
+			<br>
+			<table border="0" cellspacing="0" cellpadding="0" class="styled bordered center" style="width:395px !important;" data-step="5" data-intro="The risks you used during the race are displayed in this table." data-position="right">
+				<tbody><tr>
+					<th colspan="5">Risks used</th>
+				</tr>
+				
+				<tr>
+					<th colspan="2">Q1 risk</th><th></th><th colspan="2">Q2 risk</th>
+				</tr>
+				<tr>
+					<td colspan="5" nowrap="nowrap">
+						<table cellspacing="0" cellpadding="0" style="margin:0;padding:0px;">
+							<tbody><tr>
+								<td style="border-bottom:none;">Push the car to the limit</td>
+								<td style="border:none;">Push the car a lot</td>
+							</tr>
+						</tbody></table>					
+					</td>
+				</tr>
+				
+				<tr><th colspan="5">Starting risk</th></tr>
+				<tr>
+					<td colspan="5">
+						Overtake where possible
+					</td>
+				</tr>
+				<tr>
+					<th style="width:70px !Important;">Overtake
+					</th><th style="width:70px !Important;">Defend
+					</th><th style="width:70px !Important;">Clear &amp; dry
+					</th><th style="width:70px !Important;">Clear &amp; wet
+					</th><th style="width:70px !Important;">Malfunct
+				</th></tr>
+				<tr>
+					<td>30</td><td align="center">35</td><td align="center">20</td><td align="center">0</td><td align="center">0</td>
+				</tr>
+			</tbody></table>
+			
+			<br>
+			<table border="0" cellspacing="0" cellpadding="0" class="styled bordered center" style="width:400px !important;" data-step="6" data-intro="Here you can see your driver's attributes before the race and how they changed after the race." data-position="right">
+				<tbody><tr>
+					<th colspan="13">Driver attributes</th>
+				</tr>				
+				<tr>
+					<th style="width:110px !Important;">Driver name
+					</th><th style="width:25px !Important;">OA
+					</th><th style="width:25px !Important;">Con
+					</th><th style="width:25px !Important;">Tal
+					</th><th style="width:25px !Important;">Agr
+					</th><th style="width:25px !Important;">Exp
+					</th><th style="width:25px !Important;">TeI
+					</th><th style="width:25px !Important;">Sta
+					</th><th style="width:25px !Important;">Cha
+					</th><th style="width:25px !Important;">Mot
+					</th><th style="width:25px !Important;">Rep
+					</th><th style="width:25px !Important;">Wei
+				</th></tr>
+				
+				<tr>
+					<td align="center" rowspan="2">
+						
+								<a href="https://www.gpro.net/gb/DriverProfile.asp?ID=14013">Lucu Brancatelli</a>
+								
+					</td>
+					<td align="center">94</td>
+					<td align="center">212</td>
+					<td align="center">21</td>
+					<td align="center">4</td>
+					<td align="center">208</td>
+					<td align="center">89</td>
+					<td align="center">101</td>
+					<td align="center">196</td>
+					<td align="center">3</td>
+					<td align="center">57</td>
+					<td align="center">84</td>					
+				</tr>
+				<tr>
+						
+					<td align="center" class="orange">(-1)</td>
+					<td align="center" class="yellow">(0)</td>
+					<td align="center" class="yellow">(0)</td>
+					<td align="center" class="yellow">(0)</td>
+					<td align="center" class="lime">(+1)</td>
+					<td align="center" class="orange">(-1)</td>
+					<td align="center" class="orange">(-1)</td>
+					<td align="center" class="yellow">(0)</td>
+					<td align="center" class="orange">(-3)</td>
+					<td align="center" class="yellow">(0)</td>
+					<td align="center" class="yellow">(0)</td>
+				</tr>
+				
+			</tbody></table>
+			
+			<br>
+			
+			<table class="styled center" data-step="7" data-intro="Your driver energy before and after the race can be seen here. Note that in case your driver energy is at 0% after the race, you should consider running lower risks next time to avoid having slower pace near the end of the race due to depleted driver energy." data-position="right">
+				<tbody><tr>
+					<th colspan="3">Driver energy</th>
+				</tr>
+				
+				<tr>
+					<th colspan="3">Q1</th>
+				</tr>
+				<tr>
+					<td title="Before Q1"><img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/drienergy.png" style="height:18px;vertical-align:middle;"><div class="barOuter"><div class="barInner barReverse" style="width:98%;"></div></div><div class="barLabel ">98%</div></td>
+					<th style="width:30px;">&nbsp;&nbsp;<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/right-arrow-icon.png">&nbsp;&nbsp;</th>
+					<td title="After Q1"><img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/drienergy.png" style="height:18px;vertical-align:middle;"><div class="barOuter"><div class="barInner barReverse" style="width:95%;"></div></div><div class="barLabel ">95%</div></td>
+				</tr>
+				
+				<tr>
+					<th colspan="3">Q2</th>
+				</tr>
+				<tr>
+					<td title="Before Q2"><img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/drienergy.png" style="height:18px;vertical-align:middle;"><div class="barOuter"><div class="barInner barReverse" style="width:95%;"></div></div><div class="barLabel ">95%</div></td>
+					<th style="width:30px;">&nbsp;&nbsp;<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/right-arrow-icon.png">&nbsp;&nbsp;</th>
+					<td title="After Q2"><img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/drienergy.png" style="height:18px;vertical-align:middle;"><div class="barOuter"><div class="barInner barReverse" style="width:93%;"></div></div><div class="barLabel ">93%</div></td>
+				</tr>
+				
+				<tr>
+					<th colspan="3">Race&nbsp;<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/hint.gif" class="help" rel="tooltip" content="&lt;div style=width:220px;&gt;&lt;p&gt;If your driver energy is 0 after the race, consider lowering your driver risks to avoid slow laps at the end of the race.&lt;/p&gt;&lt;/div&gt;" style="vertical-align:middle;"></th>
+				</tr>
+				<tr>
+					<td title="Before the race"><img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/drienergy.png" style="height:18px;vertical-align:middle;"><div class="barOuter"><div class="barInner barReverse" style="width:100%;"></div></div><div class="barLabel ">100%</div></td>
+					<th style="width:30px;">&nbsp;&nbsp;<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/right-arrow-icon.png">&nbsp;&nbsp;</th>
+					<td title="After the race"><img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/drienergy.png" style="height:18px;vertical-align:middle;"><div class="barOuter"><div class="barInner barReverse" style="width:66%;"></div></div><div class="barLabel ">66%</div></td>
+				</tr>
+			</tbody></table>
+			<br>
+			
+			<!--  style="width:290px;" -->
+			<div data-step="8" data-intro="Some miscellaneous information follows about your start and finish positions, your overall car character, your tyre supplier and its attributes and the weather forecasts for each session." data-position="right">
+			<table class="styled nobordered center">
+				<tbody><tr>
+					<td>
+						<table class="styled bordered center">
+							<tbody><tr>
+								<th colspan="2">Positions</th>
+							</tr>
+							<tr>
+								<th style="width:40px !Important;">Start</th>
+								<th style="width:40px !Important;">Finish</th>
+							</tr>
+							<tr>
+								<td>22</td>
+								<td>23</td>
+							</tr>
+						</tbody></table>
+					</td>
+					<td>
+						<table class="styled bordered center">
+							<tbody><tr>
+								<th colspan="3">Overall car character</th>
+							</tr>
+							<tr>
+								<th style="width:33% !Important;">Power</th>
+								<th style="width:33% !Important;">Handling</th>
+								<th>Acceleration</th>
+							</tr>
+							<tr>
+								<td align="center">66</td><td align="center">61</td><td align="center">60</td>
+							</tr>
+						</tbody></table>
+					</td>
+				</tr>
+			</tbody></table>
+			
+			
+			<br>
+			<table class="styled">
+				<tbody><tr>
+					<th colspan="4">Tyre supplier</th>
+				</tr>
+				<tr>
+					<td colspan="2"><div align="center"><b>Pipirelli</b>&nbsp;<img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/pipirelli.gif" alt="Pipirelli" title="Pipirelli" align="absmiddle"></div></td>
+					<td style="text-align:right !Important;border-right:none;">Peak temperature:</td>
+					<td><div align="center">31°</div></td>
+				</tr>
+				<tr>
+					<td style="text-align:right !Important;border-right:none;">Dry performance:</td>
+					<td width="20" title="2">
+	<table cellspacing="0" style="width:40px;"><tbody><tr><td width="100%" class="bordercell" nowrap="nowrap">
+	<img border="0" align="absmiddle" src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/lvl1.gif"><img border="0" align="absmiddle" src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/lvl2.gif">
+	</td></tr></tbody></table>
+</td>
+					<td style="text-align:right !Important;border-right:none;">Wet performance:</td>
+					<td width="20" title="1">
+	<table cellspacing="0" style="width:40px;"><tbody><tr><td width="100%" class="bordercell" nowrap="nowrap">
+	<img border="0" align="absmiddle" src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/lvl1.gif">
+	</td></tr></tbody></table>
+</td>
+				</tr>
+				<tr>
+					<td style="text-align:right !Important;border-right:none;">Durability:</td>
+					<td width="20" title="1">
+	<table cellspacing="0" style="width:40px;"><tbody><tr><td width="100%" class="bordercell" nowrap="nowrap">
+	<img border="0" align="absmiddle" src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/lvl1.gif">
+	</td></tr></tbody></table>
+</td>
+					<td style="text-align:right !Important;border-right:none;">Warmup distance:</td>
+					<td width="20" title="7">
+	<table cellspacing="0" style="width:40px;"><tbody><tr><td width="100%" class="bordercell" nowrap="nowrap">
+	<img border="0" align="absmiddle" src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/lvl7.gif"><img border="0" align="absmiddle" src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/lvl6.gif"><img border="0" align="absmiddle" src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/lvl5.gif"><img border="0" align="absmiddle" src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/lvl4.gif"><img border="0" align="absmiddle" src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/lvl3.gif"><img border="0" align="absmiddle" src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/lvl2.gif"><img border="0" align="absmiddle" src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/lvl1.gif">
+	</td></tr></tbody></table>
+</td>
+				</tr>
+			</tbody></table>
+			
+			
+				<br>
+		<table cellpadding="0" cellspacing="0" class="styled bordered center">
+			<tbody><tr>
+				<th colspan="2">Sessions weather</th>
+			</tr>
+			<tr>			
+				<th nowrap="nowrap">Practice / Qualify 1</th>
+				<th nowrap="nowrap">Qualify 2 / Race start</th>
+			</tr>
+			<tr>			
+				<td align="center">
+					<img border="2" src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/wSunny.gif" align="absmiddle" title="Sunny" alt="Sunny" name="WeatherQ"><br>
+					Temp: 36°C<br>
+					Humidity: 5%
+				</td>
+				<td align="center">
+					<img border="2" src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/wSunny.gif" align="absmiddle" title="Sunny" alt="Sunny" name="WeatherR"><br>
+					Temp: 30°C<br>
+					Humidity: 5%
+				</td>
+			</tr>
+
+				<tr>
+					<th colspan="2">Race forecast</th>
+				</tr>
+				<tr>
+					<th nowrap="nowrap">
+						<b>Start - 0h30m</b>
+					</th>
+					<th nowrap="nowrap">
+						<b>0h30m - 1h</b>
+					</th>
+				</tr>
+				<tr>
+					<td>
+						Temp: 29° - 33°<br>
+						Humidity: 4% - 13%<br>
+						Rain probability:
+						0%
+					</td>
+					<td>
+						Temp: 30° - 33°<br>
+						Humidity: 3% - 12%<br>
+						Rain probability:
+						0%
+					</td>
+				</tr>
+				<tr>
+					<th>1h - 1h30m</th>
+					<th>1h30m - 2h</th>
+				</tr>
+				<tr>		   
+					<td> 
+						Temp: 31° - 35°<br>
+						Humidity: 3% - 11%<br>
+						Rain probability:
+						0%
+					</td>
+					<td>
+						Temp: 29° - 34°<br>
+						Humidity: 3% - 13%<br>
+						Rain probability:
+						30% - 40%
+					</td>		    		    
+				</tr>
+	
+</tbody></table>
+</div>
+<br><br>
+<div data-step="9" data-intro="Next you will find your starting fuel and a table with the reasons for each pit stop in the race. Next to each pit stop you will see the remaining tyre condition (in %), the fuel left in the tank when the car entered the pits, what amount of fuel the car was refilled to, according to your race setup settings and lastly the pit time (without including the in-out of the pits time). Below the pit stops table you can see your tyres conditions and fuel left in the car after the finish line." data-position="right">
+		Start fuel: <b>57&nbsp;liters</b><br>
+		<br>
+
+    <table cellspacing="0" cellpadding="3" class="styled bordered leftalign">
+		<tbody><tr>
+			<th class="center">Pit</th>
+			<th nowrap="nowrap">Pitstop reason</th>
+			<th class="center">Tyres condition</th>
+			<th class="center"><img src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/hint.gif" class="help" rel="tooltip" content="&lt;div style=width:220px;&gt;&lt;p&gt;This specifies how much fuel was left compared to the &lt;u&gt;tank capacity&lt;/u&gt;.&lt;/p&gt;&lt;/div&gt;"><br>Fuel left</th>
+			<th class="center">Refilled to</th>
+			<th class="center">Pit time</th>
+		</tr>
+
+		<tr>
+			<td class="center" nowrap="nowrap">Stop&nbsp;1<br>(Lap&nbsp;19)</td>
+			<td class="yellow">No more fuel was left</td>
+			<td class="center"><font color="#00DDFF"><b>26%</b></font></td>
+			<td class="center"><b>0%</b></td>
+			<td class="center"><b>56 liters</b></td>
+			<td class="center"><b>23.466s</b></td>
+		</tr>
+
+		<tr>
+			<td class="center" nowrap="nowrap">Stop&nbsp;2<br>(Lap&nbsp;37)</td>
+			<td class="yellow">No more fuel was left</td>
+			<td class="center"><font color="#00DDFF"><b>28%</b></font></td>
+			<td class="center"><b>1%</b></td>
+			<td class="center"><b>56 liters</b></td>
+			<td class="center"><b>22.571s</b></td>
+		</tr>
+
+		<tr>
+			<td class="center" nowrap="nowrap">Stop&nbsp;3<br>(Lap&nbsp;55)</td>
+			<td class="yellow">No more fuel was left</td>
+			<td class="center"><font color="#00DDFF"><b>29%</b></font></td>
+			<td class="center"><b>1%</b></td>
+			<td class="center"><b>36 liters</b></td>
+			<td class="center"><b>23.495s</b></td>
+		</tr>
+
+		<tr>
+			<td class="center" nowrap="nowrap">Stop&nbsp;4<br>(Lap&nbsp;67)</td>
+			<td class="yellow">No more fuel was left</td>
+			<td class="center"><font color="#00DDFF"><b>52%</b></font></td>
+			<td class="center"><b>0%</b></td>
+			<td class="center"><b>36 liters</b></td>
+			<td class="center"><b>23.946s</b></td>
+		</tr>
+
+		</tbody></table>
+
+					<br>
+					<p>Tyres condition after finish: <b><font color="#00DDFF">88%</font></b></p>
+					<p>Fuel left in the car after finish: <b>27 liters</b></p>
+					<!--p>Tyres condition after finish: <b><font color="#00DDFF">%</font></b></p>
+					<p>Fuel left in the car after finish: <b>&nbsp;liters</b></p-->
+
+</div>
+ 
+<div>
+	<table class="styled bordered">
+		<tbody><tr>
+			<th></th><th>Blocked</th><th>Successful</th>
+		</tr>
+		<tr>
+			<th align="right">Overtaking attempts initiated:</th><td class="center"><font color="orange">17</font></td><td class="center"><font color="lime">7</font></td>
+		</tr>
+		<tr>
+			<th align="right">Overtaking attempts made upon you:</th><td class="center"><font color="lime">8</font></td><td class="center"><font color="orange">0</font></td>
+		</tr>
+	</tbody></table><br>
+</div>
+
+<div data-intro="Lastly you can see a detailed financial breakdown of your race income and costs, either as a table or as a graph." data-position="right">
+					<ul class="subnavigation">
+						<li style="padding:4px;">Show financial analysis as:</li>
+						<li class="selected" id="lnkShowAsTable"><a href="#nogo" onclick="ToggleFinAnalysis('table')">Table</a></li>
+						<li id="lnkShowAsGraph"><a href="#nogo" onclick="ToggleFinAnalysis('graph')">Graph</a></li>	
+					</ul>
+					<div id="dvFinAnalisysGraph" style="display:none"></div>
+
+					<div id="dvFinAnalisysTable">
+					<table cellpadding="" cellspacing="0" class="styled bordered" id="Table1">
+						<tbody><tr>
+							<th colspan="2">Financial analysis of the last race</th>
+						</tr>
+						<tr><td colspan="2" align="center"><b>Earnings</b></td></tr><tr><td>Driver race position (23): </td><td>$8.571.795</td></tr><tr><td>Driver qualifying position (22): </td><td>$380.000</td></tr><tr><td>Sponsor money:</td><td>$2.083.844</td></tr><tr><td colspan="2" align="center"><b>Costs</b></td></tr><tr><td>Driver salary: </td><td><font color="orange">$-1.090.928</font></td></tr><tr><td>Staff salary: </td><td><font color="orange">$-309.000</font></td></tr><tr><td>Facility costs: </td><td><font color="orange">$-630.000</font></td></tr><tr><td>Tyres contract (Pipirelli): </td><td><font color="orange">$-250.000</font></td></tr>
+						<tr>
+							<th colspan="2">&nbsp;</th>
+						</tr>
+						<tr>
+							<td>Total:</td>
+							<td>$8.755.711</td>
+						</tr>
+						<tr>
+							<th colspan="2">&nbsp;</th>
+						</tr>
+						<tr>
+							<td class="speccell">Current balance:</td>
+							<td class="speccell"><b>$58.710.033</b></td>
+						</tr>
+				</tbody></table>
+				</div>
+</div>
+		</div>
+	</div>
+</div>
+
+<div align="center" style="clear:both;">
+<br>
+<b>Your own notes about this race</b>
+<br><br>
+<form action="RaceAnalysis.asp" method="post"><input type="hidden" name="SR" value="" id="Hidden1">
+<textarea rows="18" name="txtComments" id="txtComments" style="width:770px;" class="normal" onkeydown="ShowProgress()" onkeyup="ShowProgress()" onchange="ShowProgress()"></textarea>
+<script type="text/javascript" language="javascript1.2">
+			<!--
+				var myProgBar = new progressBar(
+				2,         //border thickness
+				'#000000', //border colour
+				'#7F9EC9', //background colour
+				'red', //bar colour
+				770,       //width of bar (excluding border)
+				10,        //height of bar (excluding border)
+				1          //direction of progress: 1 = right, 2 = down, 3 = left, 4 = up
+				);
+		
+			//-->
+		</script><table border="0" cellspacing="0" cellpadding="2"><tbody><tr><td bgcolor="#000000"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr><td height="10" width="770" bgcolor="#7F9EC9"><div style="position:relative;top:0px;left:0px;height:10px;width:770;"><div style="position: absolute; top: 0px; left: 0px; height: 10px; width: 0px; font-size: 1px; background-color: red; clip: rect(0px, 0px, 10px, 0px);" id="MWJ_progBar1"></div></div></td></tr></tbody></table></td></tr></tbody></table>
+
+	
+<br>
+<input type="submit" class="normal" id="btnUpdateComments" name="btnUpdateComments" value="Update notes">
+</form>
+<br>
+<script type="text/javascript" language="javascript">
+<!--
+	ShowProgress()
+//-->
+</script>
+</div>
+<script type="text/javascript" src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/slick.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+    $('.slickpages').slick({
+    dots: false,
+	infinite: false,
+	speed: 50,
+	slidesToShow: 13,
+	slidesToScroll:6,
+	centerMode: false,
+	variableWidth: false,	
+	mobileFirst:false,
+	arrows:true
+    });    
+    $('.slickpages').show();    
+    $('.slickpages')[0].slick.slickGoTo(0);
+    
+});
+</script>
+		<div class="clear"></div>
+      </div>
+    </div>
+    <div class="clear"></div>
+  </div>
+    <div id="footer" style="clear:both;"><span class="bl fc"></span>
+		
+			<span class="br blank fc"></span>
+			<a href="https://www.gpro.net/gb/gpro.asp" class="backtooffice">Back to office<span></span></a>
+		
+		<p><a href="https://www.gpro.net/gb/GPROSupporter.asp" id="supportbutton">Support GPRO<b></b></a></p>
+		
+		<p>© Grand Prix Racing Online 2005-2024. All Rights Reserved<br><a href="https://www.gpro.net/gb/TermsOfService.asp">Terms of Service</a>|<a href="https://www.gpro.net/gb/PrivacyPolicy.asp">Privacy Policy</a>|<a href="https://www.gpro.net/gb/partner/">Partner program</a></p>
+		
+		<ul id="accesskeys" style="display:none;">
+			<li><a href="https://www.gpro.net/gb/accesskeys.asp" accesskey="0">Access Keys Help</a></li>
+			<li><a href="#skiptocontent" accesskey="2">Skip To Content</a></li>
+			<li><a href="https://www.gpro.net/gb/mailbox.asp" accesskey="6">Mailbox</a></li>
+			<li><a href="https://www.gpro.net/gb/race.asp" accesskey="9">Race Screen</a></li>
+		</ul>
+		
+		<br>
+         </div>
+	    </div>        
+    </div>
+</div>
+<script async="" src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/js"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'AW-1062486564');
+</script>
+
+<script type="text/javascript" src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/intro.min.js"></script>
+<img height="1" width="1" style="display:none" src="Race%20analysis%20-%20Season%20100%20-%20Race%207%20-%20Anderstorp%20(Sweden)%20-%20Grand%20Prix%20Racing%20Online_files/tr">
+
+<iframe style="display: none;" name="__tcfapiLocator"></iframe></body></html>
