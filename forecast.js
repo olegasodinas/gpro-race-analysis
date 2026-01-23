@@ -42,7 +42,6 @@ function openRaceForecast() {
                     <button onclick="fetchForecastFromApi()" style="padding:8px 16px; cursor:pointer; background:#2196f3; color:white; border:none; border-radius:4px;">Fetch</button>
                     <button onclick="clearApiToken()" style="padding:8px 16px; cursor:pointer; background:#f44336; color:white; border:none; border-radius:4px;" title="Clear saved token">Clear</button>
                 </div>
-                <p style="font-size:0.8rem; color:var(--text-secondary); margin-top:5px;">Note: This connects to gpro.net/gb/backend/api/v2/Practice</p>
             </div>
             <div class="upload-box" id="forecastDropZone" onclick="document.getElementById('forecastFileInput').click()">
                 <h3>Drop HTML File or Click to Upload</h3>
