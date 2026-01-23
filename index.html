@@ -28,6 +28,7 @@
     <link rel="stylesheet" href="styles.css">
     <script src="analyze.js"></script>
     <script src="forecast.js"></script>
+    <script src="stint_analysis.js"></script>
 </head>
 <body>
     <div class="container">
@@ -44,15 +45,18 @@
                     </div>
                     <div style="text-align:center; display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 10px;">
                         <button id="openFetcherBtn" onclick="openRaceFetcher()" style="padding: 5px 10px; cursor: pointer; background: #2196f3; color: white; border: none; border-radius: 4px;">API Fetch</button>
+                        <button onclick="loadPresavedTracks()" style="padding: 5px 10px; cursor: pointer; background: #607d8b; color: white; border: none; border-radius: 4px;">Load Presaved</button>
                         <button onclick="exportAllData()" style="padding: 5px 10px; cursor: pointer; background: #4caf50; color: white; border: none; border-radius: 4px;">Export All Data</button>
                         <small><a href="#" onclick="clearData(); return false;" style="color: #65676b; text-decoration: none;">Clear Saved Data</a></small>
                     </div>
-                    <div style="text-align:center; margin-top: 10px;">
-                        <button onclick="renderAllPartsAnalysis('mix')" style="padding: 6px 12px; cursor: pointer; background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px;">Parts Overview</button>
-                        <button onclick="renderTrackPartsMatrix()" style="padding: 6px 12px; cursor: pointer; background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px; margin-left: 5px;">Track Matrix</button>
-                        <button onclick="openRainAnalysis()" style="padding: 6px 12px; cursor: pointer; background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px; margin-left: 5px;">Rain Analysis</button>
-                        <button onclick="openComparisonTool()" style="padding: 6px 12px; cursor: pointer; background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px; margin-left: 5px;">Compare Races</button>
-                        <button onclick="openRaceForecast()" style="padding: 6px 12px; cursor: pointer; background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px; margin-left: 5px;">Race Forecast</button>
+                    <div style="text-align:center; margin-top: 10px; margin-bottom: 10px;">
+                        <button onclick="renderAllPartsAnalysis('mix')" style="padding: 6px 12px; cursor: pointer; background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px; margin-bottom: 8px;">Parts Overview</button>
+                        <button onclick="renderTrackPartsMatrix()" style="padding: 6px 12px; cursor: pointer; background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px; margin-left: 5px; margin-bottom: 8px;">Track Matrix</button>
+                        <button onclick="renderFuelTyreAnalysis()" style="padding: 6px 12px; cursor: pointer; background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px; margin-left: 5px; margin-bottom: 8px;">Fuel & Tyre</button>
+                        <button onclick="openRainAnalysis()" style="padding: 6px 12px; cursor: pointer; background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px; margin-left: 5px; margin-bottom: 8px;">Rain Analysis</button>
+                        <button onclick="openStintAnalysis()" style="padding: 6px 12px; cursor: pointer; background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px; margin-left: 5px; margin-bottom: 8px;">Stint Analysis</button>
+                        <button onclick="openComparisonTool()" style="padding: 6px 12px; cursor: pointer; background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px; margin-left: 5px; margin-bottom: 8px;">Compare Races</button>
+                        <button onclick="openRaceForecast()" style="padding: 6px 12px; cursor: pointer; background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px; margin-left: 5px; margin-bottom: 8px;">Race Forecast</button>
                     </div>
                     <div id="trackSelectorContainer" class="controls-section" style="display:none;">
                         <label for="trackSelect" style="font-weight:bold; margin-bottom:10px;">Select Track:</label>
@@ -67,6 +71,7 @@
                         <div class="legend-item"><span class="legend-icon cloud"></span> Cloud</div>
                         <div class="legend-item"><span class="legend-icon pit"></span> Pit Stop</div>
                         <div class="legend-item"><span class="legend-icon problem">🔧</span> Car Problem</div>
+                        <div class="legend-item"><span class="legend-icon mistake">⚠️</span> Mistake</div>
                         <div class="legend-item legend-separator">
                             <input type="checkbox" id="simpleChartToggle" onchange="toggleChartMode()">
                             <label for="simpleChartToggle" style="cursor:pointer; margin-left:5px;">Clear Lines</label>

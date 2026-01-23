@@ -53,6 +53,61 @@
             }
         }
 
+        async function loadPresavedTracks() {
+            logDebug("Checking for presaved tracks in 'tracks/list.json'...");
+            try {
+                const listRes = await fetch('tracks/list.json');
+                if (!listRes.ok) {
+                    throw new Error("tracks/list.json not found.\nPlease create a 'tracks' folder with a 'list.json' file containing an array of filenames (e.g. [\"race1.json\"]).");
+                }
+                
+                const files = await listRes.json();
+                if (!Array.isArray(files)) throw new Error("list.json is not an array.");
+                
+                logDebug(`Found ${files.length} files in list. Loading...`);
+                const newRaces = [];
+                
+                for (const f of files) {
+                    try {
+                        const r = await fetch(`tracks/${f}`);
+                        if (!r.ok) { logDebug(`Failed to load ${f}`); continue; }
+                        const txt = await r.text();
+                        let json;
+                        if (f.toLowerCase().endsWith('.json')) json = JSON.parse(txt);
+                        else if (f.toLowerCase().match(/\.html?$/) || f.toLowerCase().endsWith('.mhtml')) json = parseHTML(txt);
+                        
+                        if (json) {
+                            newRaces.push(json);
+                            logDebug(`Loaded ${f}`);
+                        }
+                    } catch (e) {
+                        logDebug(`Error parsing ${f}: ${e.message}`);
+                    }
+                }
+                
+                if (newRaces.length > 0) {
+                    const uniqueRaces = new Map();
+                    allRaceData.forEach(r => {
+                        const dId = r.driver && r.driver.id ? r.driver.id : 'unknown';
+                        uniqueRaces.set(`${r.selSeasonNb}-${r.selRaceNb}-${dId}`, r);
+                    });
+                    newRaces.forEach(r => {
+                        const dId = r.driver && r.driver.id ? r.driver.id : 'unknown';
+                        uniqueRaces.set(`${r.selSeasonNb}-${r.selRaceNb}-${dId}`, r);
+                    });
+                    allRaceData = Array.from(uniqueRaces.values());
+                    await saveToDB(allRaceData);
+                    populateTrackSelector();
+                    logDebug(`Successfully loaded ${newRaces.length} presaved tracks.`);
+                } else {
+                    alert("No valid tracks loaded.");
+                }
+            } catch (e) {
+                alert(e.message);
+                logDebug(e.message);
+            }
+        }
+
         async function dismissCard(cardId) {
             const uidToRemove = cardId.substring(5);
 
@@ -91,6 +146,7 @@
         let racesPerChart = 4;
         let currentChartRaces = [];
         let isSimpleChartMode = false;
+        let currentView = 'dashboard';
 
         function toggleChartMode() {
             isSimpleChartMode = !isSimpleChartMode;
@@ -254,12 +310,13 @@
             document.getElementById('customTooltip').style.display = 'none';
         }
 
-        function createTooltipAttr(content) {
+        function createTooltipAttr(content, extraStyle = '') {
             const safeTooltip = content.replace(/"/g, '&quot;').replace(/'/g, "\\'");
-            return `onmouseenter="showTooltip(event, '${safeTooltip}')" onmousemove="moveTooltip(event)" onmouseleave="hideTooltip()" style="cursor:help;"`;
+            return `onmouseenter="showTooltip(event, '${safeTooltip}')" onmousemove="moveTooltip(event)" onmouseleave="hideTooltip()" style="cursor:help; ${extraStyle}"`;
         }
 
         function openRainAnalysis() {
+            currentView = 'rain';
             if (allRaceData.length === 0) return;
             const r = allRaceData[0];
             const dId = r.driver && r.driver.id ? r.driver.id : 'unknown';
@@ -268,6 +325,7 @@
         }
 
         function openComparisonTool() {
+            currentView = 'compare';
             const container = document.getElementById('cardsContainer');
             container.innerHTML = '';
 
@@ -429,7 +487,11 @@
                     }
                     
                     if (!stop.isFinish) {
-                        currentFuel = stop.refilledTo;
+                        if (stop.refilledTo > 0 && stop.refilledTo > fuelAtEnd) {
+                            currentFuel = stop.refilledTo;
+                        } else {
+                            currentFuel = fuelAtEnd;
+                        }
                         startLap = endLap + 1;
                     }
                 });
@@ -524,7 +586,8 @@
                     else if (val === null || val === undefined) displayVal = '-';
                     
                     if (row.isTyres && Array.isArray(val)) {
-                        displayVal = val.map(t => getTyreIconHtml(t)).join(' ');
+                        const supIcon = getTyreSupplierIconHtml(r.tyreSupplier ? r.tyreSupplier.name : '');
+                        displayVal = supIcon + ' ' + val.map(t => getTyreIconHtml(t)).join(' ');
                     }
 
                     let style = '';
@@ -935,6 +998,7 @@
         }
 
         function returnToDashboard() {
+            currentView = 'dashboard';
             const select = document.getElementById('trackSelect');
             if (select) {
                 filterAndRender(select.value);
@@ -944,6 +1008,7 @@
         }
 
         function goToTrack(trackName) {
+            currentView = 'dashboard';
             const select = document.getElementById('trackSelect');
             if (select) {
                 select.value = trackName;
@@ -952,6 +1017,7 @@
         }
 
         function openRaceFetcher() {
+            currentView = 'fetcher';
             const container = document.getElementById('cardsContainer');
             container.innerHTML = '';
 
@@ -1116,6 +1182,16 @@
                 return b.selRaceNb - a.selRaceNb;
             });
 
+            if (currentView === 'stint') {
+                try {
+                    renderChart(filtered);
+                } catch (e) {
+                    logDebug(`Error rendering chart: ${e.message}`);
+                }
+                openStintAnalysis();
+                return;
+            }
+
             try {
                 renderDashboard(filtered);
             } catch (e) {
@@ -1214,6 +1290,7 @@
         }
 
         function renderAllPartsAnalysis(level) {
+            currentView = 'parts';
             const container = document.getElementById('cardsContainer');
             container.innerHTML = '';
 
@@ -1321,7 +1398,568 @@
             container.appendChild(clone);
         }
 
+        function renderFuelTyreAnalysis(groupBy = 'track') {
+            currentView = 'fuel_tyre';
+            const container = document.getElementById('cardsContainer');
+            container.innerHTML = '';
+            
+            // Header with controls
+            const headerDiv = document.createElement('div');
+            headerDiv.style.gridColumn = '1 / -1';
+            headerDiv.className = 'card';
+            headerDiv.innerHTML = `
+                <div class="card-header">
+                    <h3>Fuel & Tyre Analysis</h3>
+                    <div class="subtitle">Analyze consumption and wear across different dimensions</div>
+                    <div style="margin-top:10px;">
+                        <label style="font-weight:bold; margin-right:5px;">Group By:</label>
+                        <select id="ftGroupBy" style="padding: 5px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-color); color: var(--text-primary);">
+                            <option value="track" ${groupBy === 'track' ? 'selected' : ''}>Track</option>
+                            <option value="driver" ${groupBy === 'driver' ? 'selected' : ''}>Driver</option>
+                            <option value="tyre" ${groupBy === 'tyre' ? 'selected' : ''}>Tyre Type</option>
+                            <option value="season" ${groupBy === 'season' ? 'selected' : ''}>Season</option>
+                            <option value="group" ${groupBy === 'group' ? 'selected' : ''}>Group</option>
+                            <option value="car_type" ${groupBy === 'car_type' ? 'selected' : ''}>Car Type</option>
+                            <option value="matrix" ${groupBy === 'matrix' ? 'selected' : ''}>Tyre vs Temp Matrix</option>
+                            <option value="matrix_track_tyre" ${groupBy === 'matrix_track_tyre' ? 'selected' : ''}>Track+Tyre vs Temp Matrix</option>
+                        </select>
+                        <button onclick="returnToDashboard()" style="margin-left:10px; padding:5px 10px; cursor:pointer; background:var(--accent); color:white; border:none; border-radius:4px;">Back to Dashboard</button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(headerDiv);
+            
+            document.getElementById('ftGroupBy').onchange = (e) => renderFuelTyreAnalysis(e.target.value);
+
+            // Collect all stints
+            const allStints = [];
+            
+            allRaceData.forEach(r => {
+                let currentFuel = r.startFuel;
+                let startLap = 1;
+                const totalLaps = r.laps.length - 1;
+                const pits = r.pits || [];
+                const allStops = [...pits, { lap: totalLaps, fuelLeft: (r.finishFuel/180)*100, tyreCond: r.finishTyres, refilledTo: 0, isFinish: true }];
+                
+                allStops.forEach((stop, idx) => {
+                    const endLap = stop.lap;
+                    const lapsInStint = endLap - startLap + 1;
+                    if (lapsInStint <= 0) return;
+
+                    let fuelAtEnd = stop.isFinish ? r.finishFuel : (stop.fuelLeft / 100) * 180;
+                    const fuelUsed = currentFuel - fuelAtEnd;
+                    const tyreUsed = 100 - stop.tyreCond;
+                    
+                    const avgFuel = (fuelUsed / lapsInStint);
+                    const avgTyre = (tyreUsed / lapsInStint);
+
+                    const tyreType = r.laps[startLap] ? r.laps[startLap].tyres : '-';
+                    
+                    // Avg Temp/Hum/Rain
+                    let tSum = 0, hSum = 0, cnt = 0;
+                    let hasRain = false;
+                    let mistakeCount = 0;
+                    let mistakeLoss = 0;
+                    let accidentCount = 0;
+                    const stintWeathers = new Set();
+
+                    for(let i=startLap; i<=endLap; i++) {
+                        if (r.laps[i]) {
+                            tSum += r.laps[i].temp;
+                            hSum += r.laps[i].hum;
+                            cnt++;
+                            const w = r.laps[i].weather.toLowerCase();
+                            if (w.includes('rain')) { hasRain = true; stintWeathers.add('Rain'); }
+                            else if (w.includes('cloud')) stintWeathers.add('Cloudy');
+                            else if (w.includes('sun') || w.includes('clear')) stintWeathers.add('Sunny');
+                        }
+                        if (r.laps[i].events) {
+                            r.laps[i].events.forEach(e => {
+                                if (e.event) {
+                                    const matches = [...e.event.matchAll(/mistake.*?\(\s*(\d+(?:\.\d+)?)\s*s?\s*\)/gi)];
+                                    if (matches.length > 0) {
+                                        matches.forEach(m => {
+                                            mistakeCount++;
+                                            mistakeLoss += parseFloat(m[1]);
+                                        });
+                                    } else if (e.event.toLowerCase().includes('mistake')) {
+                                        mistakeCount++;
+                                        mistakeLoss += calculateMistakeLoss(r, i, startLap, endLap, !stop.isFinish);
+                                    }
+                                    if (e.event.toLowerCase().includes('accident') || e.event.toLowerCase().includes('collision')) {
+                                        accidentCount++;
+                                    }
+                                }
+                            });
+                        }
+                    }
+                    
+                    const avgT = cnt ? (tSum/cnt) : null;
+                    const avgH = cnt ? (hSum/cnt) : null;
+                    
+                    allStints.push({
+                        race: r,
+                        stintIdx: idx + 1,
+                        laps: lapsInStint,
+                        fuelUsed: fuelUsed,
+                        tyreUsed: tyreUsed,
+                        avgFuel: avgFuel,
+                        avgTyre: avgTyre,
+                        tyreType: tyreType,
+                        avgT: avgT,
+                        avgH: avgH,
+                        hasRain: hasRain,
+                        mistakeCount: mistakeCount,
+                        mistakeLoss: mistakeLoss,
+                        accidentCount: accidentCount,
+                        stintWeathers: stintWeathers
+                    });
+
+                    if (!stop.isFinish) {
+                        if (stop.refilledTo > 0 && stop.refilledTo > fuelAtEnd) {
+                            currentFuel = stop.refilledTo;
+                        } else {
+                            currentFuel = fuelAtEnd;
+                        }
+                        startLap = endLap + 1;
+                    }
+                });
+            });
+
+            if (groupBy === 'matrix_track_tyre') {
+                const tempStep = 5;
+                let minT = 100, maxT = 0;
+                allStints.forEach(s => {
+                    if (s.avgT !== null) {
+                        if (s.avgT < minT) minT = s.avgT;
+                        if (s.avgT > maxT) maxT = s.avgT;
+                    }
+                });
+                
+                if (minT > maxT) { minT = 0; maxT = 50; }
+                const startRange = Math.floor(minT / tempStep) * tempStep;
+                const endRange = Math.ceil(maxT / tempStep) * tempStep;
+
+                const trackData = {};
+
+                allStints.forEach(s => {
+                    if (s.avgT === null) return;
+                    const tBucket = Math.floor(s.avgT / tempStep) * tempStep;
+                    const trackName = s.race.trackName;
+                    const tyreType = s.tyreType;
+                    const supplier = s.race.tyreSupplier ? s.race.tyreSupplier.name : '';
+
+                    if (!trackData[trackName]) trackData[trackName] = {};
+                    if (!trackData[trackName][tyreType]) trackData[trackName][tyreType] = { supplier: supplier, buckets: {} };
+
+                    const tyreData = trackData[trackName][tyreType];
+                    if (!tyreData.buckets[tBucket]) tyreData.buckets[tBucket] = { fuelSum: 0, tyreSum: 0, minFuel: 999, maxFuel: 0, minTyre: 999, maxTyre: 0, count: 0, stints: [], accidentCount: 0, weatherStates: new Set() };
+
+                    const cell = tyreData.buckets[tBucket];
+                    cell.fuelSum += s.avgFuel;
+                    cell.tyreSum += s.avgTyre;
+                    if (s.avgFuel < cell.minFuel) cell.minFuel = s.avgFuel;
+                    if (s.avgFuel > cell.maxFuel) cell.maxFuel = s.avgFuel;
+                    if (s.avgTyre < cell.minTyre) cell.minTyre = s.avgTyre;
+                    if (s.avgTyre > cell.maxTyre) cell.maxTyre = s.avgTyre;
+                    cell.count++;
+                    if (s.accidentCount > 0) cell.accidentCount += s.accidentCount;
+                    s.stintWeathers.forEach(w => cell.weatherStates.add(w));
+                    cell.stints.push(s);
+                });
+
+                const sortedTracks = Object.keys(trackData).sort();
+
+                sortedTracks.forEach(trackName => {
+                    const tyres = trackData[trackName];
+                    const sortedTyres = Object.keys(tyres).sort((a, b) => {
+                        const tyreOrder = { 'Extra Soft': 1, 'Soft': 2, 'Medium': 3, 'Hard': 4, 'Rain': 5 };
+                        const o1 = tyreOrder[a] || 99;
+                        const o2 = tyreOrder[b] || 99;
+                        return o1 - o2;
+                    });
+
+                    let headerHTML = '<tr><th>Tyre</th>';
+                    for (let t = startRange; t < endRange; t += tempStep) {
+                        headerHTML += `<th>${t}° - ${t+tempStep}°</th>`;
+                    }
+                    headerHTML += '</tr>';
+
+                    let rowsHTML = '';
+                    sortedTyres.forEach(tyreType => {
+                        const tData = tyres[tyreType];
+                        let cells = '';
+                        
+                        for (let t = startRange; t < endRange; t += tempStep) {
+                            const cell = tData.buckets[t];
+                            let content = '-';
+                            let cellAttr = '';
+                            let cellStyle = 'vertical-align:middle;';
+                            
+                            if (cell && cell.count > 0) {
+                                const fStr = cell.minFuel === cell.maxFuel ? cell.minFuel.toFixed(3) : `${cell.minFuel.toFixed(3)}-${cell.maxFuel.toFixed(3)}`;
+                                const wStr = cell.minTyre === cell.maxTyre ? cell.minTyre.toFixed(3) : `${cell.minTyre.toFixed(3)}-${cell.maxTyre.toFixed(3)}`;
+                                content = `<div>F: ${fStr}L</div><div>W: ${wStr}%</div><div style="font-size:0.7em; color:var(--text-secondary);">(${cell.count})</div>`;
+                                if (cell.accidentCount > 0) content += '<div style="font-size:0.8em;">💥</div>';
+                                
+                                let wIcons = '';
+                                if (cell.weatherStates.has('Rain')) wIcons += '🌧️';
+                                if (cell.weatherStates.has('Sunny')) wIcons += '☀️';
+                                if (cell.weatherStates.has('Cloudy')) wIcons += '☁️';
+                                if (wIcons) content += `<div style="font-size:0.8em;">${wIcons}</div>`;
+
+                                if (cell.weatherStates.has('Rain')) cellStyle += ' background-color: #1a3b5c;';
+                                
+                                const tooltipRows = cell.stints.map(s => {
+                                    const r = s.race;
+                                    const dName = r.driver ? r.driver.name.replace(/['"]/g, '') : 'Unknown';
+                                    const groupName = r.group || r.groupName || '';
+                                    const accIcon = s.accidentCount > 0 ? ' 💥' : '';
+                                    return `<div class="tooltip-item"><strong>S${r.selSeasonNb}R${r.selRaceNb}</strong> ${dName}${accIcon}<br>${groupName}<br>F:${s.avgFuel.toFixed(3)} W:${s.avgTyre.toFixed(3)} T:${s.avgT.toFixed(1)}°</div>`;
+                                }).join('');
+                                
+                                const isMultiCol = cell.count > 6;
+                                const wrapperClass = isMultiCol ? 'tooltip-columns' : '';
+                                cellAttr = createTooltipAttr(`<div class="${wrapperClass}">${tooltipRows}</div>`, cellStyle);
+                                cells += `<td ${cellAttr}>${content}</td>`;
+                            } else {
+                                cells += `<td style="${cellStyle}">${content}</td>`;
+                            }
+                        }
+                        
+                        const supIcon = getTyreSupplierIconHtml(tData.supplier);
+                        rowsHTML += `<tr style="background-color: var(--bg-color); color: var(--text-secondary); font-size: 0.85rem;">
+                            <td style="text-align:left; font-weight:bold;">
+                                <div style="font-weight:normal; font-size:0.9em;">${supIcon} ${getTyreIconHtml(tyreType)} ${tyreType}</div>
+                            </td>
+                            ${cells}
+                        </tr>`;
+                    });
+
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.style.gridColumn = '1 / -1';
+                    card.innerHTML = `
+                        <div class="card-header"><h3>${trackName}</h3></div>
+                        <div style="overflow-x:auto;">
+                            <table class="setup-table">
+                                <thead>${headerHTML}</thead>
+                                <tbody>${rowsHTML}</tbody>
+                            </table>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+                return;
+            }
+
+            if (groupBy === 'matrix') {
+                const tyreTypes = ['Extra Soft', 'Soft', 'Medium', 'Hard', 'Rain'];
+                const tempStep = 5;
+                const matrix = {}; 
+
+                let minT = 100, maxT = 0;
+                allStints.forEach(s => {
+                    if (s.avgT !== null) {
+                        if (s.avgT < minT) minT = s.avgT;
+                        if (s.avgT > maxT) maxT = s.avgT;
+                    }
+                });
+                
+                if (minT > maxT) { minT = 0; maxT = 50; }
+                const startRange = Math.floor(minT / tempStep) * tempStep;
+                const endRange = Math.ceil(maxT / tempStep) * tempStep;
+
+                for (let t = startRange; t < endRange; t += tempStep) {
+                    matrix[t] = {};
+                    tyreTypes.forEach(tyre => {
+                        matrix[t][tyre] = { fuelSum: 0, tyreSum: 0, minFuel: 999, maxFuel: 0, minTyre: 999, maxTyre: 0, count: 0, stints: [], accidentCount: 0, weatherStates: new Set() };
+                    });
+                }
+
+                allStints.forEach(s => {
+                    if (s.avgT === null) return;
+                    const tBucket = Math.floor(s.avgT / tempStep) * tempStep;
+                    
+                    let tType = 'Unknown';
+                    const l = s.tyreType.toLowerCase();
+                    if (l.includes('extra')) tType = 'Extra Soft';
+                    else if (l.includes('soft')) tType = 'Soft';
+                    else if (l.includes('medium')) tType = 'Medium';
+                    else if (l.includes('hard')) tType = 'Hard';
+                    else if (l.includes('rain')) tType = 'Rain';
+
+                    if (matrix[tBucket] && matrix[tBucket][tType]) {
+                        const cell = matrix[tBucket][tType];
+                        cell.fuelSum += s.avgFuel;
+                        cell.tyreSum += s.avgTyre;
+                        if (s.avgFuel < cell.minFuel) cell.minFuel = s.avgFuel;
+                        if (s.avgFuel > cell.maxFuel) cell.maxFuel = s.avgFuel;
+                        if (s.avgTyre < cell.minTyre) cell.minTyre = s.avgTyre;
+                        if (s.avgTyre > cell.maxTyre) cell.maxTyre = s.avgTyre;
+                        cell.count++;
+                        if (s.accidentCount > 0) cell.accidentCount += s.accidentCount;
+                        s.stintWeathers.forEach(w => cell.weatherStates.add(w));
+                        cell.stints.push(s);
+                    }
+                });
+
+                let rows = '';
+                for (let t = startRange; t < endRange; t += tempStep) {
+                    let cells = '';
+                    let hasDataInRow = false;
+                    tyreTypes.forEach(tyre => {
+                        const cell = matrix[t][tyre];
+                        if (cell.count > 0) hasDataInRow = true;
+                    });
+                    
+                    if (!hasDataInRow) continue;
+
+                    tyreTypes.forEach(tyre => {
+                        const cell = matrix[t][tyre];
+                        let content = '-';
+                        let cellAttr = '';
+                        let cellStyle = 'vertical-align:middle;';
+                        if (cell && cell.count > 0) {
+                            const fStr = cell.minFuel === cell.maxFuel ? cell.minFuel.toFixed(3) : `${cell.minFuel.toFixed(3)}-${cell.maxFuel.toFixed(3)}`;
+                            const wStr = cell.minTyre === cell.maxTyre ? cell.minTyre.toFixed(3) : `${cell.minTyre.toFixed(3)}-${cell.maxTyre.toFixed(3)}`;
+                            content = `<div>Fuel: ${fStr}L</div><div>Wear: ${wStr}%</div><div style="font-size:0.7em; color:var(--text-secondary);">(${cell.count})</div>`;
+                            if (cell.accidentCount > 0) content += '<div style="font-size:0.8em;">💥</div>';
+                            
+                            let wIcons = '';
+                            if (cell.weatherStates.has('Rain')) wIcons += '🌧️';
+                            if (cell.weatherStates.has('Sunny')) wIcons += '☀️';
+                            if (cell.weatherStates.has('Cloudy')) wIcons += '☁️';
+                            if (wIcons) content += `<div style="font-size:0.8em;">${wIcons}</div>`;
+
+                            if (cell.weatherStates.has('Rain')) cellStyle += ' background-color: #1a3b5c;';
+                            
+                            const tooltipRows = cell.stints.map(s => {
+                                const r = s.race;
+                                const dName = r.driver ? r.driver.name.replace(/['"]/g, '') : 'Unknown';
+                                const groupName = r.group || r.groupName || '';
+                                const accIcon = s.accidentCount > 0 ? ' 💥' : '';
+                                return `<div class="tooltip-item"><strong>S${r.selSeasonNb}R${r.selRaceNb}</strong> ${r.trackName}<br>${dName}${accIcon}<br>${groupName}<br>Fuel:${s.avgFuel.toFixed(3)} Wear:${s.avgTyre.toFixed(3)} T:${s.avgT.toFixed(1)}°</div>`;
+                            }).join('');
+                            
+                            const isMultiCol = cell.count > 6;
+                            const wrapperClass = isMultiCol ? 'tooltip-columns' : '';
+                            cellAttr = createTooltipAttr(`<div class="${wrapperClass}">${tooltipRows}</div>`, cellStyle);
+                            cells += `<td ${cellAttr}>${content}</td>`;
+                        } else {
+                            cells += `<td style="${cellStyle}">${content}</td>`;
+                        }
+                    });
+                    rows += `<tr style="background-color: var(--bg-color); color: var(--text-secondary); font-size: 0.85rem;"><td style="font-weight:bold;">${t}° - ${t+tempStep}°</td>${cells}</tr>`;
+                }
+
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.style.gridColumn = '1 / -1';
+                card.innerHTML = `
+                    <div class="card-header"><h3>Tyre vs Temperature Matrix</h3></div>
+                    <div style="overflow-x:auto;">
+                        <table class="setup-table">
+                            <thead>
+                                <tr>
+                                    <th>Temp Range</th>
+                                    ${tyreTypes.map(t => `<th>${getTyreIconHtml(t)} ${t}</th>`).join('')}
+                                </tr>
+                            </thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    </div>
+                `;
+                container.appendChild(card);
+                return;
+            }
+
+            // Grouping
+            const groups = {};
+            if (groupBy === 'car_type') {
+                groups['Power'] = [];
+                groups['Handling'] = [];
+                groups['Acceleration'] = [];
+            }
+            allStints.forEach(s => {
+                if (groupBy === 'car_type') {
+                    groups['Power'].push(s);
+                    groups['Handling'].push(s);
+                    groups['Acceleration'].push(s);
+                    return;
+                }
+
+                let key = 'Unknown';
+                if (groupBy === 'track') key = s.race.trackName;
+                else if (groupBy === 'driver') key = s.race.driver ? s.race.driver.name.replace(/['"]/g, '') : 'Unknown';
+                else if (groupBy === 'tyre') key = s.tyreType;
+                else if (groupBy === 'season') key = 'Season ' + s.race.selSeasonNb;
+                else if (groupBy === 'group') {
+                    const g = (s.race.group || s.race.groupName || 'Unknown');
+                    const gl = g.toLowerCase();
+                    if (gl.includes('elite')) key = 'Elite';
+                    else if (gl.includes('master')) key = 'Master';
+                    else if (gl.includes('pro')) key = 'Pro';
+                    else if (gl.includes('amateur')) key = 'Amateur';
+                    else if (gl.includes('rookie')) key = 'Rookie';
+                    else key = g;
+                }
+                
+                if (!groups[key]) groups[key] = [];
+                groups[key].push(s);
+            });
+
+            let sortedKeys = Object.keys(groups).sort();
+            if (groupBy === 'group') {
+                const getGroupOrder = (k) => {
+                    const s = k.toLowerCase();
+                    if (s.includes('rookie')) return 1;
+                    if (s.includes('amateur')) return 2;
+                    if (s.includes('pro')) return 3;
+                    if (s.includes('master')) return 4;
+                    if (s.includes('elite')) return 5;
+                    return 99;
+                };
+                sortedKeys.sort((a, b) => {
+                    const oa = getGroupOrder(a);
+                    const ob = getGroupOrder(b);
+                    if (oa !== ob) return oa - ob;
+                    return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+                });
+            }
+            
+            if (sortedKeys.length === 0) {
+                container.innerHTML += '<div style="grid-column: 1 / -1; text-align:center;">No race data available.</div>';
+                return;
+            }
+
+            sortedKeys.forEach(groupKey => {
+                const stints = groups[groupKey];
+                // Sort stints
+                stints.sort((a, b) => {
+                     if (groupBy === 'car_type') {
+                        let valA = 0, valB = 0;
+                        if (groupKey === 'Power') { valA = a.race.carPower || 0; valB = b.race.carPower || 0; }
+                        else if (groupKey === 'Handling') { valA = a.race.carHandl || 0; valB = b.race.carHandl || 0; }
+                        else { valA = a.race.carAccel || 0; valB = b.race.carAccel || 0; }
+                        if (valA !== valB) return valB - valA;
+                     }
+                     if (a.race.selSeasonNb != b.race.selSeasonNb) return b.race.selSeasonNb - a.race.selSeasonNb;
+                     if (a.race.selRaceNb != b.race.selRaceNb) return b.race.selRaceNb - a.race.selRaceNb;
+                     return a.stintIdx - b.stintIdx;
+                });
+
+                let rows = '';
+                if (stints.length === 0) {
+                    rows = `<tr><td colspan="11" style="text-align:center; padding:15px; color:var(--text-secondary); font-style:italic;">No races found.</td></tr>`;
+                } else {
+                    stints.forEach(s => {
+                    const r = s.race;
+                    const driverName = r.driver ? r.driver.name.replace(/['"]/g, '') : 'Unknown';
+                    const raceId = `S${r.selSeasonNb} R${r.selRaceNb}`;
+                    const trackName = r.trackName;
+                    const groupName = r.group || r.groupName || '-';
+                    
+                    const supIcon = getTyreSupplierIconHtml(r.tyreSupplier ? r.tyreSupplier.name : '');
+                    const weatherIcon = s.hasRain ? '🌧️' : '☀️';
+                    
+                    let to18Info = '-';
+                    if (s.avgTyre > 0) {
+                         const lapsTo18 = 82 / s.avgTyre;
+                         const fuelNeeded = lapsTo18 * s.avgFuel;
+                         to18Info = `${fuelNeeded.toFixed(1)}L (${lapsTo18.toFixed(1)} laps)`;
+                    }
+
+                    let mistakeStr = '-';
+                    if (s.mistakeCount > 0) {
+                        mistakeStr = `${s.mistakeCount}`;
+                        if (s.mistakeLoss > 0) mistakeStr += ` (${s.mistakeLoss.toFixed(1)}s)`;
+                    }
+                    if (s.accidentCount > 0) {
+                        if (mistakeStr === '-') mistakeStr = '';
+                        else mistakeStr += ' ';
+                        mistakeStr += '💥';
+                    }
+
+                    const isRainTyre = s.tyreType.toLowerCase().includes('rain');
+                    const weatherMismatch = (isRainTyre && !s.hasRain) || (!isRainTyre && s.hasRain && s.tyreType !== '-');
+
+                    let rowColor = 'var(--text-secondary)';
+                    if (weatherMismatch) rowColor = '#ff5252';
+                    else if (s.laps < 10) rowColor = 'gray';
+
+                    let col1 = raceId;
+                    let col2 = groupBy === 'driver' ? trackName : driverName;
+                    if (groupBy === 'track') col2 = driverName;
+                    if (groupBy === 'tyre') col2 = trackName;
+                    if (groupBy === 'season') col2 = trackName;
+                    if (groupBy === 'group') col2 = trackName;
+                    if (groupBy === 'car_type') {
+                        col2 = trackName;
+                        let val = 0;
+                        if (groupKey === 'Power') val = r.carPower || 0;
+                        else if (groupKey === 'Handling') val = r.carHandl || 0;
+                        else val = r.carAccel || 0;
+                        const lower = Math.floor(val / 5) * 5;
+                        col1 = `${lower}-${lower + 5}`;
+                    }
+
+                    rows += `
+                        <tr style="background-color: var(--bg-color); color: ${rowColor}; font-size: 0.85rem;">
+                            <td>${col1}</td>
+                            <td class="clickable-label" onclick="goToTrack('${trackName.replace(/'/g, "\\'")}')">${col2}</td>
+                            <td>${groupName}</td>
+                            <td>${s.stintIdx}</td>
+                            <td>${s.laps}</td>
+                            <td>${supIcon}${getTyreIconHtml(s.tyreType)} ${s.tyreType}</td>
+                            <td>${s.fuelUsed.toFixed(1)} (${s.avgFuel.toFixed(3)})</td>
+                            <td>${s.tyreUsed.toFixed(1)}% (${s.avgTyre.toFixed(3)}%)</td>
+                            <td>${to18Info}</td>
+                            <td style="${(s.mistakeCount > 0 || s.accidentCount > 0) ? 'color: #ff5252; font-weight:bold;' : ''}">${mistakeStr}</td>
+                            <td>${s.avgT !== null ? s.avgT.toFixed(1) : '-'}° / ${s.avgH !== null ? s.avgH.toFixed(0) : '-'}% ${weatherIcon}</td>
+                        </tr>
+                    `;
+                    });
+                }
+
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.style.gridColumn = '1 / -1';
+                
+                let th1 = 'Race';
+                if (groupBy === 'car_type') th1 = 'Level';
+
+                let th2 = 'Driver';
+                if (groupBy === 'driver' || groupBy === 'tyre' || groupBy === 'season' || groupBy === 'group' || groupBy === 'car_type') th2 = 'Track';
+
+                card.innerHTML = `
+                    <div class="card-header"><h3>${groupKey}</h3></div>
+                    <div style="overflow-x:auto; max-height:400px;">
+                        <table class="setup-table">
+                            <thead><tr>
+                                <th onclick="sortTable(this.closest('table'), 0)">${th1}</th>
+                                <th onclick="sortTable(this.closest('table'), 1)">${th2}</th>
+                                <th onclick="sortTable(this.closest('table'), 2)">Group</th>
+                                <th onclick="sortTable(this.closest('table'), 3)">Stint</th>
+                                <th onclick="sortTable(this.closest('table'), 4)">Laps</th>
+                                <th onclick="sortTable(this.closest('table'), 5)">Tyre</th>
+                                <th onclick="sortTable(this.closest('table'), 6)">Fuel (Avg)</th>
+                                <th onclick="sortTable(this.closest('table'), 7)">Wear (Avg)</th>
+                                <th onclick="sortTable(this.closest('table'), 8)">Tyres to 18%</th>
+                                <th onclick="sortTable(this.closest('table'), 9)">Mistakes</th>
+                                <th onclick="sortTable(this.closest('table'), 10)">Cond</th>
+                            </tr></thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    </div>
+                `;
+                container.appendChild(card);
+
+            });
+        }
+
         function renderTrackPartsMatrix() {
+            currentView = 'matrix';
             const container = document.getElementById('cardsContainer');
             container.innerHTML = '';
             
@@ -1430,18 +2068,23 @@
                         const d = partData[key][i];
                         let val = '-';
                         let cellAttr = '';
+                        let extraStyle = '';
                         if (d.count > 0) {
                             val = (d.min === d.max) ? `${d.min}%` : `${d.min}-${d.max}%`;
                             if (d.hasCarProblem) val += ' 🔧';
                             if (d.weathers.has('Mix') || (d.weathers.has('Rain') && (d.weathers.has('Sunny') || d.weathers.has('Cloudy')))) val += ' 🌦️';
                             else if (d.weathers.has('Rain')) val += ' 🌧️';
                             
+                            if (d.weathers.has('Rain') || d.weathers.has('Mix')) {
+                                extraStyle = 'background-color: #1a3b5c;';
+                            }
+
                             const isMultiCol = d.races.length > 6;
                             const wrapperClass = isMultiCol ? 'tooltip-columns' : '';
                             const tooltipRows = d.races.map(r => 
                                 `<div class="tooltip-item"><strong>${r.id}</strong> ${r.icon} (${r.driver}) - Wear: ${r.wear}%<br><span style="color:#aaa">Risks: ${r.risks}</span></div>`
                             ).join('');
-                            cellAttr = createTooltipAttr(`<div class="${wrapperClass}">${tooltipRows}</div>`);
+                            cellAttr = createTooltipAttr(`<div class="${wrapperClass}">${tooltipRows}</div>`, extraStyle);
                         }
                         cells += `<td ${cellAttr}>${val}</td>`;
                     }
@@ -1476,6 +2119,7 @@
         }
 
         function renderPartsAnalysis(races, partKey, level) {
+            currentView = 'parts_detail';
             const container = document.getElementById('cardsContainer');
             container.innerHTML = '';
             
@@ -1574,6 +2218,7 @@
         }
 
         function renderDashboard(data) {
+            currentView = 'dashboard';
             const container = document.getElementById('cardsContainer');
             container.innerHTML = '';
 
@@ -1622,6 +2267,54 @@
             if (l.includes('cloud')) return '#3a3b3c';
             return 'transparent';
         };
+        const getTyreSupplierIconHtml = (supplierName) => {
+            if (!supplierName) return '';
+            const s = supplierName.toLowerCase();
+            let color = '#888';
+            let letter = '?';
+            let textColor = '#fff';
+            let borderColor = '#fff';
+
+            if (s.includes('bridgerock')) {
+                color = '#ff0000'; // Red
+                letter = 'B';
+                textColor = '#fff';
+            } else if (s.includes('michelini')) {
+                color = '#007da6ff'; // Cyan
+                letter = 'M';
+                textColor = '#fff';
+            } else if (s.includes('badyear')) {
+                color = '#0000d4ff'; // Blue
+                letter = 'B';
+                textColor = '#e5ce03ff'; // Yellow
+            } else if (s.includes('contimental')) {
+                color = '#808080'; // Gray
+                letter = 'C';
+                textColor = '#ffa500'; // Orange
+            } else if (s.includes('hancock')) {
+                color = '#ffa500'; // Orange
+                letter = 'H';
+                textColor = '#fff';
+            } else if (s.includes('yokomama')) {
+                color = '#ff0000'; // Red
+                letter = 'Y';
+                textColor = '#000';
+            } else if (s.includes('avon')) {
+                color = '#808080'; // Gray
+                letter = 'A';
+                textColor = '#fff';
+            } else if (s.includes('pipirelli')) {
+                color = '#ffea00ff'; // Yellow
+                letter = 'P';
+                textColor = '#ff0000'; // Red
+            } else if (s.includes('dunolop')) {
+                color = '#ffe100ff'; // Yellow
+                letter = 'D';
+                textColor = '#000';
+            }
+
+            return `<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background-color:${color};color:${textColor};border-radius:50%;font-weight:bold;font-size:11px;margin-right:2px;border:1px solid ${borderColor};" title="${supplierName}">${letter}</span>`;
+        };
         const getTyreIconHtml = (tyreName) => {
             if (!tyreName || tyreName === '-') return '-';
             const t = tyreName.toLowerCase();
@@ -1652,7 +2345,143 @@
             return `<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background-color:${color};color:${textColor};border-radius:50%;font-weight:bold;font-size:11px;margin-right:6px;border:1px solid ${borderColor};" title="${tyreName}">${letter}</span>`;
         };
 
+        function calculatePitLoss(race, pitLapNumber) {
+            const pitLapIndex = race.laps.findIndex(l => l.idx === pitLapNumber);
+            if (pitLapIndex === -1 || pitLapIndex >= race.laps.length - 1) return null;
+
+            const pitLap = race.laps[pitLapIndex];
+            const outLap = race.laps[pitLapIndex + 1];
+            
+            if (!pitLap || !outLap) return null;
+
+            // Check specific pit reason
+            const pitEntry = (race.pits || []).find(p => p.lap === pitLapNumber);
+            if (pitEntry && pitEntry.reason && pitEntry.reason.toLowerCase().includes('weather')) return null;
+
+            // Check for events on pit/out laps (mistake, problem, accident)
+            const hasIssue = (lap) => lap.events && lap.events.some(e => 
+                e.event.toLowerCase().includes('mistake') || 
+                e.event.toLowerCase().includes('problem') || 
+                e.event.toLowerCase().includes('accident')
+            );
+
+            if (hasIssue(pitLap) || hasIssue(outLap)) return null;
+
+            // Check for weather change (Rain <-> Dry)
+            const isRain = (w) => w && w.toLowerCase().includes('rain');
+            if (isRain(pitLap.weather) !== isRain(outLap.weather)) return null;
+
+            // Check for tyre type change (Rain <-> Dry)
+            const isRainTyre = (t) => t && t.toLowerCase().includes('rain');
+            if (isRainTyre(pitLap.tyres) !== isRainTyre(outLap.tyres)) return null;
+
+            let sum = 0;
+            let count = 0;
+            let i = pitLapIndex - 1;
+            
+            const pitLaps = new Set((race.pits || []).map(p => p.lap));
+
+            while (i >= 0 && count < 4) {
+                const lap = race.laps[i];
+                
+                // Skip lap 1 (standing start) and lap 0
+                if (lap.idx <= 1) {
+                    i--;
+                    continue;
+                }
+
+                const isPit = pitLaps.has(lap.idx);
+                const isOut = pitLaps.has(lap.idx - 1);
+
+                if (!isPit && !isOut && !hasIssue(lap) && isRain(lap.weather) === isRain(pitLap.weather)) {
+                    const t = parseTime(lap.lapTime);
+                    if (t > 0) {
+                        sum += t;
+                        count++;
+                    }
+                }
+                i--;
+            }
+            
+            if (count === 0) return null;
+            
+            const avg = sum / count;
+            const tPit = parseTime(pitLap.lapTime) - avg;
+            const tOut = parseTime(outLap.lapTime) - avg;
+            
+            if (tPit <= 0 || tOut <= 0) return null;
+            
+            let lost = tPit + tOut;
+
+            if (pitEntry && pitEntry.pitTime) {
+                const pTime = parseFloat(pitEntry.pitTime);
+                if (!isNaN(pTime)) {
+                    lost -= pTime;
+                }
+            }
+
+            return lost > 0 ? lost : 0;
+        }
+
+        function calculateMistakeLoss(race, lapIdx, stintStart, stintEnd, isStintEndPit) {
+            const lap = race.laps[lapIdx];
+            if (!lap) return 0;
+
+            // Exclude First lap of race
+            if (lap.idx === 1) return 0;
+
+            // Exclude Out-lap (First lap of stint)
+            if (lapIdx === stintStart) return 0;
+
+            // Exclude In-lap (Last lap before pit)
+            if (isStintEndPit && lapIdx === stintEnd) return 0;
+
+            // Exclude Last lap of race
+            if (lapIdx === race.laps.length - 1) return 0;
+
+            const hasIssue = (l) => l.events && l.events.some(e => 
+                e.event.toLowerCase().includes('mistake') || 
+                e.event.toLowerCase().includes('problem') ||
+                e.event.toLowerCase().includes('accident')
+            );
+
+            const mistakeTime = parseTime(lap.lapTime);
+            if (mistakeTime <= 0) return 0;
+
+            const window = 2; // Look at 2 laps before and 2 after
+            let cleanTimes = [];
+
+            // Check backward
+            for (let i = lapIdx - 1; i >= stintStart; i--) {
+                if (cleanTimes.length >= window) break;
+                if (i === stintStart) continue; // Skip out-lap
+                const l = race.laps[i];
+                if (l && !hasIssue(l)) {
+                    const t = parseTime(l.lapTime);
+                    if (t > 0) cleanTimes.push(t);
+                }
+            }
+
+            // Check forward
+            for (let i = lapIdx + 1; i <= stintEnd; i++) {
+                if (cleanTimes.length >= window * 2) break;
+                if (isStintEndPit && i === stintEnd) continue; // Skip in-lap
+                const l = race.laps[i];
+                if (l && !hasIssue(l)) {
+                    const t = parseTime(l.lapTime);
+                    if (t > 0) cleanTimes.push(t);
+                }
+            }
+
+            if (cleanTimes.length === 0) return 0;
+            
+            const avg = cleanTimes.reduce((a, b) => a + b, 0) / cleanTimes.length;
+            const loss = mistakeTime - avg;
+            return loss > 0 ? loss : 0;
+        }
+
         function renderForecastView(races, metric, refW) {
+            currentView = 'forecast';
             const container = document.getElementById('cardsContainer');
             container.innerHTML = '';
             
@@ -1947,7 +2776,7 @@
                 let totalFuelUsed = 0;
                 const totalLaps = data.laps.length - 1;
 
-                const processStint = (endLap, fuelLeft, tyreLeft, stintIdx) => {
+                const processStint = (endLap, fuelLeft, tyreLeft, stintIdx, isPitStintEnd) => {
                     const fuelUsed = currentFuel - fuelLeft;
                     const lapsInStint = endLap - startLap + 1;
                     const avgFuelVal = lapsInStint > 0 ? (fuelUsed / lapsInStint) : 0;
@@ -1963,6 +2792,8 @@
                     let weatherList = [];
                     let lastWeather = null;
                     let hasRain = false;
+                    let mistakeCount = 0;
+                    let mistakeLoss = 0;
 
                     for(let i = startLap; i <= endLap; i++) {
                         if(data.laps[i]) {
@@ -1977,6 +2808,24 @@
                                 lastWeather = w;
                             }
                             tempCount++;
+
+                            if (data.laps[i].events) {
+                                data.laps[i].events.forEach(e => {
+                                    if (e.event) {
+                                        const matches = [...e.event.matchAll(/mistake.*?\(\s*(\d+(?:\.\d+)?)\s*s?\s*\)/gi)];
+                                        if (matches.length > 0) {
+                                            matches.forEach(m => {
+                                                mistakeCount++;
+                                                mistakeLoss += parseFloat(m[1]);
+                                            });
+                                        } else if (e.event.toLowerCase().includes('mistake')) {
+                                            mistakeCount++;
+                                            // Calculate loss if not present
+                                            mistakeLoss += calculateMistakeLoss(data, i, startLap, endLap, isPitStintEnd);
+                                        }
+                                    }
+                                });
+                            }
                         }
                     }
                     const avgTemp = tempCount > 0 ? (tempSum / tempCount).toFixed(1) : '-';
@@ -1987,6 +2836,7 @@
                     const headStyle = hasRain ? 'background-color: #1565c0;' : 'background-color: var(--stint-head-bg);';
 
                     const stintTyre = data.laps[startLap] ? data.laps[startLap].tyres : '-';
+                    const supIcon = getTyreSupplierIconHtml(data.tyreSupplier ? data.tyreSupplier.name : '');
                     let criticalInfo = '-';
                     if (avgTyreVal > 0) {
                         const lapsToCritical = 82 / avgTyreVal;
@@ -1998,8 +2848,9 @@
                         <div class="stat-row" style="${headStyle} margin-top: 5px;"><span class="stat-label" style="font-weight:600; color:var(--text-primary); padding-left: 15px;">Stint ${stintIdx} (Laps ${startLap}-${endLap})</span>${hasRain ? '<span style="margin-right: 15px;">🌧️</span>' : ''}</div>
                         <div class="stat-row" style="${rowStyle}"><span class="stat-label" style="padding-left: 15px;">Fuel used</span><span class="stat-val"; style="margin-right: 15px;">${Number(fuelUsed).toFixed(1)}L (${avgFuel}/lap)</span></div>
                         <div class="stat-row" style="${rowStyle}"><span class="stat-label" style="padding-left: 15px;">Tyres Left</span><span class="stat-val"; style="margin-right: 15px;">${tyreLeft}% (Used ${avgTyre}%/lap)</span></div>
-                        <div class="stat-row" style="${rowStyle}"><span class="stat-label" style="padding-left: 15px;">Tyre Type</span><span class="stat-val"; style="margin-right: 15px;">${getTyreIconHtml(stintTyre)} ${stintTyre}</span></div>
+                        <div class="stat-row" style="${rowStyle}"><span class="stat-label" style="padding-left: 15px;">Tyre Type</span><span class="stat-val"; style="margin-right: 15px;">${supIcon}${getTyreIconHtml(stintTyre)} ${stintTyre}</span></div>
                         <div class="stat-row" style="${rowStyle}"><span class="stat-label" style="padding-left: 15px;">Fuel to 18% Tyres</span><span class="stat-val"; style="margin-right: 15px;">${criticalInfo}</span></div>
+                        ${mistakeCount > 0 ? `<div class="stat-row" style="${rowStyle}"><span class="stat-label" style="padding-left: 15px; color: #ff5252;">Mistakes</span><span class="stat-val" style="margin-right: 15px; color: #ff5252;">${mistakeCount}${mistakeLoss > 0 ? ` (${mistakeLoss.toFixed(1)}s)` : ''}</span></div>` : ''}
                         <div class="stat-row" style="${rowStyle}"><span class="stat-label" style="padding-left: 15px;">Weather</span><span class="stat-val"; style="margin-right: 15px;">${weatherDisplay}</span></div>
                         <div class="stat-row" style="${rowStyle}"><span class="stat-label" style="padding-left: 15px;">Avg Temp / Hum</span><span class="stat-val"; style="margin-right: 15px;">${avgTemp}° / ${avgHum}%</span></div>
                     `;
@@ -2010,26 +2861,39 @@
                 const pits = data.pits || [];
                 pits.forEach((pit, index) => {
                     const fuelLeftLiters = (pit.fuelLeft / 100) * 180;
-                    processStint(pit.lap, fuelLeftLiters, pit.tyreCond, index + 1);
+                    processStint(pit.lap, fuelLeftLiters, pit.tyreCond, index + 1, true);
 
-                    const fuelAdded = pit.refilledTo - fuelLeftLiters;
-                    const pitTime = pit.pitTime ? ` (${pit.pitTime}s)` : '';
+                    let fuelAdded = 0;
+                    let refillText = 'No refill';
+                    
+                    // Handles null, undefined, and 0 as "no refill"
+                    if (pit.refilledTo > 0 && pit.refilledTo > fuelLeftLiters) {
+                        fuelAdded = pit.refilledTo - fuelLeftLiters;
+                        refillText = `+${fuelAdded.toFixed(1)}L`;
+                        currentFuel = pit.refilledTo;
+                    } else {
+                        // This handles cases where refilledTo is null, undefined, or 0
+                        currentFuel = fuelLeftLiters;
+                    }
+
+                    const pitLoss = calculatePitLoss(data, pit.lap);
+                    const pitLossStr = pitLoss !== null ? ` <span style="font-size:0.9em; cursor:help;" onmouseenter="showTooltip(event, 'Estimated time lost in pit lane')" onmousemove="moveTooltip(event)" onmouseleave="hideTooltip()">(${pitLoss.toFixed(1)}s) ❓</span>` : '';
+
+                    const pitTime = pit.pitTime ? ` <span style="cursor:help;" onmouseenter="showTooltip(event, 'Pit time')" onmousemove="moveTooltip(event)" onmouseleave="hideTooltip()">(${pit.pitTime}s)</span>` : '';
                     stintsHTML += `
                         <div class="stat-row" style="background-color: var(--pit-bg); flex-direction: column; padding: 4px 0;">
                             <div style="display:flex; justify-content:space-between; width:100%;">
                                 <span class="stat-label" style="padding-left: 15px; color:var(--pit-text); font-weight:bold;">Pit Stop ${index + 1}</span>
-                                <span class="stat-val" style="margin-right: 15px; color:var(--pit-text);">+${fuelAdded.toFixed(1)}L${pitTime}</span>
+                                <span class="stat-val" style="margin-right: 15px; color:var(--pit-text);">${refillText}${pitTime}${pitLossStr}</span>
                             </div>
                             ${pit.reason ? `<div style="padding-left: 15px; font-size: 0.85em; color:var(--pit-text); font-style: italic;">${pit.reason}</div>` : ''}
                         </div>`;
-
-                    currentFuel = pit.refilledTo;
                     startLap = pit.lap + 1;
                 });
 
                 // Last stint
                 if (startLap <= totalLaps) {
-                    processStint(totalLaps, data.finishFuel, data.finishTyres, pits.length + 1);
+                    processStint(totalLaps, data.finishFuel, data.finishTyres, pits.length + 1, false);
                 }
                 
                 stintsHTML += `<div class="stat-row" style="border-top: 1px solid var(--border); margin-top:5px;"><span class="stat-label">Total Fuel Used</span><span class="stat-val">${totalFuelUsed.toFixed(1)}L</span></div>`;
@@ -2184,7 +3048,7 @@
                     <div class="stat-row"><span class="stat-label">Power</span><span class="stat-val">${data.carPower}</span></div>
                     <div class="stat-row"><span class="stat-label">Handling</span><span class="stat-val">${data.carHandl}</span></div>
                     <div class="stat-row"><span class="stat-label">Acceleration</span><span class="stat-val">${data.carAccel}</span></div>
-                    ${data.tyreSupplier ? `<div class="stat-row"><span class="stat-label">Tyre Supplier</span><span class="stat-val">${data.tyreSupplier.name}</span></div>` : ''}
+                    ${data.tyreSupplier ? `<div class="stat-row"><span class="stat-label">Tyre Supplier</span><span class="stat-val">${getTyreSupplierIconHtml(data.tyreSupplier.name)} ${data.tyreSupplier.name}</span></div>` : ''}
                 `;
             }
 
@@ -2419,6 +3283,16 @@
             fCtx.textBaseline = 'middle';
             fCtx.fillText('🏁', 10, 10);
 
+            // Create mistake icon for chart
+            const mistakeIcon = document.createElement('canvas');
+            mistakeIcon.width = 20;
+            mistakeIcon.height = 20;
+            const mCtx = mistakeIcon.getContext('2d');
+            mCtx.font = '16px serif';
+            mCtx.textAlign = 'center';
+            mCtx.textBaseline = 'middle';
+            mCtx.fillText('⚠️', 10, 10);
+
             // Pre-calculate fuel and tyre data for tooltips
             races.forEach(race => {
                 if (!race.laps || race.laps.length === 0 || race.startFuel == null) return;
@@ -2467,7 +3341,11 @@
                         }
                     }
                     currentStartLap = stop.lap;
-                    currentStartFuel = stop.nextFuel;
+                    if (stop.nextFuel !== null && !isNaN(stop.nextFuel)) {
+                        currentStartFuel = stop.nextFuel;
+                    } else {
+                        currentStartFuel = stop.endFuel;
+                    }
                     currentStartTyre = 100;
                 });
             });
@@ -2506,6 +3384,7 @@
                     else if (w.includes('cloud')) pColor = colorCloud;
 
                     const hasProblem = lap.events && lap.events.some(e => e.event.includes('Car problem'));
+                    const hasMistake = lap.events && lap.events.some(e => e.event.toLowerCase().includes('mistake'));
                     const isLast = i === race.laps.length - 1;
 
                     if (isLast) {
@@ -2521,6 +3400,18 @@
                             pointBorderColors.push(raceColor);
                         } else {
                             pointStyles.push(wrenchIcon);
+                            pointRadii.push(8);
+                            pointBackgroundColors.push('transparent');
+                            pointBorderColors.push('transparent');
+                        }
+                    } else if (hasMistake) {
+                        if (isSimpleChartMode) {
+                            pointStyles.push('triangle');
+                            pointRadii.push(6);
+                            pointBackgroundColors.push('#ff5252');
+                            pointBorderColors.push(raceColor);
+                        } else {
+                            pointStyles.push(mistakeIcon);
                             pointRadii.push(8);
                             pointBackgroundColors.push('transparent');
                             pointBorderColors.push('transparent');

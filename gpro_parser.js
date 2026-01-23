@@ -525,7 +525,7 @@ function parseHTML(html) {
                         reason: txt(cells[1]),
                         tyreCond: num(cells[2]),
                         fuelLeft: num(cells[3]),
-                        refilledTo: num(cells[4]),
+                        refilledTo: txt(cells[4]).toLowerCase().includes('no refill') ? null : num(cells[4]),
                         pitTime: txt(cells[5]).replace(/[^\d.]/g, '')
                     });
                 }
