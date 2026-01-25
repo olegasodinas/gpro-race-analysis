@@ -24,11 +24,16 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" crossorigin="anonymous"></script>
-    <script src="gpro_parser.js"></script>
+    <script src="scripts/gpro_parser.js"></script>
     <link rel="stylesheet" href="styles.css">
-    <script src="analyze.js"></script>
-    <script src="forecast.js"></script>
-    <script src="stint_analysis.js"></script>
+    <script src="scripts/analyze.js"></script>
+    <script src="scripts/forecast.js"></script>
+    <script src="scripts/stint_analysis.js"></script>
+    <script src="scripts/fuel_tyre_analysis.js"></script>
+    <script src="scripts/card.js"></script>
+    <script src="scripts/track_matrix.js"></script>
+    <script src="scripts/parts_overview.js"></script>
+    <script src="scripts/practice_analysis.js"></script>
 </head>
 <body>
     <div class="container">
@@ -43,6 +48,12 @@
                         <p>Click to select folder or drag and drop files (JSON, HTML, .mhtml, .zip or .tar.gz)</p>
                         <input type="file" id="fileInput" multiple webkitdirectory style="display:none" onchange="handleFiles(this.files)">
                     </div>
+                    <div id="progressContainer" style="display:none; margin-top: 10px;">
+                        <div style="background-color: var(--border); border-radius: 4px; height: 8px; overflow: hidden;">
+                            <div id="progressBar" style="width: 0%; height: 100%; background-color: var(--accent); transition: width 0.1s;"></div>
+                        </div>
+                        <div id="progressText" style="text-align: center; font-size: 0.8rem; margin-top: 5px; color: var(--text-secondary);"></div>
+                    </div>
                     <div style="text-align:center; display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 10px;">
                         <button id="openFetcherBtn" onclick="openRaceFetcher()" style="padding: 5px 10px; cursor: pointer; background: #2196f3; color: white; border: none; border-radius: 4px;">API Fetch</button>
                         <button onclick="loadPresavedTracks()" style="padding: 5px 10px; cursor: pointer; background: #607d8b; color: white; border: none; border-radius: 4px;">Load Presaved</button>
@@ -56,7 +67,7 @@
                         <button onclick="openRainAnalysis()" style="padding: 6px 12px; cursor: pointer; background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px; margin-left: 5px; margin-bottom: 8px;">Rain Analysis</button>
                         <button onclick="openStintAnalysis()" style="padding: 6px 12px; cursor: pointer; background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px; margin-left: 5px; margin-bottom: 8px;">Stint Analysis</button>
                         <button onclick="openComparisonTool()" style="padding: 6px 12px; cursor: pointer; background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px; margin-left: 5px; margin-bottom: 8px;">Compare Races</button>
-                        <button onclick="openRaceForecast()" style="padding: 6px 12px; cursor: pointer; background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px; margin-left: 5px; margin-bottom: 8px;">Race Forecast</button>
+                        <button onclick="openNextRace()" style="padding: 6px 12px; cursor: pointer; background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px; margin-left: 5px; margin-bottom: 8px;">Next Race</button>
                     </div>
                     <div id="trackSelectorContainer" class="controls-section" style="display:none;">
                         <label for="trackSelect" style="font-weight:bold; margin-bottom:10px;">Select Track:</label>

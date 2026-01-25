@@ -380,13 +380,17 @@
 
         /* Cross-browser Range Slider Styling */
         .filter-slider {
-            width: 200px;
+            width: 100%;
+            max-width: 200px;
+            min-width: 80px;
+            flex: 1;
             cursor: pointer;
             vertical-align: middle;
         }
 
         input[type=range] {
             -webkit-appearance: none; /* Hides the slider so that custom slider can be made */
+            appearance: none;
             background: transparent; /* Otherwise white in Chrome */
         }
 
