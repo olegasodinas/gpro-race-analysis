@@ -4,7 +4,6 @@ A tool that extracts data saved to HTML and/or JSON files into a single workspac
 
 The newest version you can test here live:
 https://mazu-tirazu-spaustuve.eu/gpro-race-analysis/
-and over 130 presaved races!
 
 ## Overview
 
