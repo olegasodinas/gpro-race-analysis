@@ -8,7 +8,7 @@ https://mazu-tirazu-spaustuve.eu/gpro-race-analysis/ and 3 presaved races for te
 ## Overview
 
 This project is designed to collect HTML and JSON files that were previously saved from different sources and bring them together in one place.  
-Once collected, the files can be inspected, processed, or analyzed using custom logic.
+Once collected, files can be inspected, processed or analyzed using custom logic.
 
 The focus is on **organization, simplicity, and extensibility**.
 
@@ -20,6 +20,8 @@ The focus is on **organization, simplicity, and extensibility**.
 - See fuel/tyres consumtion per section or lap
 - Mobile friendly
 - Works locally, no data is uploading to server
+
+In Next Race section it is possible to calculate good setup at least for 2 parts after you have 3 points for part. Useful for wings split.
 
 ## Use cases
 
