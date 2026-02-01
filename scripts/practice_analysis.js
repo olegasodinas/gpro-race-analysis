@@ -165,6 +165,38 @@ function renderPracticeSection(container, practiceData) {
         return parseFloat(tStr);
     };
 
+    const fmtTime = (t) => {
+        const m = Math.floor(t / 60);
+        const s = (t % 60).toFixed(3);
+        return `${m}:${s.padStart(6, '0')}`;
+    };
+
+    const solveQuadratic = (points) => {
+        if (points.length < 3) return null;
+        let n = points.length;
+        let sx = 0, sx2 = 0, sx3 = 0, sx4 = 0;
+        let sy = 0, sxy = 0, sx2y = 0;
+        for (let p of points) {
+            let x = p.x;
+            let y = p.y;
+            sx += x; sx2 += x*x; sx3 += x*x*x; sx4 += x*x*x*x;
+            sy += y; sxy += x*y; sx2y += x*x*y;
+        }
+        const det = (m) => m[0][0]*(m[1][1]*m[2][2]-m[1][2]*m[2][1]) - m[0][1]*(m[1][0]*m[2][2]-m[1][2]*m[2][0]) + m[0][2]*(m[1][0]*m[2][1]-m[1][1]*m[2][0]);
+        let D = det([[n, sx, sx2], [sx, sx2, sx3], [sx2, sx3, sx4]]);
+        if (Math.abs(D) < 1e-9) return null;
+        let Da = det([[n, sx, sy], [sx, sx2, sxy], [sx2, sx3, sx2y]]);
+        let Db = det([[n, sy, sx2], [sx, sxy, sx3], [sx2, sx2y, sx4]]);
+        let Dc = det([[sy, sx, sx2], [sxy, sx2, sx3], [sx2y, sx3, sx4]]);
+        let a = Da / D;
+        let b = Db / D;
+        let c = Dc / D;
+        if (a <= 0) return null;
+        let vertexX = -b / (2 * a);
+        let vertexY = a * vertexX * vertexX + b * vertexX + c;
+        return { x: vertexX, y: vertexY };
+    };
+
     const partsKeys = [
         { key: 'setFWing', label: 'FWing' },
         { key: 'setRWing', label: 'RWing' },
@@ -176,11 +208,13 @@ function renderPracticeSection(container, practiceData) {
     
     const colorScore = { 'green': 4, 'lime': 4, 'yellow': 3, 'orange': 2, 'red': 1 };
     const calculatedSetup = {};
+    const predictedSetup = {};
 
     partsKeys.forEach(p => {
         let maxScore = -1;
         let bestVal = '-';
         let minTime = Infinity;
+        const valueMap = new Map();
 
         practiceData.lapsDone.forEach(lap => {
             const s = lap[p.key];
@@ -200,16 +234,41 @@ function renderPracticeSection(container, practiceData) {
                     bestVal = s.value;
                 }
             }
+            
+            if (t > 0 && t < Infinity && s.value) {
+                const val = parseFloat(s.value);
+                if (!isNaN(val)) {
+                    if (!valueMap.has(val) || t < valueMap.get(val)) {
+                        valueMap.set(val, t);
+                    }
+                }
+            }
         });
         calculatedSetup[p.key] = bestVal;
+        
+        const points = Array.from(valueMap.entries()).map(([x, y]) => ({x, y})).sort((a,b) => a.x - b.x);
+        const pred = solveQuadratic(points);
+        if (pred) {
+            const minX = points[0].x;
+            const maxX = points[points.length-1].x;
+            if (pred.x >= minX - 200 && pred.x <= maxX + 200) {
+                 predictedSetup[p.key] = { val: Math.round(pred.x), time: pred.y };
+            }
+        }
     });
 
-    const bestSetupHTML = partsKeys.map(p => `
+    const bestSetupHTML = partsKeys.map(p => {
+        let html = `
         <div style="text-align:center; padding:10px; background:var(--bg-color); border:1px solid var(--border); border-radius:4px; min-width:80px; flex:1;">
             <div style="font-size:0.8em; color:var(--text-secondary); margin-bottom:5px;">${p.label}</div>
-            <div style="font-size:1.2em; font-weight:bold; color:var(--accent);">${calculatedSetup[p.key]}</div>
-        </div>
-    `).join('');
+            <div style="font-size:1.2em; font-weight:bold; color:var(--accent);">${calculatedSetup[p.key]}</div>`;
+        if (predictedSetup[p.key]) {
+            const pred = predictedSetup[p.key];
+            html += `<div style="font-size:0.8em; color:#4caf50; margin-top:4px; border-top:1px dashed #444; padding-top:4px;" title="Calculated optimal time: ${fmtTime(pred.time)}">Calc: <b>${pred.val}</b></div>`;
+        }
+        html += `</div>`;
+        return html;
+    }).join('');
 
     const setupCard = document.createElement('div');
     setupCard.className = 'card';
@@ -318,7 +377,10 @@ function renderPracticeSection(container, practiceData) {
         <div class="card-header">
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <h3>${practiceData.trackName}</h3>
-                <div style="font-size:0.9em; color:var(--text-secondary);">Practice Laps</div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="font-size:0.9em; color:var(--text-secondary);">Practice Laps</div>
+                    <button onclick="refreshPracticeData()" style="padding:4px 8px; cursor:pointer; background:var(--accent); color:white; border:none; border-radius:4px; font-size:0.8em;" title="Refresh only Practice Laps">Refresh Laps</button>
+                </div>
             </div>
         </div>
         <div style="padding:0;">
@@ -330,6 +392,65 @@ function renderPracticeSection(container, practiceData) {
     `;
     
     container.appendChild(card);
+}
+
+async function refreshPracticeData() {
+    const token = localStorage.getItem('gpro_api_token') || 
+                  localStorage.getItem('gpro_token') || 
+                  localStorage.getItem('token') || 
+                  localStorage.getItem('api_token');
+    
+    if (!token) {
+        alert("No API token found. Please enter it in the manual input section or settings.");
+        return;
+    }
+
+    const btn = document.querySelector('button[onclick="refreshPracticeData()"]');
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = '...';
+    }
+
+    try {
+        const response = await fetch('https://gpro.net/gb/backend/api/v2/Practice', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            const newData = await response.json();
+            
+            if (cachedNextRaceData && cachedNextRaceData.driverProfile) {
+                newData.driverProfile = cachedNextRaceData.driverProfile;
+            }
+
+            const cName = getCountryName(newData.trackNat);
+            if (cName && !newData.trackName.includes(cName)) {
+                newData.trackName = `${newData.trackName} (${cName})`;
+            }
+
+            cachedNextRaceData = newData;
+            localStorage.setItem('gpro_next_race_data', JSON.stringify(cachedNextRaceData));
+            
+            openNextRace();
+        } else {
+            alert(`Failed to refresh practice data. Status: ${response.status}`);
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = 'Refresh Laps';
+            }
+        }
+    } catch (e) {
+        console.error("Error refreshing practice data", e);
+        alert("Error refreshing practice data: " + e.message);
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Refresh Laps';
+        }
+    }
 }
 
 function handleNextRaceFile(file) {
