@@ -81,6 +81,11 @@ async function openStintAnalysis() {
     // Filter data for track
     const trackRaces = allRaceData.filter(r => r.trackName === selectedTrack);
     
+    // Refresh chart with filtered races
+    if (typeof renderChart === 'function') {
+        renderChart(trackRaces);
+    }
+
     // 1. Extract all raw stints first to determine ranges
     const allRawStints = [];
     const riskSet = new Set();

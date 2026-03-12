@@ -279,6 +279,16 @@
                      return parseInt(posMatch[1]);
                 }
 
+                // Handle Time format (h:mm or m:ss.ms)
+                if (txt.includes(':')) {
+                    const parts = txt.split(':');
+                    if (parts.length === 2) {
+                        const p1 = parseFloat(parts[0]);
+                        const p2 = parseFloat(parts[1]);
+                        if (!isNaN(p1) && !isNaN(p2)) return p1 * 60 + p2;
+                    }
+                }
+
                 const num = parseFloat(txt.replace(/[°%L]/g, ''));
                 if (!isNaN(num) && isFinite(num) && !txt.startsWith('S')) return num;
                 return txt.toLowerCase();
@@ -1259,12 +1269,12 @@
             });
 
             if (currentView === 'stint') {
-                try {
-                    renderChart(filtered);
-                } catch (e) {
-                    logDebug(`Error rendering chart: ${e.message}`);
-                }
-                openStintAnalysis();
+                openStintAnalysis(); // This will now handle chart rendering
+                return;
+            }
+
+            if (currentView === 'strategy') {
+                openPitStrategy();
                 return;
             }
 
@@ -2126,11 +2136,33 @@
                     },
                     plugins: {
                         title: { display: true, text: 'Race Position History' },
-                        legend: { position: 'top' },
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                            }
+                        },
                         tooltip: {
+                            usePointStyle: true,
                             position: 'nearest',
                             caretPadding: 20,
                             callbacks: {
+                                beforeLabel: function(context) {
+                                    const race = races[context.datasetIndex];
+                                    const lap = race.laps[context.dataIndex];
+                                    if (!lap) return;
+
+                                    const pitLaps = new Set((race.pits || []).map(p => p.lap));
+                                    const hasProblem = lap.events && lap.events.some(e => e.event.includes('Car problem'));
+                                    const hasMistake = lap.events && lap.events.some(e => e.event.toLowerCase().includes('mistake'));
+                                    const isLast = context.dataIndex === race.laps.length - 1;
+
+                                    if (isLast) return 'Finish';
+                                    if (hasProblem) return 'Car Problem';
+                                    if (hasMistake) return 'Driver Mistake';
+                                    if (pitLaps.has(lap.idx)) return 'Pit Stop';
+                                    return;
+                                },
                                 afterLabel: function(context) {
                                     const race = races[context.datasetIndex];
                                     const lap = race.laps[context.dataIndex];

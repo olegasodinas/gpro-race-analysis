@@ -34,13 +34,19 @@
                     let hasRain = false;
                     let mistakeCount = 0;
                     let mistakeLoss = 0;
+                    let flyingLapTimeSum = 0;
+                    let flyingLapCount = 0;
+                    let problemLaps = new Set();
+                    let stintTime = 0;
 
                     for(let i = startLap; i <= endLap; i++) {
-                        if(data.laps[i]) {
-                            tempSum += data.laps[i].temp;
-                            humSum += data.laps[i].hum;
+                        const currentLap = data.laps[i];
+                        if(currentLap) {
+                            stintTime += parseTime(currentLap.lapTime);
+                            tempSum += currentLap.temp;
+                            humSum += currentLap.hum;
                             
-                            const w = data.laps[i].weather;
+                            const w = currentLap.weather;
                             if (w.toLowerCase().includes('rain') && i < endLap) hasRain = true;
 
                             if (w !== lastWeather) {
@@ -49,28 +55,69 @@
                             }
                             tempCount++;
 
-                            if (data.laps[i].events) {
-                                data.laps[i].events.forEach(e => {
+                            let hasIssue = false;
+                            if (currentLap.events) {
+                                currentLap.events.forEach(e => {
                                     if (e.event) {
+                                        const eventLower = e.event.toLowerCase();
                                         const matches = [...e.event.matchAll(/mistake.*?\(\s*(\d+(?:\.\d+)?)\s*s?\s*\)/gi)];
                                         if (matches.length > 0) {
                                             matches.forEach(m => {
                                                 mistakeCount++;
                                                 mistakeLoss += parseFloat(m[1]);
                                             });
-                                        } else if (e.event.toLowerCase().includes('mistake')) {
+                                            hasIssue = true;
+                                        } else if (eventLower.includes('mistake')) {
                                             mistakeCount++;
                                             // Calculate loss if not present
                                             mistakeLoss += calculateMistakeLoss(data, i, startLap, endLap, isPitStintEnd);
+                                            hasIssue = true;
+                                        }
+                                        if (eventLower.includes('car problem')) {
+                                            problemLaps.add(i);
+                                            hasIssue = true;
+                                        }
+                                        if (eventLower.includes('accident') || eventLower.includes('collision')) {
+                                            hasIssue = true;
                                         }
                                     }
                                 });
                             }
+
+                            if (data.problems && data.problems.some(p => p.lap === i)) {
+                                hasIssue = true;
+                                problemLaps.add(i);
+                            }
+
+                            // A flying lap is not the first lap of the race, not the first lap of the stint (out-lap),
+                            // and not the last lap of a stint that ends in a pit (in-lap).
+                            const isFlyingLap = i > 1 && i > startLap && (i < endLap || !isPitStintEnd);
+
+                            if (isFlyingLap && !hasIssue) {
+                                const lapTime = parseTime(currentLap.lapTime);
+                                if (lapTime > 0) {
+                                    flyingLapTimeSum += lapTime;
+                                    flyingLapCount++;
+                                }
+                            }
                         }
                     }
+
+                    if (data.problems) {
+                        data.problems.forEach(p => {
+                            if (p.lap >= startLap && p.lap <= endLap) {
+                                problemLaps.add(p.lap);
+                            }
+                        });
+                    }
+
                     const avgTemp = tempCount > 0 ? (tempSum / tempCount).toFixed(1) : '-';
                     const avgHum = tempCount > 0 ? (humSum / tempCount).toFixed(0) : '-';
                     const weatherDisplay = weatherList.join(' ➝ ');
+
+                    const avgFlyingLapTime = flyingLapCount > 0 ? flyingLapTimeSum / flyingLapCount : 0;
+                    const avgLapTooltip = createTooltipAttr('Average lap time excludes lap 1, out-laps, in-laps, and laps with driver mistakes, car problems, or accidents.');
+                    const avgFlyingLapTimeStr = avgFlyingLapTime > 0 ? ` <span ${avgLapTooltip} style="font-weight:normal; color:var(--text-secondary); font-size:0.9em;">(Avg Lap: ${fmtTime(avgFlyingLapTime)})</span>` : '';
                     
                     const rowStyle = hasRain ? 'background-color: #1a3b5c;' : '';
                     const headStyle = hasRain ? 'background-color: #1565c0;' : 'background-color: var(--stint-head-bg);';
@@ -84,13 +131,50 @@
                         criticalInfo = `${fuelToCritical.toFixed(1)}L (~${lapsToCritical.toFixed(1)} laps)`;
                     }
 
+                    let problemHTML = '';
+                    if (problemLaps.size > 0) {
+                        const sortedProblemLaps = Array.from(problemLaps).sort((a,b) => a-b);
+                        let lapsStr = '';
+                        if (sortedProblemLaps.length > 0) {
+                            const ranges = [];
+                            let start = sortedProblemLaps[0];
+                            let end = sortedProblemLaps[0];
+                            for (let i = 1; i < sortedProblemLaps.length; i++) {
+                                if (sortedProblemLaps[i] === end + 1) {
+                                    end = sortedProblemLaps[i];
+                                } else {
+                                    ranges.push(start === end ? start : `${start}-${end}`);
+                                    start = sortedProblemLaps[i];
+                                    end = sortedProblemLaps[i];
+                                }
+                            }
+                            ranges.push(start === end ? start : `${start}-${end}`);
+                            lapsStr = ranges.join(', ');
+                        }
+
+                        let reason = '';
+                        if (data.problems) {
+                            const relevantProblems = data.problems.filter(p => sortedProblemLaps.includes(p.lap));
+                            relevantProblems.sort((a,b) => a.lap - b.lap);
+                            if (relevantProblems.length > 0) {
+                                reason = relevantProblems.map(p => `Lap ${p.lap}: ${p.reason}`).join('<br>');
+                            }
+                        }
+
+                        const tooltip = reason ? createTooltipAttr(reason) : '';
+                        const reasonIcon = reason ? ' ❓' : '';
+
+                        problemHTML = `<div class="stat-row" style="${rowStyle}"><span class="stat-label" style="padding-left: 15px; color: #ff9800;">Car Problem</span><span class="stat-val" style="margin-right: 15px; color: #ff9800;" ${tooltip}>On lap(s) ${lapsStr} 🔧${reasonIcon}</span></div>`;
+                    }
+
                     stintsHTML += `
-                        <div class="stat-row" style="${headStyle} margin-top: 5px;"><span class="stat-label" style="font-weight:600; color:var(--text-primary); padding-left: 15px;">Stint ${stintIdx} (${lapsInStint} Laps: ${startLap}-${endLap})</span>${hasRain ? '<span style="margin-right: 15px;">🌧️</span>' : ''}</div>
+                        <div class="stat-row" style="${headStyle} margin-top: 5px;"><span class="stat-label" style="font-weight:600; color:var(--text-primary); padding-left: 15px;">Stint ${stintIdx} (${lapsInStint} Laps: ${startLap}-${endLap})</span><span class="stat-val" style="margin-right: 15px; font-weight:600;">${fmtTime(stintTime)}${avgFlyingLapTimeStr}${hasRain ? ' 🌧️' : ''}</span></div>
                         <div class="stat-row" style="${rowStyle}"><span class="stat-label" style="padding-left: 15px;">Fuel used</span><span class="stat-val"; style="margin-right: 15px;">${Number(fuelUsed).toFixed(1)}L (${avgFuel}/lap)</span></div>
                         <div class="stat-row" style="${rowStyle}"><span class="stat-label" style="padding-left: 15px;">Tyres Left</span><span class="stat-val"; style="margin-right: 15px;">${tyreLeft}% (Used ${avgTyre}%/lap)</span></div>
                         <div class="stat-row" style="${rowStyle}"><span class="stat-label" style="padding-left: 15px;">Tyre Type</span><span class="stat-val"; style="margin-right: 15px;">${supIcon}${getTyreIconHtml(stintTyre)} ${stintTyre}</span></div>
                         <div class="stat-row" style="${rowStyle}"><span class="stat-label" style="padding-left: 15px;">Fuel to 18% Tyres</span><span class="stat-val"; style="margin-right: 15px;">${criticalInfo}</span></div>
                         ${mistakeCount > 0 ? `<div class="stat-row" style="${rowStyle}"><span class="stat-label" style="padding-left: 15px; color: #ff5252;">Mistakes</span><span class="stat-val" style="margin-right: 15px; color: #ff5252;">${mistakeCount}${mistakeLoss > 0 ? ` (${mistakeLoss.toFixed(1)}s)` : ''}</span></div>` : ''}
+                        ${problemHTML}
                         <div class="stat-row" style="${rowStyle}"><span class="stat-label" style="padding-left: 15px;">Weather</span><span class="stat-val"; style="margin-right: 15px;">${weatherDisplay}</span></div>
                         <div class="stat-row" style="${rowStyle}"><span class="stat-label" style="padding-left: 15px;">Avg Temp / Hum</span><span class="stat-val"; style="margin-right: 15px;">${avgTemp}° / ${avgHum}%</span></div>
                     `;

@@ -183,7 +183,8 @@ function parseHTML(html) {
         gear: { lvl: 0, startWear: 0, finishWear: 0 },
         brakes: { lvl: 0, startWear: 0, finishWear: 0 },
         susp: { lvl: 0, startWear: 0, finishWear: 0 },
-        electronics: { lvl: 0, startWear: 0, finishWear: 0 }
+        electronics: { lvl: 0, startWear: 0, finishWear: 0 },
+        problems: []
     };
 
     // 2. Practice Laps (Refactored)
@@ -590,6 +591,22 @@ function parseHTML(html) {
             const onYouSuccess = num(rows[2].querySelectorAll('td')[1]);
             data.otAttemptsOnYou = (onYouBlocked + onYouSuccess).toString();
             data.overtakesOnYou = onYouSuccess.toString();
+        }
+    }
+
+    // Car Problems
+    const problemsTable = Array.from(doc.querySelectorAll('table.styled.bordered')).find(t => t.innerText.includes('Car problems') && t.innerText.includes('Reason'));
+    if (problemsTable) {
+        const rows = problemsTable.querySelectorAll('tr');
+        for (let i = 1; i < rows.length; i++) {
+            const cells = rows[i].querySelectorAll('td');
+            if (cells.length >= 2) {
+                data.problems.push({
+                    idx: i,
+                    lap: num(cells[0]),
+                    reason: txt(cells[1])
+                });
+            }
         }
     }
 
