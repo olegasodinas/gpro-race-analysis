@@ -29,7 +29,7 @@ In Next Race section it is possible to calculate good setup at least for 2 parts
 - Races analysis in graph
 - Parts wearing overview by level or type or in tables for each track
 - Rain probability analysing
-- Copair selected races
+- Compair selected races
 
 ## Known issues
 
