@@ -305,16 +305,112 @@
             rows.forEach(row => tbody.appendChild(row));
         }
 
-        function showTooltip(e, content) {
+        let currentTooltipItems = null;
+        let tooltipHideTimeout = null;
+        window.tooltipRegistry = {};
+        let isMouseOverTooltip = false;
+        let initialTwoColumns = false; // New flag to remember initial column state
+
+        function renderTooltipPage() {
             const el = document.getElementById('customTooltip');
-            el.innerHTML = content;
-            el.style.display = 'block';
-            moveTooltip(e);
+            if (!el || !currentTooltipItems) return;
+            
+            const rows = 6;
+            const itemWidth = 210;
+            const gap = 10;
+            
+            const needsSlider = currentTooltipItems.length > rows;
+            
+            const itemsHtml = currentTooltipItems.map(item => {
+                return `<div style="width:${itemWidth}px; scroll-snap-align:start; flex-shrink:0;">${item}</div>`;
+            }).join('');
+
+            let html = `
+                <div class="tooltip-slider-viewport" style="
+                    overflow-x: ${needsSlider ? 'auto' : 'hidden'};
+                    overflow-y: hidden;
+                    display: block;
+                    scroll-snap-type: x mandatory;
+                    scrollbar-width: thin;
+                    scrollbar-color: var(--accent) transparent;
+                ">
+                    <div style="
+                        display: grid;
+                        grid-template-rows: repeat(${rows}, auto);
+                        grid-auto-flow: column;
+                        gap: ${gap}px;
+                        width: max-content;
+                    ">
+                        ${itemsHtml}
+                    </div>
+                </div>
+            `;
+            
+            el.innerHTML = html;
+            
+            if (!needsSlider) {
+                el.style.width = 'auto';
+            } else {
+                el.style.width = '450px';
+            }
         }
-        function moveTooltip(e) {
+
+        function showTooltip(e, content, items = null) {
+            if (isMouseOverTooltip) return;
+            if (tooltipHideTimeout) clearTimeout(tooltipHideTimeout);
+            const el = document.getElementById('customTooltip');
+            if (!el) return;
+            
+            if (!el.dataset.listenersSet) {
+                el.onmouseenter = () => { 
+                    isMouseOverTooltip = true;
+                    if (tooltipHideTimeout) clearTimeout(tooltipHideTimeout); 
+                };
+                el.onmouseleave = () => {
+                    isMouseOverTooltip = false;
+                    hideTooltip();
+                };
+                el.dataset.listenersSet = "true";
+            }
+
+            if (items && Array.isArray(items)) {
+                currentTooltipItems = items;
+                // Determine if it should initially be two columns based on total items
+                initialTwoColumns = currentTooltipItems.length > 6;
+                renderTooltipPage();
+            } else {
+                currentTooltipItems = null;
+                initialTwoColumns = false; // Reset for single content tooltips
+                el.innerHTML = content;
+            }
+            
+            el.style.zIndex = '100000';
+            el.style.height = 'auto';
+            el.style.maxHeight = '90vh';
+            el.style.overflowY = 'auto';
+            // Set a fixed width for two-column tooltips to prevent shrinking
+            if (initialTwoColumns) {
+                el.style.width = '450px'; // 2 * 210px (minmax) + 10px (gap) + 2 * 8px (padding) + 2 * 1px (border)
+            } else {
+                el.style.width = 'auto'; // Let single column content adapt naturally
+            }
+            el.style.display = 'block';
+            moveTooltip(e, true);
+        }
+
+        function hideTooltip() {
+            tooltipHideTimeout = setTimeout(() => {
+                const el = document.getElementById('customTooltip');
+                if (el) el.style.display = 'none';
+            }, 400); // Increased delay to allow easier mouse movement to buttons
+        }
+
+        function moveTooltip(e, force = false) {
+            if (isMouseOverTooltip && !force) return;
             const el = document.getElementById('customTooltip');
             if (el.style.display === 'block') {
-                const offset = 20;
+                if (currentTooltipItems && !force) return;
+                const offset = 10; // Reduced offset to minimize the gap between cursor and balloon
                 const elWidth = el.offsetWidth;
                 const elHeight = el.offsetHeight;
                 const winW = window.innerWidth;
@@ -334,18 +430,24 @@
                 if (top + elHeight > scrollY + winH - 10) {
                     top = e.pageY - elHeight - offset;
                 }
+                if (top < scrollY + 10) {
+                    top = scrollY + 10;
+                }
 
                 el.style.left = left + 'px';
                 el.style.top = top + 'px';
             }
         }
-        function hideTooltip() {
-            document.getElementById('customTooltip').style.display = 'none';
-        }
 
         function createTooltipAttr(content, extraStyle = '') {
             const safeTooltip = content.replace(/"/g, '&quot;').replace(/'/g, "\\'");
             return `onmouseenter="showTooltip(event, '${safeTooltip}')" onmousemove="moveTooltip(event)" onmouseleave="hideTooltip()" style="cursor:help; ${extraStyle}"`;
+        }
+
+        function createPaginatedTooltipAttr(items, extraStyle = '') {
+            const id = 'tt_' + Math.random().toString(36).substr(2, 9);
+            window.tooltipRegistry[id] = items;
+            return `onmouseenter="showTooltip(event, null, window.tooltipRegistry['${id}'])" onmousemove="moveTooltip(event)" onmouseleave="hideTooltip()" style="cursor:help; ${extraStyle}"`;
         }
 
         function openRainAnalysis() {
@@ -1020,6 +1122,23 @@
             select.onchange = (e) => filterAndRender(e.target.value);
 
             let trackToFilter = 'all';
+
+            // Default to Next Race track if no specific track requested
+            if (!trackToSelect) {
+                let nextTrack = null;
+                if (typeof cachedNextRaceData !== 'undefined' && cachedNextRaceData && cachedNextRaceData.trackName) {
+                    nextTrack = cachedNextRaceData.trackName;
+                } else {
+                    const stored = localStorage.getItem('gpro_next_race_data');
+                    if (stored) {
+                        try { const d = JSON.parse(stored); if (d.trackName) nextTrack = d.trackName; } catch(e) {}
+                    }
+                }
+                if (nextTrack && tracks.includes(nextTrack)) {
+                    trackToSelect = nextTrack;
+                }
+            }
+
             if (trackToSelect && tracks.includes(trackToSelect)) {
                 select.value = trackToSelect;
                 trackToFilter = trackToSelect;

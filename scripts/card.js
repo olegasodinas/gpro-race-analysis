@@ -31,7 +31,8 @@
                     let tempCount = 0;
                     let weatherList = [];
                     let lastWeather = null;
-                    let hasRain = false;
+                    let rainLapsCount = 0;
+                    let lapsCounted = 0;
                     let mistakeCount = 0;
                     let mistakeLoss = 0;
                     let flyingLapTimeSum = 0;
@@ -47,7 +48,10 @@
                             humSum += currentLap.hum;
                             
                             const w = currentLap.weather;
-                            if (w.toLowerCase().includes('rain') && i < endLap) hasRain = true;
+                            if (i < endLap) {
+                                lapsCounted++;
+                                if (w.toLowerCase().includes('rain')) rainLapsCount++;
+                            }
 
                             if (w !== lastWeather) {
                                 weatherList.push(w);
@@ -113,16 +117,31 @@
 
                     const avgTemp = tempCount > 0 ? (tempSum / tempCount).toFixed(1) : '-';
                     const avgHum = tempCount > 0 ? (humSum / tempCount).toFixed(0) : '-';
-                    const weatherDisplay = weatherList.join(' ➝ ');
+                    const weatherIcons = weatherList.map(w => getWeatherIcon(w)).join('');
+                    const weatherDisplay = weatherList.map(w => `${getWeatherIcon(w)} ${w}`).join(' ➝ ');
 
                     const avgFlyingLapTime = flyingLapCount > 0 ? flyingLapTimeSum / flyingLapCount : 0;
                     const avgLapTooltip = createTooltipAttr('Average lap time excludes lap 1, out-laps, in-laps, and laps with driver mistakes, car problems, or accidents.');
                     const avgFlyingLapTimeStr = avgFlyingLapTime > 0 ? ` <span ${avgLapTooltip} style="font-weight:normal; color:var(--text-secondary); font-size:0.9em;">(Avg Lap: ${fmtTime(avgFlyingLapTime)})</span>` : '';
                     
-                    const rowStyle = hasRain ? 'background-color: #1a3b5c;' : '';
-                    const headStyle = hasRain ? 'background-color: #1565c0;' : 'background-color: var(--stint-head-bg);';
-
                     const stintTyre = data.laps[startLap] ? data.laps[startLap].tyres : '-';
+                    const isRainTyre = stintTyre.toLowerCase().includes('rain');
+
+                    const lapsToCheck = lapsCounted || 1;
+                    const rainRatio = rainLapsCount / lapsToCheck;
+                    const isMatch = isRainTyre ? (rainRatio >= 0.8) : ((1 - rainRatio) >= 0.8);
+                    const weatherMismatch = stintTyre !== '-' && !isMatch;
+
+                    let rowStyle = isRainTyre ? 'background-color: #1a3b5c;' : '';
+                    let headStyle = isRainTyre ? 'background-color: #1565c0;' : 'background-color: var(--stint-head-bg);';
+
+                    if (weatherMismatch) {
+                        rowStyle += ' color: #ff5252;';
+                        headStyle += ' color: #ff5252;';
+                        rowStyle += ' background-image: repeating-linear-gradient(49deg, transparent, transparent 10px, rgba(255, 0, 0, 0.6) 5px, rgba(255, 0, 0, 0.6) 11px);';
+                        headStyle += ' background-image: repeating-linear-gradient(49deg, transparent, transparent 10px, rgba(255, 0, 0, 0.6) 5px, rgba(255, 0, 0, 0.6) 11px);';
+                    }
+
                     const supIcon = getTyreSupplierIconHtml(data.tyreSupplier ? data.tyreSupplier.name : '');
                     let criticalInfo = '-';
                     if (avgTyreVal > 0) {
@@ -168,7 +187,7 @@
                     }
 
                     stintsHTML += `
-                        <div class="stat-row" style="${headStyle} margin-top: 5px;"><span class="stat-label" style="font-weight:600; color:var(--text-primary); padding-left: 15px;">Stint ${stintIdx} (${lapsInStint} Laps: ${startLap}-${endLap})</span><span class="stat-val" style="margin-right: 15px; font-weight:600;">${fmtTime(stintTime)}${avgFlyingLapTimeStr}${hasRain ? ' 🌧️' : ''}</span></div>
+                        <div class="stat-row" style="${headStyle} margin-top: 5px;"><span class="stat-label" style="font-weight:600; color:var(--text-primary); padding-left: 15px;">Stint ${stintIdx} (${lapsInStint} Laps: ${startLap}-${endLap})</span><span class="stat-val" style="margin-right: 15px; font-weight:600;">${fmtTime(stintTime)}${avgFlyingLapTimeStr} ${weatherIcons}</span></div>
                         <div class="stat-row" style="${rowStyle}"><span class="stat-label" style="padding-left: 15px;">Fuel used</span><span class="stat-val"; style="margin-right: 15px;">${Number(fuelUsed).toFixed(1)}L (${avgFuel}/lap)</span></div>
                         <div class="stat-row" style="${rowStyle}"><span class="stat-label" style="padding-left: 15px;">Tyres Left</span><span class="stat-val"; style="margin-right: 15px;">${tyreLeft}% (Used ${avgTyre}%/lap)</span></div>
                         <div class="stat-row" style="${rowStyle}"><span class="stat-label" style="padding-left: 15px;">Tyre Type</span><span class="stat-val"; style="margin-right: 15px;">${supIcon}${getTyreIconHtml(stintTyre)} ${stintTyre}</span></div>

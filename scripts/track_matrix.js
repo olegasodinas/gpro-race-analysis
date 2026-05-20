@@ -120,12 +120,10 @@
                                 extraStyle = 'background-color: #1a3b5c;';
                             }
 
-                            const isMultiCol = d.races.length > 6;
-                            const wrapperClass = isMultiCol ? 'tooltip-columns' : '';
-                            const tooltipRows = d.races.map(r => 
-                                `<div class="tooltip-item"><strong>${r.id}</strong> ${r.icon} (${r.driver}) - Wear: ${r.wear}%<br><span style="color:#aaa">Risks: ${r.risks}</span></div>`
-                            ).join('');
-                            cellAttr = createTooltipAttr(`<div class="${wrapperClass}">${tooltipRows}</div>`, extraStyle);
+                            const tooltipItems = d.races.map(r => 
+                                `<div class="tooltip-item" onclick="document.getElementById('customTooltip').style.display='none'; goToTrack('${trackName.replace(/'/g, "\\'")}')" style="cursor:pointer; padding:5px; border-bottom:1px solid #444;"><strong>${r.id}</strong> ${r.icon} (${r.driver}) - Wear: ${r.wear}%<br><span style="color:#aaa">Risks: ${r.risks}</span></div>`
+                            );
+                            cellAttr = createPaginatedTooltipAttr(tooltipItems, extraStyle);
                         }
                         cells += `<td ${cellAttr}>${val}</td>`;
                     }

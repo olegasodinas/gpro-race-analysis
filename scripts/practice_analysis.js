@@ -145,6 +145,20 @@ async function openNextRace(forceRefresh = false) {
         return;
     }
 
+    // Refresh chart based on the track we're analyzing
+    if (data.trackName && typeof renderChart === 'function') {
+        const clean = (name) => name ? name.split('(')[0].trim().toLowerCase() : '';
+        const target = clean(data.trackName);
+        const trackRaces = allRaceData.filter(r => clean(r.trackName) === target);
+        renderChart(trackRaces);
+
+        // Update track dropdown to match
+        const histTrack = allRaceData.find(r => clean(r.trackName) === target)?.trackName;
+        if (histTrack && typeof populateTrackSelector === 'function') {
+            populateTrackSelector(histTrack, true);
+        }
+    }
+
     // --- Render Car & Driver ---
     renderCarAndDriver(container, data);
 

@@ -36,6 +36,23 @@ function openPitStrategy() {
     container.appendChild(headerDiv);
 
     const select = document.getElementById('trackSelect');
+
+    // Auto-select Next Race track if available and nothing is specifically selected yet
+    if (select && select.value === 'all') {
+        let nextTrack = null;
+        if (typeof cachedNextRaceData !== 'undefined' && cachedNextRaceData && cachedNextRaceData.trackName) {
+            nextTrack = cachedNextRaceData.trackName;
+        } else {
+            const stored = localStorage.getItem('gpro_next_race_data');
+            if (stored) {
+                try { const d = JSON.parse(stored); if (d.trackName) nextTrack = d.trackName; } catch(e) {}
+            }
+        }
+        if (nextTrack && Array.from(select.options).some(opt => opt.value === nextTrack)) {
+            select.value = nextTrack;
+        }
+    }
+
     const selectedTrack = select ? select.value : 'all';
 
     if (selectedTrack === 'all') {
@@ -47,7 +64,7 @@ function openPitStrategy() {
         return;
     }
 
-    const trackRaces = allRaceData.filter(r => r.trackName === selectedTrack);
+    const trackRaces = selectedTrack === 'all' ? allRaceData : allRaceData.filter(r => r.trackName === selectedTrack);
 
     // Refresh chart with filtered races
     if (typeof renderChart === 'function') {

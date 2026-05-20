@@ -59,9 +59,15 @@
                     // Avg Temp/Hum/Rain
                     let tSum = 0, hSum = 0, cnt = 0;
                     let hasRain = false;
+                    let rainLapsCount = 0;
+                    let lapsCounted = 0;
                     let mistakeCount = 0;
                     let mistakeLoss = 0;
                     let accidentCount = 0;
+                    let rainLapsInStint = 0;
+                    let dryLapsInStint = 0;
+                    let totalLapsForWeatherCheck = 0;
+
                     const stintWeathers = new Set();
 
                     for(let i=startLap; i<=endLap; i++) {
@@ -70,6 +76,14 @@
                             hSum += r.laps[i].hum;
                             cnt++;
                             const w = r.laps[i].weather.toLowerCase();
+                            if (i < endLap) {
+                                totalLapsForWeatherCheck++;
+                                if (w.includes('rain')) rainLapsInStint++;
+                                else dryLapsInStint++;
+
+                                lapsCounted++;
+                                if (w.includes('rain')) rainLapsCount++;
+                            }
                             if (w.includes('rain')) { hasRain = true; stintWeathers.add('Rain'); }
                             else if (w.includes('cloud')) stintWeathers.add('Cloudy');
                             else if (w.includes('sun') || w.includes('clear')) stintWeathers.add('Sunny');
@@ -98,6 +112,18 @@
                     const avgT = cnt ? (tSum/cnt) : null;
                     const avgH = cnt ? (hSum/cnt) : null;
                     
+                    // Determine if tyre compound matches weather condition for 80% of laps
+                    let isValidTyreWeather = true;
+                    if (totalLapsForWeatherCheck > 0 && tyreType !== '-') {
+                        const isRainTyre = tyreType.toLowerCase().includes('rain');
+                        const rainRatio = rainLapsInStint / totalLapsForWeatherCheck;
+                        if (isRainTyre) {
+                            isValidTyreWeather = rainRatio >= 0.8;
+                        } else { // Dry tyre
+                            isValidTyreWeather = (1 - rainRatio) >= 0.8;
+                        }
+                    }
+
                     allStints.push({
                         race: r,
                         stintIdx: idx + 1,
@@ -110,10 +136,13 @@
                         avgT: avgT,
                         avgH: avgH,
                         hasRain: hasRain,
+                        rainLapsCount: rainLapsCount,
+                        lapsCounted: lapsCounted,
                         mistakeCount: mistakeCount,
                         mistakeLoss: mistakeLoss,
                         accidentCount: accidentCount,
-                        stintWeathers: stintWeathers
+                        stintWeathers: stintWeathers,
+                        isValidTyreWeather: isValidTyreWeather
                     });
 
                     if (!stop.isFinish) {
@@ -211,17 +240,16 @@
 
                                 if (cell.weatherStates.has('Rain')) cellStyle += ' background-color: #1a3b5c;';
                                 
-                                const tooltipRows = cell.stints.map(s => {
+                                const tooltipItems = cell.stints.map(s => {
                                     const r = s.race;
                                     const dName = r.driver ? r.driver.name.replace(/['"]/g, '') : 'Unknown';
                                     const groupName = r.group || r.groupName || '';
                                     const accIcon = s.accidentCount > 0 ? ' 💥' : '';
-                                    return `<div class="tooltip-item"><strong>S${r.selSeasonNb}R${r.selRaceNb}</strong> ${dName}${accIcon}<br>${groupName}<br>F:${s.avgFuel.toFixed(3)} W:${s.avgTyre.toFixed(3)} T:${s.avgT.toFixed(1)}°</div>`;
-                                }).join('');
-                                
-                                const isMultiCol = cell.count > 6;
-                                const wrapperClass = isMultiCol ? 'tooltip-columns' : '';
-                                cellAttr = createTooltipAttr(`<div class="${wrapperClass}">${tooltipRows}</div>`, cellStyle);
+                                    const wIcons = Array.from(s.stintWeathers || []).map(w => getWeatherIcon(w)).join('');
+                                    return `<div class="tooltip-item" onclick="document.getElementById('customTooltip').style.display='none'; goToTrack('${r.trackName.replace(/'/g, "\\'")}')" style="padding:5px; border-bottom:1px solid #444; cursor:pointer;"><strong>S${r.selSeasonNb}R${r.selRaceNb}</strong> ${wIcons} ${dName}${accIcon}<br>${groupName}<br>F:${s.avgFuel.toFixed(3)} W:${s.avgTyre.toFixed(3)} T:${s.avgT.toFixed(1)}°</div>`;
+                                });
+
+                                cellAttr = createPaginatedTooltipAttr(tooltipItems, cellStyle);
                                 cells += `<td ${cellAttr}>${content}</td>`;
                             } else {
                                 cells += `<td style="${cellStyle}">${content}</td>`;
@@ -335,17 +363,16 @@
 
                             if (cell.weatherStates.has('Rain')) cellStyle += ' background-color: #1a3b5c;';
                             
-                            const tooltipRows = cell.stints.map(s => {
+                            const tooltipItems = cell.stints.map(s => {
                                 const r = s.race;
                                 const dName = r.driver ? r.driver.name.replace(/['"]/g, '') : 'Unknown';
                                 const groupName = r.group || r.groupName || '';
                                 const accIcon = s.accidentCount > 0 ? ' 💥' : '';
-                                return `<div class="tooltip-item"><strong>S${r.selSeasonNb}R${r.selRaceNb}</strong> ${r.trackName}<br>${dName}${accIcon}<br>${groupName}<br>Fuel:${s.avgFuel.toFixed(3)} Wear:${s.avgTyre.toFixed(3)} T:${s.avgT.toFixed(1)}°</div>`;
-                            }).join('');
-                            
-                            const isMultiCol = cell.count > 6;
-                            const wrapperClass = isMultiCol ? 'tooltip-columns' : '';
-                            cellAttr = createTooltipAttr(`<div class="${wrapperClass}">${tooltipRows}</div>`, cellStyle);
+                                const wIcons = Array.from(s.stintWeathers || []).map(w => getWeatherIcon(w)).join('');
+                                return `<div class="tooltip-item" onclick="document.getElementById('customTooltip').style.display='none'; goToTrack('${r.trackName.replace(/'/g, "\\'")}')" style="padding:5px; border-bottom:1px solid #444; cursor:pointer;"><strong>S${r.selSeasonNb}R${r.selRaceNb}</strong> ${wIcons} ${r.trackName}<br>${dName}${accIcon}<br>${groupName}<br>Fuel:${s.avgFuel.toFixed(3)} Wear:${s.avgTyre.toFixed(3)} T:${s.avgT.toFixed(1)}°</div>`;
+                            });
+
+                            cellAttr = createPaginatedTooltipAttr(tooltipItems, cellStyle);
                             cells += `<td ${cellAttr}>${content}</td>`;
                         } else {
                             cells += `<td style="${cellStyle}">${content}</td>`;
@@ -482,11 +509,10 @@
                         mistakeStr += '💥';
                     }
 
-                    const isRainTyre = s.tyreType.toLowerCase().includes('rain');
-                    const weatherMismatch = (isRainTyre && !s.hasRain) || (!isRainTyre && s.hasRain && s.tyreType !== '-');
-
                     let rowColor = 'var(--text-secondary)';
-                    if (weatherMismatch) rowColor = '#ff5252';
+                    if (!s.isValidTyreWeather) {
+                        rowColor = '#ff5252'; // Red for invalid tyre/weather match
+                    }
                     else if (s.laps < 10) rowColor = 'gray';
 
                     let col1 = raceId;

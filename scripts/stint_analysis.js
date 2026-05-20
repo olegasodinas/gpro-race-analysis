@@ -76,6 +76,23 @@ async function openStintAnalysis() {
     const container = document.getElementById('cardsContainer');
     
     const select = document.getElementById('trackSelect');
+
+    // Auto-select Next Race track if available and nothing is specifically selected yet
+    if (select && select.value === 'all') {
+        let nextTrack = null;
+        if (typeof cachedNextRaceData !== 'undefined' && cachedNextRaceData && cachedNextRaceData.trackName) {
+            nextTrack = cachedNextRaceData.trackName;
+        } else {
+            const stored = localStorage.getItem('gpro_next_race_data');
+            if (stored) {
+                try { const d = JSON.parse(stored); if (d.trackName) nextTrack = d.trackName; } catch(e) {}
+            }
+        }
+        if (nextTrack && Array.from(select.options).some(opt => opt.value === nextTrack)) {
+            select.value = nextTrack;
+        }
+    }
+
     const selectedTrack = select ? select.value : 'all';
     
     // Filter data for track
@@ -192,9 +209,33 @@ async function openStintAnalysis() {
             <div class="card-header">
                 <h3>Stint Analysis & Projection</h3>
                 <div class="subtitle">Projected pit windows based on tyre wear to 18%</div>
-                <div style="margin-top:10px;">
+                <div style="margin-top:10px; display:flex; align-items:center; flex-wrap:wrap; gap:10px;">
                     <button onclick="returnToDashboard()" style="padding:5px 10px; cursor:pointer; background:var(--accent); color:white; border:none; border-radius:4px;">Back to Dashboard</button>
-                    <button onclick="resetStintCorrections()" style="margin-left:10px; padding:5px 10px; cursor:pointer; background:#607d8b; color:white; border:none; border-radius:4px;">Reset Corrections</button>
+                    <button onclick="resetStintCorrections()" style="padding:5px 10px; cursor:pointer; background:#607d8b; color:white; border:none; border-radius:4px;">Reset Corrections</button>
+                    <label style="cursor:pointer; color:var(--text-secondary); font-size:0.9em; display:inline-flex; align-items:center;">
+                        <input type="checkbox" id="showManualCalc" onchange="toggleManualStintCalc()" style="margin-right:4px;"> Manual Calculator
+                    </label>
+                </div>
+                <div id="manualStintCalc" style="display:none; margin-top:15px; padding-top:10px; border-top:1px solid #555; gap:15px; flex-wrap:wrap; align-items:flex-end;">
+                    <div style="display:flex; flex-direction:column; gap:2px;">
+                        <label style="font-size:0.8em; color:var(--text-secondary);">Tyre</label>
+                        <select id="calcTyre" onchange="calculateManualStint()" style="padding:4px; background:var(--bg-color); color:var(--text-primary); border:1px solid #555; border-radius:4px;">
+                            <option value="Extra Soft">Extra Soft</option>
+                            <option value="Soft">Soft</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Hard">Hard</option>
+                            <option value="Rain">Rain</option>
+                        </select>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:2px;">
+                        <label style="font-size:0.8em; color:var(--text-secondary);">Wear/Lap (%)</label>
+                        <input type="number" id="calcWear" step="0.01" style="width:80px; padding:4px; background:var(--bg-color); color:var(--text-primary); border:1px solid #555; border-radius:4px;" oninput="calculateManualStint()">
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:2px;">
+                        <label style="font-size:0.8em; color:var(--text-secondary);">Fuel/Lap (L)</label>
+                        <input type="number" id="calcFuel" step="0.001" style="width:80px; padding:4px; background:var(--bg-color); color:var(--text-primary); border:1px solid #555; border-radius:4px;" oninput="calculateManualStint()">
+                    </div>
+                    <div id="manualCalcResult" style="padding-bottom:5px; font-weight:bold; color:var(--accent);"></div>
                 </div>
             </div>
         `;
@@ -678,3 +719,27 @@ function toggleStintGroup(group) {
     localStorage.setItem('gpro_stint_groups', JSON.stringify(stintFilters.groups));
     openStintAnalysis();
 }
+
+window.toggleManualStintCalc = function() {
+    const el = document.getElementById('manualStintCalc');
+    const cb = document.getElementById('showManualCalc');
+    if (el && cb) {
+        el.style.display = cb.checked ? 'flex' : 'none';
+    }
+};
+
+window.calculateManualStint = function() {
+    const tyre = document.getElementById('calcTyre').value;
+    const wear = parseFloat(document.getElementById('calcWear').value);
+    const fuel = parseFloat(document.getElementById('calcFuel').value);
+    const res = document.getElementById('manualCalcResult');
+    
+    if (wear > 0 && fuel > 0) {
+        const laps = 82 / wear;
+        const totalFuel = laps * fuel;
+        const icon = typeof getTyreIconHtml === 'function' ? getTyreIconHtml(tyre) : '';
+        res.innerHTML = `${icon} ${tyre}: ${laps.toFixed(1)} Laps to 18% (${totalFuel.toFixed(1)}L total fuel)`;
+    } else {
+        res.innerHTML = '';
+    }
+};
