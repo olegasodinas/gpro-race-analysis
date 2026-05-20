@@ -43,6 +43,8 @@ In Next Race section it is possible to calculate good setup at least for 2 parts
 <img src="images/graph.png" width="">
 <img src="images/rainprob.png" width="">
 <img src="images/stint_analysis.png" width="">
+<img src="images/next.png" width="">
+<img src="images/testing.png" width="">
 
 
 [![Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/olegasodinas)
