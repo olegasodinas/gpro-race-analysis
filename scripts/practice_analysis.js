@@ -17,6 +17,35 @@
 */
 
 let cachedNextRaceData = null;
+let projectedPartActions = {};
+
+const partBaseCosts = {
+    'chassis': 1292539,
+    'engine': 3311737,
+    'FWing': 1551354,
+    'RWing': 1504126,
+    'underbody': 510128,
+    'sidepods': 459831,
+    'cooling': 454545,
+    'gear': 3098104,
+    'brakes': 697674,
+    'susp': 1181545,
+    'electronics': 938416
+};
+
+function formatCost(cost) {
+    if (!cost || cost === 0) return '$0';
+    return '$' + Math.round(cost).toLocaleString();
+}
+
+function getPartCost(key, targetLvl) {
+    if (targetLvl === undefined || targetLvl < 1) return 0;
+    let cost = partBaseCosts[key] || 0;
+    for (let l = 2; l <= targetLvl; l++) {
+        cost = Math.round(cost * 1.2385);
+    }
+    return cost;
+}
 
 const countryMap = {
     "ar": "Argentina", "at": "Austria", "au": "Australia", "az": "Azerbaijan", "be": "Belgium",
@@ -42,6 +71,10 @@ async function openNextRace(forceRefresh = false) {
     currentView = 'nextRace';
     const container = document.getElementById('cardsContainer');
     container.innerHTML = '';
+
+    if (forceRefresh) {
+        projectedPartActions = {};
+    }
 
     // 1. Render Header
     const headerDiv = document.createElement('div');
@@ -97,11 +130,11 @@ async function openNextRace(forceRefresh = false) {
 
     if (!data || forceRefresh) {
         try {
-            const token = localStorage.getItem('gpro_api_token') || 
-                          localStorage.getItem('gpro_token') || 
-                          localStorage.getItem('token') || 
-                          localStorage.getItem('api_token');
-            
+            const token = localStorage.getItem('gpro_api_token') ||
+                localStorage.getItem('gpro_token') ||
+                localStorage.getItem('token') ||
+                localStorage.getItem('api_token');
+
             if (token) {
                 const headers = {
                     'Authorization': `Bearer ${token}`,
@@ -144,6 +177,7 @@ async function openNextRace(forceRefresh = false) {
         document.getElementById('manualInputContainer').style.display = 'block';
         return;
     }
+
 
     // Refresh chart based on the track we're analyzing
     if (data.trackName && typeof renderChart === 'function') {
@@ -195,6 +229,11 @@ async function openNextRace(forceRefresh = false) {
                             Exclude parts that finished at 100% wear
                         </label>
                     </div>
+                    <div style="display:flex; align-items:center; gap:8px; font-size:0.9em;">
+                        <label>Min lvl: <input type="number" id="autoMinLevel" min="1" max="9" value="1" style="width:45px; padding:3px 5px; border-radius:4px; border:1px solid var(--border); background:var(--bg-color); color:var(--text-primary);"></label>
+                        <label>Max lvl: <input type="number" id="autoMaxLevel" min="1" max="9" value="9" style="width:45px; padding:3px 5px; border-radius:4px; border:1px solid var(--border); background:var(--bg-color); color:var(--text-primary);"></label>
+                        <button onclick="onAutoToggleAll(true)" style="padding:5px 12px; cursor:pointer; background:var(--accent); color:white; border:none; border-radius:4px; font-size:0.9em; font-weight:bold;" title="Auto select upgrade/downgrade for all parts to keep wear ≤ 101%">⚙️ Auto Optimize</button>
+                    </div>
                 </div>
             </div>
             <div id="projectionResultContainer" style="padding:15px;"></div>
@@ -244,10 +283,10 @@ function renderPracticeSection(container, practiceData) {
         for (let p of points) {
             let x = p.x;
             let y = p.y;
-            sx += x; sx2 += x*x; sx3 += x*x*x; sx4 += x*x*x*x;
-            sy += y; sxy += x*y; sx2y += x*x*y;
+            sx += x; sx2 += x * x; sx3 += x * x * x; sx4 += x * x * x * x;
+            sy += y; sxy += x * y; sx2y += x * x * y;
         }
-        const det = (m) => m[0][0]*(m[1][1]*m[2][2]-m[1][2]*m[2][1]) - m[0][1]*(m[1][0]*m[2][2]-m[1][2]*m[2][0]) + m[0][2]*(m[1][0]*m[2][1]-m[1][1]*m[2][0]);
+        const det = (m) => m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]) - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0]) + m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]);
         let D = det([[n, sx, sx2], [sx, sx2, sx3], [sx2, sx3, sx4]]);
         if (Math.abs(D) < 1e-9) return null;
         let Da = det([[n, sx, sy], [sx, sx2, sxy], [sx2, sx3, sx2y]]);
@@ -270,7 +309,7 @@ function renderPracticeSection(container, practiceData) {
         { key: 'setGear', label: 'Gear' },
         { key: 'setSusp', label: 'Susp' }
     ];
-    
+
     const colorScore = { 'green': 4, 'lime': 4, 'yellow': 3, 'orange': 2, 'red': 1 };
     const calculatedSetup = {};
     const predictedSetup = {};
@@ -284,7 +323,7 @@ function renderPracticeSection(container, practiceData) {
         practiceData.lapsDone.forEach(lap => {
             const s = lap[p.key];
             if (!s) return;
-            
+
             const c = (s.color || '').toLowerCase();
             const score = colorScore[c] || 0;
             const t = parseTime(lap.netTime);
@@ -299,7 +338,7 @@ function renderPracticeSection(container, practiceData) {
                     bestVal = s.value;
                 }
             }
-            
+
             if (t > 0 && t < Infinity && s.value) {
                 const val = parseFloat(s.value);
                 if (!isNaN(val)) {
@@ -310,14 +349,14 @@ function renderPracticeSection(container, practiceData) {
             }
         });
         calculatedSetup[p.key] = bestVal;
-        
-        const points = Array.from(valueMap.entries()).map(([x, y]) => ({x, y})).sort((a,b) => a.x - b.x);
+
+        const points = Array.from(valueMap.entries()).map(([x, y]) => ({ x, y })).sort((a, b) => a.x - b.x);
         const pred = solveQuadratic(points);
         if (pred) {
             const minX = points[0].x;
-            const maxX = points[points.length-1].x;
+            const maxX = points[points.length - 1].x;
             if (pred.x >= minX - 200 && pred.x <= maxX + 200) {
-                 predictedSetup[p.key] = { val: Math.round(pred.x), time: pred.y };
+                predictedSetup[p.key] = { val: Math.round(pred.x), time: pred.y };
             }
         }
     });
@@ -354,23 +393,23 @@ function renderPracticeSection(container, practiceData) {
     const card = document.createElement('div');
     card.className = 'card';
     card.style.gridColumn = '1 / -1';
-    
+
     // Helper to style setup cells based on feedback color
     const getSetupCell = (setting) => {
         if (!setting) return '<td style="text-align:center; color:var(--text-secondary);">-</td>';
-        
+
         let bg = 'transparent';
         let color = 'inherit';
-        
+
         // Map API colors to visual styles
         switch (setting.color ? setting.color.toLowerCase() : '') {
             case 'red': bg = '#d32f2f'; color = 'white'; break;
             case 'orange': bg = '#f57c00'; color = 'white'; break;
             case 'yellow': bg = '#fbc02d'; color = 'black'; break;
-            case 'lime': 
+            case 'lime':
             case 'green': bg = '#388e3c'; color = 'white'; break;
         }
-        
+
         return `<td style="text-align:center; background:${bg}; color:${color};" title="${setting.comment || ''}">${setting.value}</td>`;
     };
 
@@ -406,7 +445,7 @@ function renderPracticeSection(container, practiceData) {
         // Mistake highlighting
         const mVal = lap.misTime ? parseFloat(lap.misTime) : 0;
         const mistakeStyle = (mVal > 0) ? ((mVal === minMistake) ? 'color:#4caf50; font-weight:bold;' : 'color:#f44336;') : '';
-        
+
         tableHTML += `
             <tr>
                 <td style="text-align:center; font-weight:bold;">${lap.idx}</td>
@@ -422,11 +461,11 @@ function renderPracticeSection(container, practiceData) {
                 ${getSetupCell(lap.setSusp)}
             </tr>
         `;
-        
+
         // Driver Comments Row
         if (lap.driComments && lap.driComments.length > 0) {
-             const comments = lap.driComments.map(c => `<span style="margin-right:15px;"><b style="color:var(--accent, #4caf50);">${c.part}:</b> ${c.text}</span>`).join('');
-             tableHTML += `
+            const comments = lap.driComments.map(c => `<span style="margin-right:15px;"><b style="color:var(--accent, #4caf50);">${c.part}:</b> ${c.text}</span>`).join('');
+            tableHTML += `
                 <tr>
                     <td colspan="11" style="padding:5px 15px 15px 15px; font-size:0.85em; color:var(--text-secondary); background:rgba(255,255,255,0.02);">
                         ${comments}
@@ -437,7 +476,7 @@ function renderPracticeSection(container, practiceData) {
     });
 
     tableHTML += `</tbody></table></div>`;
-    
+
     card.innerHTML = `
         <div class="card-header">
             <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -455,7 +494,7 @@ function renderPracticeSection(container, practiceData) {
             Remaining API Requests: ${practiceData.apiRequestsRemaining}
         </div>
     `;
-    
+
     container.appendChild(card);
 }
 
@@ -472,6 +511,190 @@ function updateProjectedStatus() {
     if (historicalRace && cachedNextRaceData) {
         renderProjectedCarStatus(historicalRace, cachedNextRaceData);
     }
+}
+
+function onPartActionChange(partKey, value) {
+    projectedPartActions[partKey] = value;
+    updateProjectedStatus();
+}
+
+/**
+ * Compute projected finish wear for a given part key and action value,
+ * using the same logic as renderProjectedCarStatus.
+ * Returns Infinity if data is not available.
+ */
+function computeProjectedFinishWear(key, actionVal) {
+    if (!cachedNextRaceData) return Infinity;
+
+    const select = document.getElementById('projectionRaceSelect');
+    if (!select) return Infinity;
+    const selectedUid = select.value;
+    const historicalRace = allRaceData.find(r => {
+        const uid = `${r.selSeasonNb}-${r.selRaceNb}-${r.driver ? r.driver.id : 'u'}`;
+        return uid === selectedUid;
+    });
+    if (!historicalRace) return Infinity;
+
+    const partMapping = {
+        'chassis': 'Chassis', 'engine': 'Engine', 'FWing': 'FWing', 'RWing': 'RWing',
+        'underbody': 'Underbody', 'sidepods': 'Sidepods', 'cooling': 'Cooling',
+        'gear': 'Gear', 'brakes': 'Brakes', 'susp': 'Susp', 'electronics': 'Electronics'
+    };
+
+    const apiWearKey = 'usa' + partMapping[key];
+    const apiLvlKey = 'lvl' + partMapping[key];
+
+    const currentWear = cachedNextRaceData[apiWearKey];
+    if (currentWear === undefined) return Infinity;
+    const originalWear = parseFloat(currentWear);
+
+    let currentLvl = cachedNextRaceData[apiLvlKey];
+    if (currentLvl !== undefined) currentLvl = parseInt(currentLvl, 10);
+    const origLvl = currentLvl;
+
+    let projectedWear = originalWear;
+    let effectiveLvl = origLvl;
+
+    if (actionVal.startsWith('replace_')) {
+        projectedWear = 0;
+    } else if (actionVal.startsWith('downgrade_')) {
+        const targetLvl = parseInt(actionVal.split('_')[1], 10);
+        const lvl_down_times = (origLvl !== undefined && targetLvl !== undefined) ? (origLvl - targetLvl) : 1;
+        effectiveLvl = targetLvl;
+        const wearCalc = originalWear - (15 * lvl_down_times * (originalWear / 100));
+        projectedWear = Math.max(0, Math.floor(wearCalc));
+    }
+
+    const excludeMaxWear = document.getElementById('excludeMaxWearParts')?.checked || false;
+    const clean = (name) => name ? name.split('(')[0].trim().toLowerCase() : '';
+    const trackRaces = allRaceData.filter(r => clean(r.trackName) === clean(cachedNextRaceData.trackName) && r.laps && r.laps.length > 1);
+
+    let sourcePart = historicalRace[key];
+    let sourceRace = historicalRace;
+
+    if (excludeMaxWear && sourcePart && sourcePart.finishWear >= 100) {
+        sourcePart = null; sourceRace = null;
+    }
+
+    if (effectiveLvl !== undefined && (sourcePart === null || (sourcePart && sourcePart.lvl != effectiveLvl))) {
+        let bestRace = null;
+        let minDiff = sourcePart ? Math.abs(sourcePart.lvl - effectiveLvl) : Infinity;
+        let availableRaces = excludeMaxWear ? trackRaces.filter(r => !r[key] || r[key].finishWear < 100) : trackRaces;
+        availableRaces.forEach(r => {
+            if (r[key]) {
+                const diff = Math.abs(r[key].lvl - effectiveLvl);
+                if (diff < minDiff) { minDiff = diff; bestRace = r; }
+            }
+        });
+        if (bestRace) { sourceRace = bestRace; sourcePart = bestRace[key]; }
+    }
+
+    if (!sourcePart || !sourceRace || !sourceRace.laps) return Infinity;
+
+    let nextLaps = cachedNextRaceData.laps;
+    if (!nextLaps && historicalRace.laps && historicalRace.laps.length > 1) {
+        nextLaps = historicalRace.laps.length - 1;
+    }
+    if (!nextLaps) return Infinity;
+
+    const sourceLaps = sourceRace.laps.length - 1;
+    const histWear = sourcePart.finishWear - sourcePart.startWear;
+    const wearPerLap = sourceLaps > 0 ? histWear / sourceLaps : 0;
+    const projectedRaceWear = wearPerLap * nextLaps;
+    return projectedWear + projectedRaceWear;
+}
+
+/**
+ * Global auto-optimize: for every part, pick the action that keeps
+ * projected finish wear <= 101%. Upgrades (higher levels) are preferred.
+ * Called by the "Auto Optimize All" checkbox onchange handler.
+ */
+function onAutoToggleAll(checked) {
+    if (!checked) return;
+
+    const partMapping = {
+        'chassis': 'Chassis', 'engine': 'Engine', 'FWing': 'FWing', 'RWing': 'RWing',
+        'underbody': 'Underbody', 'sidepods': 'Sidepods', 'cooling': 'Cooling',
+        'gear': 'Gear', 'brakes': 'Brakes', 'susp': 'Susp', 'electronics': 'Electronics'
+    };
+
+    Object.keys(partMapping).forEach(key => {
+        if (!cachedNextRaceData) return;
+
+        const apiLvlKey = 'lvl' + partMapping[key];
+        const origLvl = cachedNextRaceData[apiLvlKey] !== undefined ? parseInt(cachedNextRaceData[apiLvlKey], 10) : undefined;
+
+        // Check if already fine with no action
+        const currentWear = computeProjectedFinishWear(key, 'none');
+        if (currentWear <= 101) return; // no action needed
+
+        // Build candidate actions
+        const minLvl = Math.max(1, parseInt(document.getElementById('autoMinLevel')?.value || '1', 10));
+        const maxLvl = Math.min(9, parseInt(document.getElementById('autoMaxLevel')?.value || '9', 10));
+        const candidates = [];      // tried first – must satisfy ≤101%
+        const stepCandidates = [];  // fallback – one step toward the target bound
+        if (origLvl !== undefined) {
+            if (origLvl < minLvl) {
+                // Part is below the minimum desired level: only upgrades make sense.
+                // Add all reachable levels up to min(maxLvl, origLvl+1) as normal candidates.
+                const maxReplace = Math.min(maxLvl, origLvl + 1);
+                for (let l = maxReplace; l >= minLvl; l--) {
+                    candidates.push(`replace_${l}`);
+                }
+                // Fallback: move one step up toward minLvl regardless of bounds
+                if (origLvl + 1 <= 9) stepCandidates.push(`replace_${origLvl + 1}`);
+            } else if (origLvl > maxLvl) {
+                // Part is above the maximum desired level.
+                // For each target level (closest first), try downgrade first;
+                // if downgrade wear exceeds 101%, try replacing with a NEW part at that same level.
+                for (let l = origLvl - 1; l >= maxLvl; l--) {
+                    candidates.push(`downgrade_${l}`);
+                    candidates.push(`replace_${l}`); // same-level replacement as fallback if downgrade wear > 101%
+                }
+                // Fallback: move one step down toward maxLvl regardless of bounds
+                if (origLvl - 1 >= 1) {
+                    stepCandidates.push(`downgrade_${origLvl - 1}`);
+                    stepCandidates.push(`replace_${origLvl - 1}`);
+                }
+            } else {
+                // Part is within [minLvl, maxLvl]: normal priority order
+                // 1. Downgrade by exactly 1 level first (cheapest)
+                if (origLvl - 1 >= minLvl) candidates.push(`downgrade_${origLvl - 1}`);
+                // 2. Replacements highest level first
+                const maxReplace = Math.min(maxLvl, origLvl + 1);
+                for (let l = maxReplace; l >= minLvl; l--) candidates.push(`replace_${l}`);
+                // 3. Deeper downgrades
+                for (let l = origLvl - 2; l >= minLvl; l--) candidates.push(`downgrade_${l}`);
+            }
+        }
+
+
+        let chosen = 'none';
+        // Phase 1: try in-bounds candidates – stop at first that satisfies ≤101%
+        for (const action of candidates) {
+            const finishWear = computeProjectedFinishWear(key, action);
+            if (finishWear <= 101) { chosen = action; break; }
+        }
+        // Phase 2: if nothing worked within bounds, try the one-step-toward-bound candidate
+        if (chosen === 'none') {
+            for (const action of stepCandidates) {
+                const finishWear = computeProjectedFinishWear(key, action);
+                if (finishWear <= 101) { chosen = action; break; }
+            }
+        }
+        // Phase 3: last resort – pick whichever candidate (including step) reduces wear the most
+        if (chosen === 'none') {
+            let bestWear = Infinity;
+            for (const action of [...candidates, ...stepCandidates]) {
+                const finishWear = computeProjectedFinishWear(key, action);
+                if (finishWear < bestWear) { bestWear = finishWear; chosen = action; }
+            }
+        }
+
+        projectedPartActions[key] = chosen;
+    });
+
+    updateProjectedStatus();
 }
 
 function renderProjectedCarStatus(historicalRace, nextRaceData) {
@@ -501,17 +724,54 @@ function renderProjectedCarStatus(historicalRace, nextRaceData) {
     };
 
     let rowsHTML = '';
+    let totalCost = 0;
     Object.keys(partLabels).forEach(key => { // key is 'chassis', 'engine', etc.
         const apiWearKey = 'usa' + partMapping[key]; // e.g., 'usaChassis'
         const apiLvlKey = 'lvl' + partMapping[key];
-        
-        const currentLvl = nextRaceData[apiLvlKey];
-        const currentWear = nextRaceData[apiWearKey];
+
+        let currentLvl = nextRaceData[apiLvlKey];
+        let currentWear = nextRaceData[apiWearKey];
+        // Preserve original wear for display
+        const originalWear = currentWear !== undefined ? parseFloat(currentWear) : undefined;
+        // Initialize projectedWear with the original value; will be adjusted based on action
+        let projectedWear = originalWear;
 
         if (currentWear === undefined) {
-            rowsHTML += `<tr><td style="text-align:left;">${partLabels[key]}</td><td colspan="4" style="text-align:center; color:var(--text-secondary); font-style:italic;">No current wear data</td></tr>`;
+            rowsHTML += `<tr><td style="text-align:left;">${partLabels[key]}</td><td colspan="6" style="text-align:center; color:var(--text-secondary); font-style:italic;">No current wear data</td></tr>`;
             return;
         }
+
+        if (currentLvl !== undefined) {
+            currentLvl = parseInt(currentLvl, 10);
+        }
+        const origLvl = currentLvl;
+
+        const actionVal = projectedPartActions[key] || 'none';
+        let action = 'none';
+        let targetLvl = origLvl;
+
+        if (actionVal === 'upgrade') {
+            action = 'replace';
+            targetLvl = Math.min(9, origLvl !== undefined ? origLvl + 1 : 1);
+        } else if (actionVal.startsWith('replace_')) {
+            action = 'replace';
+            targetLvl = parseInt(actionVal.split('_')[1], 10);
+        } else if (actionVal.startsWith('downgrade_')) {
+            action = 'downgrade';
+            targetLvl = parseInt(actionVal.split('_')[1], 10);
+        }
+
+        if (action === 'replace') {
+            // Replacement (upgrade) sets projected wear to 0, but keep displayed current wear unchanged
+            projectedWear = 0;
+        } else if (action === 'downgrade') {
+            const lvl_down_times = origLvl !== undefined && targetLvl !== undefined ? (origLvl - targetLvl) : 1;
+            currentLvl = targetLvl;
+            // Calculate projected wear using the original wear value
+            const wearCalc = originalWear - (15 * lvl_down_times * (originalWear / 100));
+            projectedWear = Math.max(0, Math.floor(wearCalc));
+        }
+
 
         let sourceRace = historicalRace;
         let sourcePart = historicalRace[key];
@@ -550,7 +810,7 @@ function renderProjectedCarStatus(historicalRace, nextRaceData) {
         }
 
         if (!sourcePart) {
-            rowsHTML += `<tr><td style="text-align:left;">${partLabels[key]}</td><td colspan="4" style="text-align:center; color:var(--text-secondary); font-style:italic;">No suitable historical data found</td></tr>`;
+            rowsHTML += `<tr><td style="text-align:left;">${partLabels[key]}</td><td colspan="6" style="text-align:center; color:var(--text-secondary); font-style:italic;">No suitable historical data found</td></tr>`;
             return;
         }
 
@@ -577,15 +837,15 @@ function renderProjectedCarStatus(historicalRace, nextRaceData) {
         }
         const wearPerLap = sourceLaps > 0 ? histWear / sourceLaps : 0;
         const projectedRaceWear = wearPerLap * nextLaps;
-        const projectedFinishWear = parseFloat(currentWear) + projectedRaceWear;
-        
+        const projectedFinishWear = (projectedWear !== undefined ? projectedWear : originalWear) + projectedRaceWear;
+
         let finishStyle = ''; // Default to no special style
         if (projectedFinishWear >= 100) finishStyle = 'color:#ff5252; font-weight:bold;'; // Red for 100% or more
         else if (projectedFinishWear > 75) finishStyle = 'color:#ff9800;';
 
         let lvlDisplay = `${sourcePart.lvl}`;
         let lvlAttr = '';
-        
+
         const raceInfoStr = `(from S${sourceRace.selSeasonNb}R${sourceRace.selRaceNb} ${wIcon})`;
 
         if (currentLvl !== undefined && sourcePart.lvl != currentLvl) {
@@ -593,8 +853,8 @@ function renderProjectedCarStatus(historicalRace, nextRaceData) {
             const note = `Level mismatch!<br>Current: ${currentLvl}<br>Used: ${sourcePart.lvl} ${raceInfoStr}`;
             lvlAttr = createTooltipAttr(note, 'cursor:help; color:#ff9800; font-weight:bold;');
         } else if (sourceRace !== historicalRace) {
-             lvlDisplay += ' ℹ️';
-             lvlAttr = createTooltipAttr(`Using data from S${sourceRace.selSeasonNb}R${sourceRace.selRaceNb} ${wIcon} (Exact match)`, 'cursor:help; color:#4caf50;');
+            lvlDisplay += ' ℹ️';
+            lvlAttr = createTooltipAttr(`Using data from S${sourceRace.selSeasonNb}R${sourceRace.selRaceNb} ${wIcon} (Exact match)`, 'cursor:help; color:#4caf50;');
         } else {
             const note = `Using data from S${sourceRace.selSeasonNb}R${sourceRace.selRaceNb} ${wIcon}`;
             lvlAttr = createTooltipAttr(note);
@@ -602,38 +862,94 @@ function renderProjectedCarStatus(historicalRace, nextRaceData) {
 
         let problemStr = '';
         if (sourceRace.problems) {
-             const relevant = sourceRace.problems.filter(p => {
-                 const r = p.reason.toLowerCase();
-                 if (key === 'FWing') return r.includes('front wing');
-                 if (key === 'RWing') return r.includes('rear wing');
-                 if (key === 'gear') return r.includes('gear');
-                 if (key === 'cooling') return r.includes('water') || r.includes('oil') || r.includes('leak') || r.includes('cooling');
-                 if (key === 'electronics') return r.includes('electr');
-                 if (key === 'susp') return r.includes('suspension');
-                 if (key === 'brakes') return r.includes('brakes');
-                 if (key === 'engine') return r.includes('engine');
-                 return r.includes(partLabels[key].toLowerCase());
-             });
-             
-             if (relevant.length > 0) {
-                 const tooltip = relevant.map(p => `Lap ${p.lap}: ${p.reason}`).join('<br>');
-                 problemStr = ` <span ${createTooltipAttr(tooltip)} style="cursor:help;">🔧</span>`;
-             }
+            const relevant = sourceRace.problems.filter(p => {
+                const r = p.reason.toLowerCase();
+                if (key === 'FWing') return r.includes('front wing');
+                if (key === 'RWing') return r.includes('rear wing');
+                if (key === 'gear') return r.includes('gear');
+                if (key === 'cooling') return r.includes('water') || r.includes('oil') || r.includes('leak') || r.includes('cooling');
+                if (key === 'electronics') return r.includes('electr');
+                if (key === 'susp') return r.includes('suspension');
+                if (key === 'brakes') return r.includes('brakes');
+                if (key === 'engine') return r.includes('engine');
+                return r.includes(partLabels[key].toLowerCase());
+            });
+
+            if (relevant.length > 0) {
+                const tooltip = relevant.map(p => `Lap ${p.lap}: ${p.reason}`).join('<br>');
+                problemStr = ` <span ${createTooltipAttr(tooltip)} style="cursor:help;">🔧</span>`;
+            }
         }
 
+        let selectStyle = 'padding: 3px 6px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-color); color: var(--text-primary); font-size: 0.9em; cursor: pointer;';
+        if (action === 'replace') {
+            selectStyle += ' border-color: #4caf50; color: #4caf50; font-weight: bold;';
+        } else if (action === 'downgrade') {
+            selectStyle += ' border-color: #ff9800; color: #ff9800; font-weight: bold;';
+        }
+
+        let costDisplay = '$0';
+        if (action !== 'none' && targetLvl !== undefined) {
+            if (action === 'downgrade') {
+                // Downgrade incurs no cost
+                costDisplay = '$0';
+            } else {
+                const cost = getPartCost(key, targetLvl);
+                totalCost += cost;
+                costDisplay = formatCost(cost);
+            }
+        }
+
+        let optionsHTML = '';
+        let replaceOpts = '';
+        // Higher levels (upgrade) up to max 9
+        if (origLvl !== undefined) {
+            const maxReplace = Math.min(9, origLvl + 1);
+            for (let l = 1; l <= maxReplace; l++) {
+                const cost = getPartCost(key, l);
+                replaceOpts += `<option value="replace_${l}" ${actionVal === `replace_${l}` ? 'selected' : ''}>Replace with level ${l} (${formatCost(cost)})</option>`;
+            }
+        }
+        optionsHTML += `
+            <optgroup label="Replace with new:">
+                ${replaceOpts}
+            </optgroup>
+        `;
+
+        let downgradeOpts = '';
+        for (let l = origLvl - 1; l >= 1; l--) {
+            const wearAfter = Math.max(0, Math.floor(currentWear - (15 * (origLvl - l) * (currentWear / 100))));
+            downgradeOpts += `<option value="downgrade_${l}" ${actionVal === `downgrade_${l}` ? 'selected' : ''}>Downgrade with level ${l} (Wear: ${wearAfter}%)</option>`;
+        }
+        optionsHTML += `
+            <optgroup label="Downgrade to:">
+                ${downgradeOpts}
+            </optgroup>
+        `;
+
         rowsHTML += `
-            <tr>
+            <tr data-key="${key}">
                 <td style="text-align:left;">${partLabels[key]}</td>
                 <td ${lvlAttr}>${lvlDisplay}</td>
                 <td>${currentWear}%</td>
                 <td style="${histWearStyle}">${projectedRaceWear.toFixed(1)}%${problemStr}</td>
-                <td style="${finishStyle}">${projectedFinishWear.toFixed(1)}%</td>
+                <td class="finish-wear" style="${finishStyle}">${projectedFinishWear.toFixed(1)}%</td>
+                <td>
+                    <select id="actionSelect_${key}" onchange="onPartActionChange('${key}', this.value)" style="${selectStyle}">
+                        <option value="none" ${actionVal === 'none' ? 'selected' : ''}>Do not change</option>
+                        ${optionsHTML}
+                    </select>
+                </td>
+                <td style="font-weight: ${action !== 'none' ? 'bold' : 'normal'}; color: ${action !== 'none' ? 'var(--accent)' : 'var(--text-secondary)'};">
+                    ${costDisplay}
+                </td>
             </tr>
         `;
     });
 
     container.innerHTML = `
         <div class="subtitle" style="margin-bottom:10px;">Projection based on ${nextLaps} laps (Race Distance).</div>
+
         <table class="setup-table" style="width:100%; font-size:0.9em;">
             <thead>
                 <tr>
@@ -642,11 +958,19 @@ function renderProjectedCarStatus(historicalRace, nextRaceData) {
                     <th>Current Wear</th>
                     <th>Proj. Race Wear</th>
                     <th>Proj. Finish Wear</th>
+                    <th>Action</th>
+                    <th>Est. Cost</th>
                 </tr>
             </thead>
             <tbody>
                 ${rowsHTML}
             </tbody>
+            <tfoot>
+                <tr style="font-weight:bold; background-color: var(--table-head-bg);">
+                    <td colspan="6" style="text-align:right; border-top: 2px solid var(--border);">Total Est. Cost:</td>
+                    <td style="color: var(--accent); border-top: 2px solid var(--border);">${formatCost(totalCost)}</td>
+                </tr>
+            </tfoot>
         </table>
     `;
 }
@@ -685,7 +1009,7 @@ function renderHistoricalTrackData(container, trackName) {
     card.style.gridColumn = '1 / -1';
 
     let rows = '';
-    
+
     const partKeys = [
         { k: 'chassis', l: 'Cha' }, { k: 'engine', l: 'Eng' }, { k: 'FWing', l: 'FW' },
         { k: 'RWing', l: 'RW' }, { k: 'underbody', l: 'Und' }, { k: 'sidepods', l: 'Sid' },
@@ -717,9 +1041,9 @@ function renderHistoricalTrackData(container, trackName) {
             if (l.temp) { tSum += l.temp; cnt++; }
             if (l.weather && l.weather.toLowerCase().includes('rain')) hasRain = true;
 
-            const hasIssue = l.events && l.events.some(e => 
-                e.event.toLowerCase().includes('mistake') || 
-                e.event.toLowerCase().includes('problem') || 
+            const hasIssue = l.events && l.events.some(e =>
+                e.event.toLowerCase().includes('mistake') ||
+                e.event.toLowerCase().includes('problem') ||
                 e.event.toLowerCase().includes('accident')
             );
             if (l.idx > 1 && !pitLaps.has(l.idx) && !hasIssue && lapTime > 0) {
@@ -743,7 +1067,7 @@ function renderHistoricalTrackData(container, trackName) {
     processedHistory.forEach(item => {
         const r = item.race;
         const dName = r.driver ? r.driver.name.replace(/['"]/g, '') : 'Unknown';
-        
+
         // Driver Tooltip
         let driverCell = dName;
         if (r.driver) {
@@ -755,7 +1079,7 @@ function renderHistoricalTrackData(container, trackName) {
                 ['Mot', d.mot], ['Rep', d.rep], ['Wei', d.wei]
             ];
             attrs.forEach(([k, v]) => {
-                if(v) dtContent += `<tr><td>${k}</td><td>${v}</td></tr>`;
+                if (v) dtContent += `<tr><td>${k}</td><td>${v}</td></tr>`;
             });
             dtContent += '</table>';
             const safeDt = dtContent.replace(/"/g, '&quot;').replace(/'/g, "\\'");
@@ -787,7 +1111,7 @@ function renderHistoricalTrackData(container, trackName) {
                     { l: 'En', v: s.setEng }, { l: 'Br', v: s.setBra },
                     { l: 'Ge', v: s.setGear }, { l: 'Su', v: s.setSusp }
                 ];
-                setup = parts.map(p => 
+                setup = parts.map(p =>
                     `<span style="display:inline-block; margin-right:3px; padding:1px 4px; background:rgba(255,255,255,0.05); border-radius:3px; border:1px solid #444;">` +
                     `<span style="color:#aaa; font-size:0.8em; margin-right:2px;">${p.l}</span>` +
                     `<span style="color:#fff; font-weight:bold;">${p.v || '-'}</span>` +
@@ -799,27 +1123,27 @@ function renderHistoricalTrackData(container, trackName) {
         // Stint 1 Data
         let s1Fuel = '-', s1Wear = '-', s1Tyre = '-';
         let startFuel = r.startFuel;
-        
+
         let firstStintLaps = 0;
         let firstStintFuelUsed = 0;
         let firstStintWear = 0;
-        
+
         if (r.pits && r.pits.length > 0) {
             const p1 = r.pits[0];
-            firstStintLaps = p1.lap; 
+            firstStintLaps = p1.lap;
             if (firstStintLaps > 0) {
                 const fEnd = (p1.fuelLeft / 100) * 180;
                 firstStintFuelUsed = startFuel - fEnd;
                 firstStintWear = 100 - p1.tyreCond;
             }
         } else if (r.laps && r.laps.length > 0) {
-             firstStintLaps = r.laps.length - 1;
-             if (firstStintLaps > 0) {
-                 firstStintFuelUsed = startFuel - r.finishFuel;
-                 firstStintWear = 100 - r.finishTyres;
-             }
+            firstStintLaps = r.laps.length - 1;
+            if (firstStintLaps > 0) {
+                firstStintFuelUsed = startFuel - r.finishFuel;
+                firstStintWear = 100 - r.finishTyres;
+            }
         }
-        
+
         if (firstStintLaps > 0) {
             s1Fuel = (firstStintFuelUsed / firstStintLaps).toFixed(3);
             s1Wear = (firstStintWear / firstStintLaps).toFixed(3);
@@ -830,7 +1154,7 @@ function renderHistoricalTrackData(container, trackName) {
         let partsTooltip = '<table class="tooltip-table" style="min-width:150px;"><tr><th>Part</th><th>Lvl</th><th>Wear</th></tr>';
         let maxWear = 0;
         let maxPart = '-';
-        
+
         partKeys.forEach(p => {
             if (r[p.k]) {
                 const wear = r[p.k].finishWear - r[p.k].startWear;
@@ -842,7 +1166,7 @@ function renderHistoricalTrackData(container, trackName) {
             }
         });
         partsTooltip += '</table>';
-        
+
         const partsCell = `<span style="cursor:help; border-bottom:1px dotted #888;" onmouseenter="showTooltip(event, '${partsTooltip.replace(/"/g, '&quot;').replace(/'/g, "\\'")}')" onmousemove="moveTooltip(event)" onmouseleave="hideTooltip()">Max: ${maxPart} ${maxWear}% ⚙️</span>`;
 
         rows += `
@@ -892,17 +1216,17 @@ function renderHistoricalTrackData(container, trackName) {
             </table>
         </div>
     `;
-    
+
     container.appendChild(card);
 }
 
 
 async function refreshPracticeData() {
-    const token = localStorage.getItem('gpro_api_token') || 
-                  localStorage.getItem('gpro_token') || 
-                  localStorage.getItem('token') || 
-                  localStorage.getItem('api_token');
-    
+    const token = localStorage.getItem('gpro_api_token') ||
+        localStorage.getItem('gpro_token') ||
+        localStorage.getItem('token') ||
+        localStorage.getItem('api_token');
+
     if (!token) {
         alert("No API token found. Please enter it in the manual input section or settings.");
         return;
@@ -925,7 +1249,7 @@ async function refreshPracticeData() {
 
         if (response.ok) {
             const newData = await response.json();
-            
+
             if (cachedNextRaceData && cachedNextRaceData.driverProfile) {
                 newData.driverProfile = cachedNextRaceData.driverProfile;
             }
@@ -937,7 +1261,7 @@ async function refreshPracticeData() {
 
             cachedNextRaceData = newData;
             localStorage.setItem('gpro_next_race_data', JSON.stringify(cachedNextRaceData));
-            
+
             openNextRace();
         } else {
             alert(`Failed to refresh practice data. Status: ${response.status}`);
@@ -962,18 +1286,18 @@ function handleNextRaceFile(file) {
     reader.onload = (e) => {
         const content = e.target.result;
         if (file.name.toLowerCase().endsWith('.html') || file.name.toLowerCase().endsWith('.htm')) {
-             if (typeof parseHTML === 'function') {
-                 const data = parseHTML(content);
-                 if (data && data.weather) {
-                     cachedNextRaceData = { weather: data.weather, trackName: data.trackName || '', lapsDone: [] };
-                     localStorage.setItem('gpro_next_race_data', JSON.stringify(cachedNextRaceData));
-                     openNextRace();
-                 } else {
-                     processManualNextRaceInput(content);
-                 }
-             } else {
-                 processManualNextRaceInput(content);
-             }
+            if (typeof parseHTML === 'function') {
+                const data = parseHTML(content);
+                if (data && data.weather) {
+                    cachedNextRaceData = { weather: data.weather, trackName: data.trackName || '', lapsDone: [] };
+                    localStorage.setItem('gpro_next_race_data', JSON.stringify(cachedNextRaceData));
+                    openNextRace();
+                } else {
+                    processManualNextRaceInput(content);
+                }
+            } else {
+                processManualNextRaceInput(content);
+            }
         } else {
             processManualNextRaceInput(content);
         }
@@ -989,6 +1313,7 @@ function processManualNextRaceInput(textInput) {
 
     if (Object.keys(result.weather).length > 0) {
         cachedNextRaceData = { weather: result.weather, trackName: result.trackName || 'Manual Import', lapsDone: [] };
+        projectedPartActions = {};
         localStorage.setItem('gpro_next_race_data', JSON.stringify(cachedNextRaceData));
         openNextRace();
     } else {
@@ -1059,9 +1384,9 @@ function renderCarAndDriver(container, data) {
                 <h4 style="border-bottom:1px solid var(--border); padding-bottom:5px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
                     <span>Car Status</span>
                     <span style="font-size:0.8em; font-weight:normal; color:var(--text-secondary);">
-                        P:<b style="color:var(--text-primary)">${data.carPower||'-'}</b> 
-                        H:<b style="color:var(--text-primary)">${data.carHandl||'-'}</b> 
-                        A:<b style="color:var(--text-primary)">${data.carAccel||'-'}</b>
+                        P:<b style="color:var(--text-primary)">${data.carPower || '-'}</b> 
+                        H:<b style="color:var(--text-primary)">${data.carHandl || '-'}</b> 
+                        A:<b style="color:var(--text-primary)">${data.carAccel || '-'}</b>
                     </span>
                 </h4>
                     <table class="setup-table" style="width:100%; font-size:0.9em;">
@@ -1088,6 +1413,6 @@ function renderCarAndDriver(container, data) {
             ${contentHTML}
         </div>
     `;
-    
+
     container.appendChild(card);
 }
